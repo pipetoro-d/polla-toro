@@ -485,11 +485,21 @@ function OfrendasView({users,totals}){
 function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDeleteUser,showToast}){
   const[nm,setNm]=useState({home:"Colombia",away:"Argentina",date:"2026-06-15",time:"15:00",group:"A"});
   const[res,setRes]=useState({});
+  const today=new Date().toISOString().slice(0,10);
   const addMatch=async()=>{
     if(!nm.home||!nm.away||!nm.date)return;
     await onSaveMatch([...matches,{id:Date.now().toString(),...nm,done:false,live:false,gh:null,ga:null}]);
     showToast("Partido agregado ✅");
   };
+  const addTestMatch=async()=>{
+    const test={id:"test-"+Date.now(),home:"Colombia",away:"Argentina",date:today,time:"12:00",group:"TEST",done:false,live:false,gh:null,ga:null};
+    await onSaveMatch([...matches,test]);
+    showToast("🧪 Partido de prueba agregado");
+  };
+  // Detectar duplicados por nombre similar
+  const nameMap={};
+  users.forEach(u=>{const k=u.name.toLowerCase().trim();if(!nameMap[k])nameMap[k]=[];nameMap[k].push(u);});
+  const duplicates=Object.values(nameMap).filter(g=>g.length>1);
   const saveResult=async mid=>{
     const r=res[mid];
     if(r?.gh===""||r?.ga===""||r?.gh==null||r?.ga==null)return;
@@ -507,6 +517,11 @@ function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDelete
             {config.open?"Cerrar":"Abrir"}
           </button>
         </div>
+      </div>
+      <div className="asec">
+        <div className="asect">Partido de Prueba</div>
+        <div style={{fontSize:12,color:"var(--mut)",marginBottom:10,lineHeight:1.7}}>Agrega un partido Colombia vs Argentina para hoy, para que la familia pruebe el sistema antes del Mundial.</div>
+        <button className="btn bts" onClick={addTestMatch}>🧪 Agregar partido de prueba (hoy)</button>
       </div>
       <div className="asec">
         <div className="asect">Agregar Partido</div>
@@ -538,6 +553,26 @@ function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDelete
                 </div>
               }
               <button className="btn btd btsm" style={{padding:"3px 8px",fontSize:11}} onClick={async()=>{await onSaveMatch(matches.filter(x=>x.id!==m.id));showToast("Eliminado");}}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+      {duplicates.length>0&&(
+        <div className="asec">
+          <div className="asect">⚠️ Posibles Duplicados ({duplicates.length})</div>
+          {duplicates.map((group,i)=>(
+            <div key={i} style={{background:"rgba(206,17,38,.06)",border:"1px solid rgba(206,17,38,.2)",borderRadius:8,padding:10,marginBottom:8}}>
+              <div style={{fontSize:11,color:"var(--red)",marginBottom:6,fontWeight:700}}>Nombre similar: "{group[0].name}"</div>
+              {group.map(u=>(
+                <div key={u.id} className="arow">
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,fontWeight:600}}>{u.name}</div>
+                    <div style={{fontSize:11,color:"var(--mut)"}}>Ofrenda: {u.ofrenda}</div>
+                    <div style={{fontSize:10,color:"var(--mut)"}}>Predicciones: {preds.filter(p=>p.uid===u.id).length}</div>
+                  </div>
+                  <button className="btn btd btsm" style={{padding:"4px 10px",fontSize:11}} onClick={()=>onDeleteUser(u.id)}>Eliminar</button>
+                </div>
+              ))}
             </div>
           ))}
         </div>
