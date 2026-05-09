@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>Polla Toro · Mundial 2026</title>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>body{margin:0;padding:0;background:#060e1c}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect}=React;
+
+// ╔══════════════════════════════════════════════════════╗
+// ║   🔥 FIREBASE CONFIG — PEGAR AQUÍ DESPUÉS DE CREAR  ║
+// ╚══════════════════════════════════════════════════════╝
+const firebaseConfig={
+  apiKey:"AIzaSyDjJ4ErjOkxKiUHTaON74eW3w9L-O5eC5o",
+  authDomain:"polla-toro-2026.firebaseapp.com",
+  databaseURL:"https://polla-toro-2026-default-rtdb.firebaseio.com",
+  projectId:"polla-toro-2026",
+  storageBucket:"polla-toro-2026.firebasestorage.app",
+  messagingSenderId:"323693976595",
+  appId:"1:323693976595:web:8523b80b6a6fc53138b3e6"
+};
+
+const IS_CONFIGURED=!Object.values(firebaseConfig).includes("PEGAR_AQUI");
+let fdb=null;
+if(IS_CONFIGURED){
+  firebase.initializeApp(firebaseConfig);
+  fdb=firebase.database();
+}
+
+async function dbSet(k,v){
+  if(!fdb)return;
+  try{await fdb.ref('pt26/'+k).set(JSON.stringify(v));}catch(e){console.error(e);}
+}
+
+// ─── Constantes ───────────────────────────────────────
+const ADMIN_PASS="albeiro2026";
+const PTS=[5,4,3,2,1];
+const EXTRA=3;
+const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela"];
+const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá":"🇨🇦",Chile:"🇨🇱",Colombia:"🇨🇴","Costa Rica":"🇨🇷",Ecuador:"🇪🇨","Estados Unidos":"🇺🇸",Honduras:"🇭🇳",Jamaica:"🇯🇲","México":"🇲🇽","Panamá":"🇵🇦",Paraguay:"🇵🇾","Perú":"🇵🇪",Uruguay:"🇺🇾",Venezuela:"🇻🇪"};
+
+function calcScores(matches,preds){
+  const totals={},byMatch={};
+  for(const m of matches){
+    if(!m.done||m.gh==null)continue;
+    const mp=preds.filter(p=>p.mid===m.id);
+    const ranked=mp.map(p=>({...p,dist:Math.abs(p.h-m.gh)+Math.abs(p.a-m.ga),exact:p.h===m.gh&&p.a===m.ga})).sort((a,b)=>a.dist-b.dist);
+    let rank=0,prev=-1,res=[];
+    for(const p of ranked){
+      if(p.dist!==prev){rank++;prev=p.dist;}
+      if(rank>5)continue;
+      const pts=PTS[rank-1]+(p.exact?EXTRA:0);
+      res.push({uid:p.uid,pts,rank,dist:p.dist,exact:p.exact});
+      totals[p.uid]=(totals[p.uid]||0)+pts;
+    }
+    byMatch[m.id]=res;
+  }
+  return{totals,byMatch};
+}
+
+const CSS=`
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--blue:#003087;--grn:#00a651;--txt:#eef2f7;--mut:#637489}
+html,body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid var(--gld);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}
+.hdr-t{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gld);letter-spacing:2px}
+.hdr-s{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase}
+.ubub{background:var(--gdm);border:1px solid var(--gld);color:var(--gld);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--gld),var(--red))}
+.nav{display:flex;background:var(--surf);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.ni{flex:1;min-width:68px;padding:9px 4px;text-align:center;font-size:9px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;background:none;border-top:none;border-left:none;border-right:none}
+.ni.on{color:var(--gld);border-bottom-color:var(--gld)}
+.nico{font-size:18px;display:block;margin-bottom:2px}
+.pg{flex:1;padding:14px}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:10px}
+.cclick{cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.cclick:hover{background:var(--ch);border-color:rgba(252,209,22,.3);transform:translateY(-1px)}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.team{flex:1;text-align:center}
+.tf{font-size:32px;display:block}
+.tn{font-size:11px;font-weight:600;color:var(--mut);margin-top:4px}
+.sc{text-align:center;flex-shrink:0;min-width:70px}
+.scn{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gld);letter-spacing:4px;line-height:1}
+.scv{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--mut);letter-spacing:2px}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}
+.bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}
+.bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;border:1px solid rgba(252,209,22,.2)}
+.gbadge{font-size:10px;background:rgba(0,48,135,.5);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}
+.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gld)}
+.inp::placeholder{color:var(--mut)}
+.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}
+.fg{margin-bottom:12px}
+select.inp{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath fill='%23637489' d='M5 7 0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select option{background:#0f1e35}
+.btn{padding:12px 20px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}
+.btp{background:var(--gld);color:#000}
+.btp:hover{background:#e8c000;transform:translateY(-1px)}
+.btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}
+.bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}
+.bts:hover{background:rgba(255,255,255,.1)}
+.btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}
+.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}
+.steprow{display:flex;align-items:center;justify-content:center;gap:10px}
+.stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;line-height:1}
+.stepbtn:hover{background:rgba(252,209,22,.15)}
+.stepval{width:68px;height:68px;background:var(--gdm);border:2px solid var(--gld);border-radius:12px;color:var(--gld);font-family:'Bebas Neue',sans-serif;font-size:40px;display:flex;align-items:center;justify-content:center}
+.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:8px}
+.rkrow{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:7px}
+.rkrow.me{border-color:var(--gld);background:rgba(252,209,22,.04)}
+.rkn{font-family:'Bebas Neue',sans-serif;font-size:20px;min-width:26px;text-align:center}
+.r1{color:#FFD700}.r2{color:#C0C0C0}.r3{color:#CD7F32}.ro{color:var(--mut)}
+.rknm{flex:1;font-weight:600;font-size:14px}
+.rkp{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gld)}
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.oc{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;text-align:center;transition:border-color .2s}
+.oc:hover{border-color:rgba(252,209,22,.3)}
+.oi{font-size:26px;margin-bottom:6px}
+.on2{font-size:13px;font-weight:700;margin-bottom:4px}
+.ot{font-size:11px;color:var(--mut);line-height:1.5}
+.lhero{text-align:center;padding:24px 0 20px}
+.lball{font-size:56px;display:block;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ltit{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--gld);letter-spacing:3px;line-height:1.1}
+.lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}
+.stit{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}
+.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}
+.divl{height:1px;background:var(--brd);margin:14px 0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid var(--gld);color:var(--txt);padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+@keyframes tup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.empty{text-align:center;padding:36px 16px;color:var(--mut)}
+.eico{font-size:44px;margin-bottom:12px}
+.etxt{font-size:13px;line-height:1.7}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:9px;text-align:center;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:'Outfit',sans-serif}
+.tab.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}
+.pres-box{background:rgba(252,209,22,.06);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:11px 14px;margin-top:10px}
+.asec{margin-bottom:20px}
+.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
+.arow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:12px}
+.arow:last-child{border-bottom:none}
+.sminp{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:5px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}
+.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}
+.setup-box{max-width:480px;margin:40px auto;padding:24px;background:#0f1e35;border:1px solid #FCD116;border-radius:16px;font-family:'Outfit',sans-serif;color:#eef2f7}
+.setup-box h2{font-family:'Bebas Neue',sans-serif;color:#FCD116;font-size:28px;letter-spacing:2px;margin-bottom:12px}
+.setup-box p{font-size:13px;color:#637489;line-height:1.8;margin-bottom:8px}
+.setup-box code{background:#060e1c;padding:3px 8px;border-radius:4px;font-family:'DM Mono',monospace;font-size:12px;color:#FCD116;display:block;margin:6px 0;word-break:break-all}
+`;
+
+// ─── Componentes ─────────────────────────────────────
+
+function Stepper({label,value,onChange}){
+  return(
+    <div>
+      <div className="sclab">{label}</div>
+      <div className="steprow">
+        <button className="stepbtn" onClick={()=>onChange(Math.max(0,value-1))}>−</button>
+        <div className="stepval">{value}</div>
+        <button className="stepbtn" onClick={()=>onChange(Math.min(20,value+1))}>+</button>
+      </div>
+    </div>
+  );
+}
+
+function MatchCard({match,userPred,onClick}){
+  const f=t=>FLAGS[t]||"🏳️";
+  const cls=match.done?"bf":match.live?"bl":"bp";
+  const lbl=match.done?"✅ Final":match.live?"🔴 En Vivo":"Próximo";
+  return(
+    <div className="card cclick" onClick={onClick}>
+      <div className="trow">
+        <div className="team"><span className="tf">{f(match.home)}</span><span className="tn">{match.home}</span></div>
+        <div className="sc">
+          {match.done?<div className="scn">{match.gh}–{match.ga}</div>:<div className="scv">VS</div>}
+          {match.group&&<div style={{marginTop:4}}><span className="gbadge">Grupo {match.group}</span></div>}
+        </div>
+        <div className="team"><span className="tf">{f(match.away)}</span><span className="tn">{match.away}</span></div>
+      </div>
+      <div className="meta">
+        <span className={`badge ${cls}`}>{lbl}</span>
+        <span>{match.date}{match.time?` · ${match.time}`:""}</span>
+        {userPred&&<span className="ptag">{userPred.h}–{userPred.a}</span>}
+      </div>
+    </div>
+  );
+}
+
+function LoginView({users,onLogin,onRegister,onAdminLogin}){
+  const[mode,setMode]=useState("new");
+  const[name,setName]=useState("");
+  const[ofrenda,setOfrenda]=useState("");
+  const[sel,setSel]=useState("");
+  const[pass,setPass]=useState("");
+  return(
+    <div>
+      <div className="lhero">
+        <span className="lball">⚽</span>
+        <div className="ltit">POLLA TORO<br/>MUNDIAL 2026</div>
+        <div className="lsub">La tradición de la familia Toro,<br/>ahora en digital 🇨🇴</div>
+      </div>
+      <div className="tabs">
+        <button className={`tab ${mode==="new"?"on":""}`} onClick={()=>setMode("new")}>Soy nuevo</button>
+        <button className={`tab ${mode==="existing"?"on":""}`} onClick={()=>setMode("existing")}>Ya juego</button>
+        <button className={`tab ${mode==="admin"?"on":""}`} onClick={()=>setMode("admin")}>👑 Admin</button>
+      </div>
+      {mode==="new"&&(
+        <div className="card">
+          <div className="fg">
+            <label className="lbl">Tu nombre completo</label>
+            <input className="inp" placeholder="Ej: Matías Toro" value={name} onChange={e=>setName(e.target.value)}/>
+          </div>
+          <div className="fg">
+            <label className="lbl">Tu ofrenda 🎁</label>
+            <input className="inp" placeholder="Ej: Una botella de ron, un libro..." value={ofrenda} onChange={e=>setOfrenda(e.target.value)}/>
+            <div style={{fontSize:11,color:"var(--mut)",marginTop:6,lineHeight:1.6}}>Lo que pones en juego. Los top 5 del torneo se reparten todas las ofrendas.</div>
+          </div>
+          <button className="btn btp" disabled={!name.trim()||!ofrenda.trim()} onClick={()=>onRegister(name.trim(),ofrenda.trim())}>¡Entrar a jugar! 🎯</button>
+        </div>
+      )}
+      {mode==="existing"&&(
+        <div className="card">
+          {users.length===0
+            ?<div className="empty"><div className="eico">👥</div><div className="etxt">Nadie se ha registrado aún.<br/>¡Sé el primero!</div></div>
+            :<>
+              <div className="fg">
+                <label className="lbl">¿Quién eres?</label>
+                <select className="inp" value={sel} onChange={e=>setSel(e.target.value)}>
+                  <option value="">Selecciona tu nombre...</option>
+                  {users.map(u=><option key={u.id} value={u.id}>{u.name}</option>)}
+                </select>
+              </div>
+              <button className="btn btp" disabled={!sel} onClick={()=>onLogin(users.find(u=>u.id===sel))}>Entrar →</button>
+            </>
+          }
+        </div>
+      )}
+      {mode==="admin"&&(
+        <div className="card">
+          <div className="fg">
+            <label className="lbl">Contraseña del árbitro</label>
+            <input className="inp" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&onAdminLogin(pass)}/>
+          </div>
+          <button className="btn btp" onClick={()=>onAdminLogin(pass)}>Entrar como Albeiro 👑</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MatchesView({matches,preds,user,byMatch,config,onSelect}){
+  const sorted=[...matches].sort((a,b)=>new Date(a.date+(a.time?" "+a.time:"T00:00"))-new Date(b.date+(b.time?" "+b.time:"T00:00")));
+  const live=sorted.filter(m=>m.live);
+  const upcoming=sorted.filter(m=>!m.done&&!m.live);
+  const done=sorted.filter(m=>m.done);
+  const section=(title,list)=>list.length>0&&(
+    <div key={title}>
+      <div className="stit">{title}</div>
+      {list.map(m=><MatchCard key={m.id} match={m} userPred={preds.find(p=>p.mid===m.id&&p.uid===user.id)} onClick={()=>onSelect(m)}/>)}
+    </div>
+  );
+  return(
+    <div>
+      {!config.open&&<div style={{background:"rgba(206,17,38,.1)",border:"1px solid rgba(206,17,38,.3)",borderRadius:8,padding:"10px 14px",marginBottom:12,fontSize:12,color:"var(--red)"}}>🔒 Las predicciones están cerradas.</div>}
+      {sorted.length===0
+        ?<div className="empty"><div className="eico">📅</div><div className="etxt">Los partidos aparecerán aquí.<br/>Albeiro los está cargando...</div></div>
+        :<>{section("🔴 EN VIVO",live)}{section("⚽ PRÓXIMOS PARTIDOS",upcoming)}{section("✅ FINALIZADOS",done)}</>
+      }
+    </div>
+  );
+}
+
+function PredictView({match,user,preds,byMatch,users,config,onSave,onBack}){
+  const existing=preds.find(p=>p.mid===match.id&&p.uid===user.id);
+  const[home,setHome]=useState(existing?.h??0);
+  const[away,setAway]=useState(existing?.a??0);
+  const canPredict=!match.done&&!match.live&&config.open;
+  const f=t=>FLAGS[t]||"🏳️";
+  const res=byMatch[match.id]||[];
+  const getName=uid=>users.find(u=>u.id===uid)?.name||"?";
+  const scored=res.map(r=>r.uid);
+  const unscored=preds.filter(p=>p.mid===match.id&&!scored.includes(p.uid));
+  return(
+    <div>
+      <button className="btn bts btsm" style={{marginBottom:14}} onClick={onBack}>← Volver</button>
+      <div className="card">
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          {match.group?<span className="gbadge">Grupo {match.group}</span>:<span/>}
+          <span style={{fontSize:11,color:"var(--mut)"}}>{match.date}{match.time?` · ${match.time}`:""}</span>
+        </div>
+        <div className="trow" style={{marginBottom:12}}>
+          <div className="team"><span className="tf">{f(match.home)}</span><span className="tn">{match.home}</span></div>
+          <div className="sc">
+            {match.done?<div className="scn">{match.gh}–{match.ga}</div>:<div className="scv">VS</div>}
+            {match.done&&<span className="badge bf" style={{fontSize:9,marginTop:4,display:"block"}}>FINAL</span>}
+          </div>
+          <div className="team"><span className="tf">{f(match.away)}</span><span className="tn">{match.away}</span></div>
+        </div>
+        {canPredict&&(
+          <>
+            <div className="divl"/>
+            <div style={{textAlign:"center",fontSize:12,color:"var(--mut)",marginBottom:14}}>{existing?"¿Cambias tu predicción?":"¿Cuál es tu marcador?"}</div>
+            <div style={{display:"flex",justifyContent:"space-around",gap:8,marginBottom:18}}>
+              <Stepper label={match.home} value={home} onChange={setHome}/>
+              <div style={{display:"flex",alignItems:"flex-end",paddingBottom:14}}>
+                <span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:28,color:"var(--mut)"}}>–</span>
+              </div>
+              <Stepper label={match.away} value={away} onChange={setAway}/>
+            </div>
+            <button className="btn btp" onClick={()=>onSave(home,away)}>{existing?"Actualizar predicción 🔄":"¡Guardar predicción! 🎯"}</button>
+          </>
+        )}
+        {!canPredict&&!match.done&&(
+          <div style={{textAlign:"center",padding:"10px 0",fontSize:12,color:"var(--mut)"}}>
+            {match.live?"🔴 Partido en vivo · predicciones cerradas.":"🔒 Las predicciones están cerradas."}
+          </div>
+        )}
+        {existing&&(
+          <div className="pres-box">
+            <div style={{fontSize:10,color:"var(--mut)",marginBottom:4}}>TU PREDICCIÓN</div>
+            <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,color:"var(--gld)"}}>{existing.h} – {existing.a}</div>
+            {match.done&&(()=>{
+              const mr=res.find(r=>r.uid===user.id);
+              if(mr)return<div style={{marginTop:6,fontSize:12,color:"var(--grn)"}}>{mr.exact?"⭐ ":""}Posición #{mr.rank} · +{mr.pts} pts{mr.exact?" (¡Exacto!)":""}</div>;
+              return<div style={{marginTop:6,fontSize:12,color:"var(--mut)"}}>No ganaste puntos en este partido.</div>;
+            })()}
+          </div>
+        )}
+      </div>
+      {match.done&&res.length>0&&(
+        <div style={{marginTop:4}}>
+          <div className="stit">RESULTADOS DEL PARTIDO</div>
+          {res.map(r=>{
+            const medals=["🥇","🥈","🥉","4️⃣","5️⃣"];
+            const pred=preds.find(p=>p.mid===match.id&&p.uid===r.uid);
+            return(
+              <div key={r.uid} className={`rkrow ${r.uid===user.id?"me":""}`}>
+                <span style={{fontSize:20}}>{medals[r.rank-1]||"•"}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,fontSize:14}}>{getName(r.uid)}</div>
+                  <div style={{fontSize:11,color:"var(--mut)"}}>Pred: {pred?.h}–{pred?.a} · Dif: {r.dist}{r.exact?" ⭐":""}</div>
+                </div>
+                <div style={{textAlign:"center"}}>
+                  <div className="rkp">+{r.pts}</div>
+                  <div style={{fontSize:9,color:"var(--mut)"}}>pts</div>
+                </div>
+              </div>
+            );
+          })}
+          {unscored.map(p=>(
+            <div key={p.uid} className={`rkrow ${p.uid===user.id?"me":""}`}>
+              <span style={{fontSize:20,color:"var(--mut)"}}>—</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:600,fontSize:14}}>{getName(p.uid)}</div>
+                <div style={{fontSize:11,color:"var(--mut)"}}>Pred: {p.h}–{p.a} · Dif: {Math.abs(p.h-match.gh)+Math.abs(p.a-match.ga)}</div>
+              </div>
+              <div style={{fontSize:12,color:"var(--mut)"}}>0 pts</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RankingView({users,totals,user,matches}){
+  const ranked=[...users].map(u=>({...u,pts:totals[u.id]||0})).sort((a,b)=>b.pts-a.pts);
+  const done=matches.filter(m=>m.done).length;
+  const medals=["🥇","🥈","🥉"];
+  const rc=["r1","r2","r3","ro","ro"];
+  return(
+    <div>
+      <div className="stit">TABLA DE POSICIONES</div>
+      <div className="ssub">{done>0?`${done} partido${done>1?"s":""} finalizado${done>1?"s":""}. ¡Vamos!`:"Los puntos aparecen cuando terminen los partidos."}</div>
+      {ranked.length===0
+        ?<div className="empty"><div className="eico">🏆</div><div className="etxt">Nadie se ha registrado aún.</div></div>
+        :ranked.map((u,i)=>(
+          <div key={u.id} className={`rkrow ${u.id===user.id?"me":""}`}>
+            <span className={`rkn ${rc[Math.min(i,4)]}`}>{i<3?medals[i]:i+1}</span>
+            <div className="rknm">{u.name}{u.id===user.id&&<span style={{marginLeft:6,fontSize:9,color:"var(--gld)"}}>← tú</span>}</div>
+            <div style={{textAlign:"center"}}>
+              <div className="rkp">{u.pts}</div>
+              <div style={{fontSize:9,color:"var(--mut)"}}>pts</div>
+            </div>
+          </div>
+        ))
+      }
+      <div style={{marginTop:18}}>
+        <div className="stit">SISTEMA DE PUNTOS</div>
+        <div className="card" style={{fontSize:12,color:"var(--mut)",lineHeight:2.2}}>
+          {[["🥇 1er más cercano","5 pts"],["🥈 2do más cercano","4 pts"],["🥉 3er más cercano","3 pts"],["4to más cercano","2 pts"],["5to más cercano","1 pt"]].map(([l,p])=>(
+            <div key={l}>{l}: <strong style={{color:"var(--txt)"}}>{p}</strong></div>
+          ))}
+          <div style={{paddingTop:6,borderTop:"1px solid var(--brd)",marginTop:4}}>⭐ Marcador exacto: <strong style={{color:"var(--gld)"}}>+3 pts bonus</strong></div>
+          <div style={{fontSize:11,marginTop:4}}>Empates comparten posición y puntos.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfrendasView({users,totals}){
+  const ranked=[...users].map(u=>({...u,pts:totals[u.id]||0})).sort((a,b)=>b.pts-a.pts);
+  const top5=ranked.slice(0,5);
+  const hasPoints=Object.keys(totals).length>0;
+  const emoji=txt=>{
+    const t=txt.toLowerCase();
+    if(/ron|whisky|licor|cerveza|vino|aguardiente/.test(t))return"🥃";
+    if(/libro/.test(t))return"📚";
+    if(/plata|dinero|\$|pesos/.test(t))return"💰";
+    if(/comida|cena|almuerzo|desayuno|pizza/.test(t))return"🍽️";
+    if(/viaje|pasaje|tiquete|vuelo/.test(t))return"✈️";
+    if(/ropa|camiseta|camisa|jersey/.test(t))return"👕";
+    if(/música|vinyl|disco|canción/.test(t))return"🎵";
+    if(/trabajo|servicio|favor/.test(t))return"🤝";
+    return"🎁";
+  };
+  return(
+    <div>
+      <div className="stit">OFRENDAS EN JUEGO 🎁</div>
+      <div className="ssub">Lo que cada jugador pone en la mesa. Los 5 primeros del ranking se las reparten.</div>
+      {users.length===0
+        ?<div className="empty"><div className="eico">🎁</div><div className="etxt">Nadie ha puesto su ofrenda aún.<br/>¡Regístrate para participar!</div></div>
+        :<div className="ogrid">{users.map(u=>(
+          <div key={u.id} className="oc">
+            <div className="oi">{emoji(u.ofrenda)}</div>
+            <div className="on2">{u.name.split(" ")[0]}</div>
+            <div className="ot">{u.ofrenda}</div>
+          </div>
+        ))}</div>
+      }
+      {hasPoints&&top5.length>0&&(
+        <div style={{marginTop:22}}>
+          <div className="stit">VAN GANANDO 🏆</div>
+          <div className="ssub">Si el torneo terminara hoy, estas personas se llevarían las ofrendas:</div>
+          {top5.map((u,i)=>{
+            const medals=["🥇","🥈","🥉","4️⃣","5️⃣"];
+            return(
+              <div key={u.id} style={{display:"flex",alignItems:"center",gap:10,background:"var(--card)",border:"1px solid var(--brd)",borderRadius:10,padding:"10px 14px",marginBottom:6}}>
+                <span style={{fontSize:22,minWidth:28}}>{medals[i]}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,fontSize:14}}>{u.name}</div>
+                  <div style={{fontSize:11,color:"var(--mut)"}}>Ofrenda: {u.ofrenda.substring(0,34)}{u.ofrenda.length>34?"...":""}</div>
+                </div>
+                <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:22,color:"var(--gld)"}}>{u.pts}pts</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDeleteUser,showToast}){
+  const[nm,setNm]=useState({home:"Colombia",away:"Argentina",date:"2026-06-15",time:"15:00",group:"A"});
+  const[res,setRes]=useState({});
+  const addMatch=async()=>{
+    if(!nm.home||!nm.away||!nm.date)return;
+    await onSaveMatch([...matches,{id:Date.now().toString(),...nm,done:false,live:false,gh:null,ga:null}]);
+    showToast("Partido agregado ✅");
+  };
+  const saveResult=async mid=>{
+    const r=res[mid];
+    if(r?.gh===""||r?.ga===""||r?.gh==null||r?.ga==null)return;
+    await onSaveMatch(matches.map(m=>m.id===mid?{...m,gh:parseInt(r.gh),ga:parseInt(r.ga),done:true,live:false}:m));
+    showToast("Resultado guardado ✅");
+  };
+  return(
+    <div>
+      <div className="stit">PANEL ADMIN 👑</div>
+      <div className="asec">
+        <div className="asect">Configuración</div>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <span style={{fontSize:13}}>{config.open?"✅ Predicciones abiertas":"🔒 Predicciones cerradas"}</span>
+          <button className={`btn btsm ${config.open?"btd":"btp"}`} style={{width:"auto"}} onClick={()=>onSaveConfig({...config,open:!config.open})}>
+            {config.open?"Cerrar":"Abrir"}
+          </button>
+        </div>
+      </div>
+      <div className="asec">
+        <div className="asect">Agregar Partido</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          <div className="fg"><label className="lbl">Local</label><select className="inp" value={nm.home} onChange={e=>setNm({...nm,home:e.target.value})}>{TEAMS.map(t=><option key={t}>{t}</option>)}</select></div>
+          <div className="fg"><label className="lbl">Visitante</label><select className="inp" value={nm.away} onChange={e=>setNm({...nm,away:e.target.value})}>{TEAMS.map(t=><option key={t}>{t}</option>)}</select></div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 80px",gap:8}}>
+          <div className="fg"><label className="lbl">Fecha</label><input className="inp" type="date" value={nm.date} onChange={e=>setNm({...nm,date:e.target.value})}/></div>
+          <div className="fg"><label className="lbl">Hora</label><input className="inp" type="time" value={nm.time} onChange={e=>setNm({...nm,time:e.target.value})}/></div>
+          <div className="fg"><label className="lbl">Grupo</label><input className="inp" placeholder="A-L" value={nm.group} onChange={e=>setNm({...nm,group:e.target.value})}/></div>
+        </div>
+        <button className="btn btp" onClick={addMatch}>+ Agregar partido</button>
+      </div>
+      {matches.length>0&&(
+        <div className="asec">
+          <div className="asect">Cargar Resultados ({matches.length} partidos)</div>
+          {[...matches].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(m=>(
+            <div key={m.id} className="arow">
+              <span style={{flex:1,fontSize:12}}>{FLAGS[m.home]||"🏳️"} {m.home} vs {m.away} {FLAGS[m.away]||"🏳️"}</span>
+              {m.done
+                ?<span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:15,color:"var(--grn)"}}>✅ {m.gh}–{m.ga}</span>
+                :<div style={{display:"flex",alignItems:"center",gap:4}}>
+                  <button className={`btn btsm ${m.live?"btd":"bts"}`} style={{width:"auto",padding:"4px 8px",fontSize:10}} onClick={async()=>{await onSaveMatch(matches.map(x=>x.id===m.id?{...x,live:!x.live,done:false}:x));}}>{m.live?"⏹":"🔴"}</button>
+                  <input type="number" min={0} max={20} className="sminp" placeholder="L" value={res[m.id]?.gh??""} onChange={e=>setRes({...res,[m.id]:{...res[m.id],gh:e.target.value}})}/>
+                  <span>–</span>
+                  <input type="number" min={0} max={20} className="sminp" placeholder="V" value={res[m.id]?.ga??""} onChange={e=>setRes({...res,[m.id]:{...res[m.id],ga:e.target.value}})}/>
+                  <button className="btn btp btsm" style={{padding:"4px 8px",fontSize:11}} onClick={()=>saveResult(m.id)}>✓</button>
+                </div>
+              }
+              <button className="btn btd btsm" style={{padding:"3px 8px",fontSize:11}} onClick={async()=>{await onSaveMatch(matches.filter(x=>x.id!==m.id));showToast("Eliminado");}}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+      {users.length>0&&(
+        <div className="asec">
+          <div className="asect">Participantes ({users.length})</div>
+          {users.map(u=>(
+            <div key={u.id} className="arow">
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:600}}>{u.name}</div>
+                <div style={{fontSize:11,color:"var(--mut)"}}>{u.ofrenda}</div>
+              </div>
+              <button className="btn btd btsm" style={{padding:"4px 10px",fontSize:11}} onClick={()=>onDeleteUser(u.id)}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Pantalla de configuración (cuando Firebase no está listo) ───
+function SetupScreen(){
+  return(
+    <div style={{padding:20}}>
+      <div className="setup-box">
+        <h2>⚙️ Falta conectar Firebase</h2>
+        <p>Para que la familia comparta datos en tiempo real, necesitas configurar Firebase. Es gratis y toma unos 10 minutos. Sigue las instrucciones que te dio Claude.</p>
+        <p style={{marginTop:12,color:"#FCD116",fontWeight:600}}>Una vez tengas el config, pégalo en el archivo .html donde dice PEGAR_AQUI y súbelo a GitHub Pages.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── App principal ────────────────────────────────────
+function App(){
+  if(!IS_CONFIGURED)return(
+    <>
+      <style dangerouslySetInnerHTML={{__html:CSS}}/>
+      <SetupScreen/>
+    </>
+  );
+
+  const[view,setView]=useState("login");
+  const[user,setUser]=useState(null);
+  const[isAdmin,setIsAdmin]=useState(false);
+  const[loading,setLoading]=useState(true);
+  const[toast,setToast]=useState(null);
+  const[selMatch,setSelMatch]=useState(null);
+  const[data,setData]=useState({users:[],matches:[],preds:[],config:{open:true}});
+
+  const showToast=msg=>{setToast(msg);setTimeout(()=>setToast(null),2600);};
+
+  // 🔥 Listener en tiempo real — todos ven los cambios al instante
+  useEffect(()=>{
+    setLoading(true);
+    const ref=fdb.ref('pt26');
+    const handler=snap=>{
+      const val=snap.val()||{};
+      setData({
+        users:  val.users   ? JSON.parse(val.users)   : [],
+        matches:val.matches ? JSON.parse(val.matches)  : [],
+        preds:  val.preds   ? JSON.parse(val.preds)    : [],
+        config: val.config  ? JSON.parse(val.config)   : {open:true}
+      });
+      setLoading(false);
+    };
+    ref.on('value',handler);
+    return()=>ref.off('value',handler);
+  },[]);
+
+  const save=async(key,val)=>{
+    await dbSet(key,val);
+    setData(d=>({...d,[key]:val})); // actualización optimista
+  };
+
+  const{totals,byMatch}=calcScores(data.matches,data.preds);
+
+  if(loading)return(
+    <>
+      <style dangerouslySetInnerHTML={{__html:CSS}}/>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16,background:"var(--bg)"}}>
+        <div style={{fontSize:56,animation:"bounce 1.2s infinite"}}>⚽</div>
+        <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:22,color:"#FCD116",letterSpacing:2}}>Conectando...</div>
+      </div>
+    </>
+  );
+
+  const navs=[
+    {id:"matches",ico:"⚽",lbl:"Partidos"},
+    {id:"ranking",ico:"🏆",lbl:"Ranking"},
+    {id:"ofrendas",ico:"🎁",lbl:"Ofrendas"},
+    ...(isAdmin?[{id:"admin",ico:"⚙️",lbl:"Admin"}]:[]),
+  ];
+  const goTo=v=>{setView(v);setSelMatch(null);};
+
+  return(
+    <>
+      <style dangerouslySetInnerHTML={{__html:CSS}}/>
+      <div className="wrap">
+        {user&&(
+          <>
+            <div className="hdr">
+              <div>
+                <div className="hdr-t">⚽ Polla Toro 2026</div>
+                <div className="hdr-s">La tradición de la familia</div>
+              </div>
+              <button className="ubub" onClick={()=>{setUser(null);setIsAdmin(false);setView("login");}}>
+                {user.name.split(" ")[0]}
+              </button>
+              <div className="hdr-bar"/>
+            </div>
+            <nav className="nav">
+              {navs.map(n=>(
+                <button key={n.id} className={`ni ${(view===n.id||(view==="predict"&&n.id==="matches"))?"on":""}`} onClick={()=>goTo(n.id)}>
+                  <span className="nico">{n.ico}</span>{n.lbl}
+                </button>
+              ))}
+            </nav>
+          </>
+        )}
+        <div className="pg">
+          {view==="login"&&(
+            <LoginView users={data.users}
+              onLogin={u=>{setUser(u);setView("matches");}}
+              onRegister={async(name,ofrenda)=>{
+                const nu={id:Date.now().toString(),name,ofrenda};
+                await save("users",[...data.users,nu]);
+                setUser(nu);setView("matches");showToast("¡Bienvenido/a "+name+"! 🎉");
+              }}
+              onAdminLogin={pass=>{
+                if(pass===ADMIN_PASS){setUser({id:"admin",name:"Albeiro 👑",ofrenda:"El honor de organizar"});setIsAdmin(true);setView("admin");showToast("¡Bienvenido Albeiro! 👑");}
+                else showToast("❌ Contraseña incorrecta");
+              }}
+            />
+          )}
+          {(view==="matches"||(view==="predict"&&!selMatch))&&(
+            <MatchesView matches={data.matches} preds={data.preds} user={user} byMatch={byMatch} config={data.config} onSelect={m=>{setSelMatch(m);setView("predict");}}/>
+          )}
+          {view==="predict"&&selMatch&&(
+            <PredictView match={selMatch} user={user} preds={data.preds} byMatch={byMatch} users={data.users} config={data.config}
+              onSave={async(h,a)=>{
+                const ex=data.preds.find(p=>p.mid===selMatch.id&&p.uid===user.id);
+                const np=ex?data.preds.map(p=>p.mid===selMatch.id&&p.uid===user.id?{...p,h,a}:p):[...data.preds,{id:Date.now().toString(),mid:selMatch.id,uid:user.id,h,a}];
+                await save("preds",np);showToast("¡Predicción guardada! 🎯");setSelMatch(null);setView("matches");
+              }}
+              onBack={()=>{setSelMatch(null);setView("matches");}}
+            />
+          )}
+          {view==="ranking"&&<RankingView users={data.users} totals={totals} user={user} matches={data.matches}/>}
+          {view==="ofrendas"&&<OfrendasView users={data.users} totals={totals}/>}
+          {view==="admin"&&isAdmin&&(
+            <AdminView matches={data.matches} users={data.users} config={data.config} preds={data.preds}
+              onSaveMatch={v=>save("matches",v)} onSaveConfig={v=>save("config",v)}
+              onDeleteUser={async uid=>{await save("users",data.users.filter(u=>u.id!==uid));await save("preds",data.preds.filter(p=>p.uid!==uid));showToast("Participante eliminado");}}
+              showToast={showToast}
+            />
+          )}
+        </div>
+        {toast&&<div className="toast">{toast}</div>}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
