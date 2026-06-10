@@ -38,7 +38,7 @@ const EXTRA=0;
 const PHONE="";
 const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela","Alemania","Arabia Saudita","Argelia","Australia","Austria","Bosnia y Herzegovina","Cabo Verde","Corea del Sur","Costa de Marfil","Croacia","Curazao","Escocia","España","Ghana","Haití","Inglaterra","Jordania","Marruecos","Portugal","Qatar","RD de Congo","República Checa","Sudáfrica","Suiza","Turquía","Uzbekistán"];
 const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá":"🇨🇦",Chile:"🇨🇱",Colombia:"🇨🇴","Costa Rica":"🇨🇷",Ecuador:"🇪🇨","Estados Unidos":"🇺🇸",Honduras:"🇭🇳",Jamaica:"🇯🇲","México":"🇲🇽","Panamá":"🇵🇦",Paraguay:"🇵🇾","Perú":"🇵🇪",Uruguay:"🇺🇾",Venezuela:"🇻🇪",Alemania:"🇩🇪","Arabia Saudita":"🇸🇦",Argelia:"🇩🇿",Australia:"🇦🇺",Austria:"🇦🇹","Bosnia y Herzegovina":"🇧🇦","Cabo Verde":"🇨🇻","Corea del Sur":"🇰🇷","Costa de Marfil":"🇨🇮",Croacia:"🇭🇷",Curazao:"🇨🇼",Escocia:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",España:"🇪🇸",Ghana:"🇬🇭","Haití":"🇭🇹",Inglaterra:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",Jordania:"🇯🇴",Marruecos:"🇲🇦",Portugal:"🇵🇹",Qatar:"🇶🇦","RD de Congo":"🇨🇩","República Checa":"🇨🇿","Sudáfrica":"🇿🇦",Suiza:"🇨🇭",Turquía:"🇹🇷",Uzbekistán:"🇺🇿"};
-const CONMEBOL=new Set(["Argentina","Brasil","Colombia","Ecuador","Paraguay","Uruguay","Bolivia","Chile","Perú","Venezuela"]);
+const CONMEBOL=new Set(["Argentina","Brasil","Colombia","Ecuador","Paraguay","Uruguay","Bolivia","Chile","Perú","Venezuela","México"]);
 const isSur=m=>CONMEBOL.has(m.home)||CONMEBOL.has(m.away);
 
 function calcScores(matches,preds){
@@ -508,7 +508,7 @@ function ApuestasView({users,totals}){
   );
 }
 
-function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDeleteUser,showToast}){
+function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDeleteUser,onResetPreds,showToast}){
   const[nm,setNm]=useState({home:'Colombia',away:'Argentina',date:new Date().toISOString().slice(0,10),time:'12:00',group:'TEST'});
   const[res,setRes]=useState({});
   const addMatch=async()=>{
@@ -542,6 +542,16 @@ function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDelete
       <div className="asec">
         <div className="asect">Partido de Prueba</div>
         <button className="btn bts" onClick={addTest}>🧪 Agregar Colombia vs Argentina (hoy)</button>
+      </div>
+      <div className="asec">
+        <div className="asect">Reiniciar Datos de Prueba</div>
+        <div style={{fontSize:12,color:'var(--mut)',marginBottom:10,lineHeight:1.7}}>Borra todas las predicciones para que los puntos vuelvan a cero. Úsalo antes de arrancar el torneo real.</div>
+        <button className="btn btd" onClick={async()=>{
+          if(window.confirm('¿Borrar TODAS las predicciones? Los puntos volverán a cero.')){
+            await onResetPreds();
+            showToast('✅ Predicciones borradas. Puntajes en cero.');
+          }
+        }}>🗑️ Borrar todas las predicciones</button>
       </div>
       <div className="asec">
         <div className="asect">Agregar Partido</div>
@@ -650,7 +660,7 @@ function App(){
     prevOpen.current=data.config.open;
   },[data.config.open]);
 
-  const save=async(key,val)=>{await dbSet(key,val);setData(d=>({...d,[key]:val}));};
+  const save=async(key,val)=>{await dbSet(key,val);};
   const{totals,byMatch}=calcScores(data.matches,data.preds);
 
   const navs=[
@@ -737,6 +747,7 @@ function App(){
             <AdminView matches={data.matches} users={data.users} config={data.config} preds={data.preds}
               onSaveMatch={v=>save('matches',v)} onSaveConfig={v=>save('config',v)}
               onDeleteUser={async uid=>{await save('users',data.users.filter(u=>u.id!==uid));await save('preds',data.preds.filter(p=>p.uid!==uid));showToast('Participante eliminado');}}
+              onResetPreds={async()=>save('preds',[])}
               showToast={showToast}
             />
           )}
