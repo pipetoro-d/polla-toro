@@ -660,7 +660,19 @@ function App(){
     prevOpen.current=data.config.open;
   },[data.config.open]);
 
-  const save=async(key,val)=>{await dbSet(key,val);};
+  const save=async(key,val)=>{
+    await dbSet(key,val);
+    try{
+      const snap=await fdb.ref('pt26').get();
+      const v=snap.val()||{};
+      setData({
+        users:  v.users   ?JSON.parse(v.users)  :[],
+        matches:v.matches ?JSON.parse(v.matches) :[],
+        preds:  v.preds   ?JSON.parse(v.preds)   :[],
+        config: v.config  ?JSON.parse(v.config)  :{open:true}
+      });
+    }catch(e){console.error('Re-read error',e);}
+  };
   const{totals,byMatch}=calcScores(data.matches,data.preds);
 
   const navs=[
