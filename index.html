@@ -33,11 +33,13 @@ const fdb=firebase.database();
 async function dbSet(k,v){try{await fdb.ref('pt26/'+k).set(JSON.stringify(v));}catch(e){console.error(e);}}
 
 const ADMIN_PASS="albeiro2026";
-const PTS=[5,4,3,2,1];
-const EXTRA=3;
-const PHONE="315 476 1608";
+const PTS=[3,2,1];
+const EXTRA=0;
+const PHONE="";
 const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela","Alemania","Arabia Saudita","Argelia","Australia","Austria","Bosnia y Herzegovina","Cabo Verde","Corea del Sur","Costa de Marfil","Croacia","Curazao","Escocia","España","Ghana","Haití","Inglaterra","Jordania","Marruecos","Portugal","Qatar","RD de Congo","República Checa","Sudáfrica","Suiza","Turquía","Uzbekistán"];
 const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá":"🇨🇦",Chile:"🇨🇱",Colombia:"🇨🇴","Costa Rica":"🇨🇷",Ecuador:"🇪🇨","Estados Unidos":"🇺🇸",Honduras:"🇭🇳",Jamaica:"🇯🇲","México":"🇲🇽","Panamá":"🇵🇦",Paraguay:"🇵🇾","Perú":"🇵🇪",Uruguay:"🇺🇾",Venezuela:"🇻🇪",Alemania:"🇩🇪","Arabia Saudita":"🇸🇦",Argelia:"🇩🇿",Australia:"🇦🇺",Austria:"🇦🇹","Bosnia y Herzegovina":"🇧🇦","Cabo Verde":"🇨🇻","Corea del Sur":"🇰🇷","Costa de Marfil":"🇨🇮",Croacia:"🇭🇷",Curazao:"🇨🇼",Escocia:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",España:"🇪🇸",Ghana:"🇬🇭","Haití":"🇭🇹",Inglaterra:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",Jordania:"🇯🇴",Marruecos:"🇲🇦",Portugal:"🇵🇹",Qatar:"🇶🇦","RD de Congo":"🇨🇩","República Checa":"🇨🇿","Sudáfrica":"🇿🇦",Suiza:"🇨🇭",Turquía:"🇹🇷",Uzbekistán:"🇺🇿"};
+const CONMEBOL=new Set(["Argentina","Brasil","Colombia","Ecuador","Paraguay","Uruguay","Bolivia","Chile","Perú","Venezuela"]);
+const isSur=m=>CONMEBOL.has(m.home)||CONMEBOL.has(m.away);
 
 function calcScores(matches,preds){
   const totals={},byMatch={};
@@ -161,7 +163,7 @@ function Stepper({label,value,onChange}){
 
 function Countdown({matches}){
   const[cd,setCd]=useState('');
-  const next=[...matches].filter(m=>!m.done&&!m.live).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')))[0];
+  const next=[...matches].filter(m=>!m.done&&!m.live&&isSur(m)).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')))[0];
   useEffect(()=>{
     if(!next){setCd('');return;}
     const tick=()=>{
@@ -234,15 +236,6 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
             <label className="lbl">Tu nombre completo</label>
             <input className="inp" placeholder="Ej: Matías Toro" value={name} onChange={e=>setName(e.target.value)}/>
           </div>
-          <div className="pay-box">
-            <div style={{fontSize:12,fontWeight:700,color:'var(--gld)',marginBottom:6}}>💰 APUESTA FIJA: $20.000 COP</div>
-            <div style={{fontSize:12,color:'var(--mut)',lineHeight:2}}>
-              Consigna <strong style={{color:'var(--txt)'}}>$20.000</strong> a:<br/>
-              <span style={{fontFamily:"'DM Mono',monospace",fontSize:15,color:'var(--gld)',display:'block',marginTop:2,marginBottom:4}}>📱 {PHONE}</span>
-              Nequi · Bancolombia · Daviplata<br/>
-              <span style={{fontSize:11}}>Pon tu nombre en el mensaje de pago.</span>
-            </div>
-          </div>
           <button className="btn btp" disabled={!name.trim()} onClick={()=>onRegister(name.trim())}>¡Registrarme y jugar! 🎯</button>
         </div>
       )}
@@ -278,7 +271,7 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
 
 function MatchesView({matches,preds,user,byMatch,config,onSelect}){
   const[filter,setFilter]=useState('todos');
-  const sorted=[...matches].sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));
+  const sorted=[...matches].filter(isSur).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));
   const myMids=new Set(preds.filter(p=>p.uid===user.id).map(p=>p.mid));
   const list=filter==='mios'?sorted.filter(m=>myMids.has(m.id)):sorted;
   const live=list.filter(m=>m.live);
@@ -417,7 +410,7 @@ function RankingView({users,totals,user,matches}){
       <div style={{marginTop:18}}>
         <div className="stit">PUNTOS</div>
         <div className="card" style={{fontSize:12,color:'var(--mut)',lineHeight:2.2}}>
-          {[['🥇 1er más cercano','5 pts'],['🥈 2do','4 pts'],['🥉 3ro','3 pts'],['4to','2 pts'],['5to','1 pt'],['⭐ Marcador exacto','+3 bonus']].map(([l,p])=>(
+          {[['🥇 Marcador exacto','3 pts'],['🥈 2do más cercano','2 pts'],['🥉 3ro más cercano','1 pt']].map(([l,p])=>(
             <div key={l}>{l}: <strong style={{color:l.includes('⭐')?'var(--gld)':'var(--txt)'}}>{p}</strong></div>
           ))}
         </div>
@@ -427,7 +420,7 @@ function RankingView({users,totals,user,matches}){
 }
 
 function PorPartidoView({matches,preds,users,byMatch,user}){
-  const done=[...matches].filter(m=>m.done).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const done=[...matches].filter(m=>m.done&&isSur(m)).sort((a,b)=>new Date(b.date)-new Date(a.date));
   const getName=uid=>users.find(u=>u.id===uid)?.name||'?';
   const f=t=>FLAGS[t]||'🏳️';
   if(done.length===0)return(
@@ -605,7 +598,7 @@ function AdminView({matches,users,config,preds,onSaveMatch,onSaveConfig,onDelete
           <div className="asect">Participantes ({users.length})</div>
           {users.map(u=>(
             <div key={u.id} className="arow">
-              <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>$20.000</div></div>
+              <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{u.name}</div></div>
               <button className="btn btd btsm" style={{padding:'4px 10px'}} onClick={()=>onDeleteUser(u.id)}>✕</button>
             </div>
           ))}
@@ -664,7 +657,7 @@ function App(){
     {id:'matches',ico:'⚽',lbl:'Partidos'},
     {id:'ranking',ico:'🏆',lbl:'Ranking'},
     {id:'porpartido',ico:'📊',lbl:'Por Partido'},
-    {id:'apuestas',ico:'💰',lbl:'Apuestas'},
+
     ...(isAdmin?[{id:'admin',ico:'⚙️',lbl:'Admin'}]:[]),
   ];
   const goTo=v=>{setView(v);setSelMatch(null);};
@@ -714,7 +707,7 @@ function App(){
                 const nu={id:Date.now().toString(),name,apuesta:20000};
                 await save('users',[...data.users,nu]);
                 setUser(nu);userRef.current=nu;setView('matches');
-                showToast('¡Bienvenido/a '+name+'! 🎉 Recuerda consignar tu apuesta.');
+                showToast('¡Bienvenido/a '+name+'! 🎉');
               }}
               onAdminLogin={pass=>{
                 if(pass===ADMIN_PASS){const u={id:'admin',name:'Albeiro 👑',apuesta:0};setUser(u);userRef.current=u;setIsAdmin(true);setView('admin');showToast('¡Bienvenido Albeiro! 👑');}
@@ -740,7 +733,6 @@ function App(){
           )}
           {view==='ranking'&&<RankingView users={data.users} totals={totals} user={user} matches={data.matches}/>}
           {view==='porpartido'&&<PorPartidoView matches={data.matches} preds={data.preds} users={data.users} byMatch={byMatch} user={user}/>}
-          {view==='apuestas'&&<ApuestasView users={data.users} totals={totals}/>}
           {view==='admin'&&isAdmin&&(
             <AdminView matches={data.matches} users={data.users} config={data.config} preds={data.preds}
               onSaveMatch={v=>save('matches',v)} onSaveConfig={v=>save('config',v)}
