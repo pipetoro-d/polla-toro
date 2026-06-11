@@ -4,8 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
-  <meta http-equiv="Pragma" content="no-cache"/>
-  <meta http-equiv="Expires" content="0"/>
   <title>Polla Familiar 2026 · Familia Toro</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -22,7 +20,6 @@
 <script type="text/babel">
 const{useState,useEffect,useRef}=React;
 
-// ─── Firebase ─────────────────────────────────────────
 const FB={
   apiKey:"AIzaSyDjJ4ErjOkxKiUHTaON74eW3w9L-O5eC5o",
   authDomain:"polla-toro-2026.firebaseapp.com",
@@ -34,23 +31,20 @@ const FB={
 };
 firebase.initializeApp(FB);
 const db=firebase.database();
-const ref=p=>db.ref('pt26v2/'+p);  // v2 = new clean structure
+const ref=p=>db.ref('pt26v2/'+p);
+const fbSet=(p,v)=>ref(p).set(v);
+const fbRemove=p=>ref(p).remove();
 
-// ─── Firebase helpers — operaciones atómicas ──────────
-const fbSet   =(p,v)=>ref(p).set(v);
-const fbRemove=(p)  =>ref(p).remove();
-const fbGet   =(p)  =>ref(p).get().then(s=>s.val());
-const toArr   =(v)  =>v?Object.values(v):[];
-
-// ─── Constantes ───────────────────────────────────────
 const ADMIN_PASS="albeiro2026";
 const PTS=[3,2,1];
 const CONMEBOL=new Set(["Argentina","Brasil","Colombia","Ecuador","Paraguay","Uruguay","Bolivia","Chile","Perú","Venezuela","México"]);
 const isSur=m=>CONMEBOL.has(m.home)||CONMEBOL.has(m.away);
 const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá":"🇨🇦",Chile:"🇨🇱",Colombia:"🇨🇴","Costa Rica":"🇨🇷",Ecuador:"🇪🇨","Estados Unidos":"🇺🇸",Honduras:"🇭🇳",Jamaica:"🇯🇲","México":"🇲🇽","Panamá":"🇵🇦",Paraguay:"🇵🇾","Perú":"🇵🇪",Uruguay:"🇺🇾",Venezuela:"🇻🇪",Alemania:"🇩🇪","Arabia Saudita":"🇸🇦",Argelia:"🇩🇿",Australia:"🇦🇺",Austria:"🇦🇹","Bosnia y Herzegovina":"🇧🇦","Cabo Verde":"🇨🇻","Corea del Sur":"🇰🇷","Costa de Marfil":"🇨🇮",Croacia:"🇭🇷",Curazao:"🇨🇼",Escocia:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",España:"🇪🇸",Ghana:"🇬🇭","Haití":"🇭🇹",Inglaterra:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",Jordania:"🇯🇴",Marruecos:"🇲🇦",Portugal:"🇵🇹",Qatar:"🇶🇦","RD de Congo":"🇨🇩","República Checa":"🇨🇿","Sudáfrica":"🇿🇦",Suiza:"🇨🇭",Turquía:"🇹🇷",Uzbekistán:"🇺🇿"};
 const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela","Alemania","Arabia Saudita","Argelia","Australia","Austria","Bosnia y Herzegovina","Cabo Verde","Corea del Sur","Costa de Marfil","Croacia","Curazao","Escocia","España","Ghana","Haití","Inglaterra","Jordania","Marruecos","Portugal","Qatar","RD de Congo","República Checa","Sudáfrica","Suiza","Turquía","Uzbekistán"];
+const AVATARS=["⚽","🦁","🐯","🦅","⚡","🔥","🌟","🏆","🎯","🚀","🐉","🦊","🐺","👑","💎","🎩"];
 
-// ─── Cálculo de puntajes ──────────────────────────────
+const hasStarted=m=>m.date?new Date()>=new Date(m.date+'T'+(m.time||'00:00')+':00'):false;
+
 function calcScores(matches,preds){
   const totals={},byMatch={};
   for(const m of matches){
@@ -61,9 +55,8 @@ function calcScores(matches,preds){
     for(const p of ranked){
       if(p.dist!==prev){rank++;prev=p.dist;}
       if(rank>PTS.length)continue;
-      const pts=PTS[rank-1];
-      res.push({uid:p.uid,pts,rank,dist:p.dist,exact:p.exact});
-      totals[p.uid]=(totals[p.uid]||0)+pts;
+      res.push({uid:p.uid,pts:PTS[rank-1],rank,dist:p.dist,exact:p.exact});
+      totals[p.uid]=(totals[p.uid]||0)+PTS[rank-1];
     }
     byMatch[m.id]=res;
   }
@@ -71,7 +64,6 @@ function calcScores(matches,preds){
 }
 function fmt(ts){return new Date(ts).toLocaleString('es-CO',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 
-// ─── CSS ──────────────────────────────────────────────
 const mkCSS=dark=>`
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 ${dark
@@ -106,6 +98,7 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;
 .bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}
 .bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}
 .bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}
+.bk{background:rgba(252,209,22,.12);color:var(--gld);border:1px solid rgba(252,209,22,.3)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;border:1px solid rgba(252,209,22,.2)}
 .gbadge{font-size:10px;background:rgba(0,48,135,.3);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}
@@ -120,6 +113,7 @@ select option{background:#0f1e35}
 .btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}
 .bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}.bts:hover{background:rgba(255,255,255,.1)}
 .btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}
+.btw{background:#25D366;color:#fff}.btw:hover{background:#1faf54}
 .btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}
 .steprow{display:flex;align-items:center;justify-content:center;gap:10px}
 .stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
@@ -135,12 +129,12 @@ select option{background:#0f1e35}
 .lhero{text-align:center;padding:24px 0 20px}
 .lball{font-size:56px;display:block;animation:bounce 2s infinite}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.ltit{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gld);letter-spacing:3px;line-height:1.1}
+.ltit{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#FCD116;letter-spacing:3px;line-height:1.1}
 .lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}
 .stit{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}
 .ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}
 .divl{height:1px;background:var(--brd);margin:14px 0}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:var(--txt);padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:#eef2f7;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
 @keyframes tup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .empty{text-align:center;padding:36px 16px;color:var(--mut)}
 .eico{font-size:44px;margin-bottom:12px}.etxt{font-size:13px;line-height:1.7}
@@ -163,9 +157,16 @@ select option{background:#0f1e35}
 .fbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}
 .hist-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}
 .hist-item:last-child{border-bottom:none}
+.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}
+.avbtn{aspect-ratio:1;font-size:20px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.1)}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.statbox{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}
+.statn{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gld);line-height:1}
+.statl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700}
+.secretbox{background:var(--gdm);border:1px dashed rgba(252,209,22,.35);border-radius:8px;padding:11px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}
 `;
 
-// ─── Subcomponentes ───────────────────────────────────
 function Stepper({label,value,onChange}){
   return(
     <div>
@@ -181,7 +182,7 @@ function Stepper({label,value,onChange}){
 
 function Countdown({matches}){
   const[cd,setCd]=useState('');
-  const next=[...matches].filter(m=>!m.done&&!m.live&&isSur(m)).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')))[0];
+  const next=[...matches].filter(m=>!m.done&&!m.live&&!hasStarted(m)&&isSur(m)).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')))[0];
   useEffect(()=>{
     if(!next){setCd('');return;}
     const tick=()=>{
@@ -197,7 +198,7 @@ function Countdown({matches}){
     <div className="cd-box">
       <div>
         <div className="cd-lbl">Próximo partido</div>
-        <div style={{fontSize:11,color:'var(--txt)',fontWeight:600}}>{FLAGS[next.home]||'🏳️'} {next.home} vs {next.away} {FLAGS[next.away]||'🏳️'}</div>
+        <div style={{fontSize:11,fontWeight:600}}>{FLAGS[next.home]||'🏳️'} {next.home} vs {next.away} {FLAGS[next.away]||'🏳️'}</div>
         <div style={{fontSize:10,color:'var(--mut)',marginTop:2}}>{next.date} · {next.time} COL</div>
       </div>
       <div style={{textAlign:'right'}}>
@@ -210,8 +211,9 @@ function Countdown({matches}){
 
 function MatchCard({match,userPred,onClick}){
   const f=t=>FLAGS[t]||'🏳️';
-  const cls=match.done?'bf':match.live?'bl':'bp';
-  const lbl=match.done?'✅ Final':match.live?'🔴 En Vivo':'⏳ Próximo';
+  const started=hasStarted(match)&&!match.done&&!match.live;
+  const cls=match.done?'bf':match.live?'bl':started?'bk':'bp';
+  const lbl=match.done?'✅ Final':match.live?'🔴 En Vivo':started?'🔒 Iniciado':'⏳ Próximo';
   return(
     <div className="card cclick" onClick={onClick}>
       <div className="trow">
@@ -234,6 +236,7 @@ function MatchCard({match,userPred,onClick}){
 function LoginView({users,onLogin,onRegister,onAdminLogin}){
   const[mode,setMode]=useState('new');
   const[name,setName]=useState('');
+  const[avatar,setAvatar]=useState('⚽');
   const[sel,setSel]=useState('');
   const[pass,setPass]=useState('');
   return(
@@ -254,7 +257,15 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
             <label className="lbl">Tu nombre completo</label>
             <input className="inp" placeholder="Ej: Matías Toro" value={name} onChange={e=>setName(e.target.value)}/>
           </div>
-          <button className="btn btp" disabled={!name.trim()} onClick={()=>onRegister(name.trim())}>¡Registrarme y jugar! 🎯</button>
+          <div className="fg">
+            <label className="lbl">Elige tu avatar</label>
+            <div className="avgrid">
+              {AVATARS.map(a=>(
+                <button key={a} className={`avbtn ${avatar===a?'on':''}`} onClick={()=>setAvatar(a)}>{a}</button>
+              ))}
+            </div>
+          </div>
+          <button className="btn btp" disabled={!name.trim()} onClick={()=>onRegister(name.trim(),avatar)}>¡Registrarme y jugar! 🎯</button>
         </div>
       )}
       {mode==='existing'&&(
@@ -266,7 +277,7 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
                 <label className="lbl">¿Quién eres?</label>
                 <select className="inp" value={sel} onChange={e=>setSel(e.target.value)}>
                   <option value="">Selecciona tu nombre...</option>
-                  {users.map(u=><option key={u.id} value={u.id}>{u.name}</option>)}
+                  {users.map(u=><option key={u.id} value={u.id}>{(u.avatar||'⚽')+' '+u.name}</option>)}
                 </select>
               </div>
               <button className="btn btp" disabled={!sel} onClick={()=>onLogin(users.find(u=>u.id===sel))}>Entrar →</button>
@@ -287,13 +298,13 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
   );
 }
 
-function MatchesView({matches,preds,user,byMatch,config,onSelect}){
+function MatchesView({matches,preds,user,config,onSelect}){
   const[filter,setFilter]=useState('todos');
   const sur=[...matches].filter(isSur).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));
   const myMids=new Set(preds.filter(p=>p.uid===user.id).map(p=>p.mid));
   const list=filter==='mios'?sur.filter(m=>myMids.has(m.id)):sur;
-  const live=list.filter(m=>m.live);
-  const up=list.filter(m=>!m.done&&!m.live);
+  const live=list.filter(m=>!m.done&&(m.live||hasStarted(m)));
+  const up=list.filter(m=>!m.done&&!m.live&&!hasStarted(m));
   const done=list.filter(m=>m.done);
   const sec=(title,arr)=>arr.length>0&&(<div key={title}><div className="stit">{title}</div>{arr.map(m=><MatchCard key={m.id} match={m} userPred={preds.find(p=>p.mid===m.id&&p.uid===user.id)} onClick={()=>onSelect(m)}/>)}</div>);
   return(
@@ -305,7 +316,7 @@ function MatchesView({matches,preds,user,byMatch,config,onSelect}){
         <button className={`fbtn ${filter==='mios'?'on':''}`} onClick={()=>setFilter('mios')}>🎯 Mis predicciones</button>
       </div>
       {list.length===0?<div className="empty"><div className="eico">{filter==='mios'?'🎯':'📅'}</div><div className="etxt">{filter==='mios'?'Aún no tienes predicciones.':'Los partidos aparecerán aquí.'}</div></div>
-        :<>{sec('🔴 EN VIVO',live)}{sec('⚽ PRÓXIMOS',up)}{sec('✅ FINALIZADOS',done)}</>
+        :<>{sec('🔴 EN JUEGO',live)}{sec('⚽ PRÓXIMOS',up)}{sec('✅ FINALIZADOS',done)}</>
       }
     </div>
   );
@@ -315,11 +326,14 @@ function PredictView({match,user,preds,byMatch,users,config,onSavePred,onBack}){
   const ex=preds.find(p=>p.mid===match.id&&p.uid===user.id);
   const[home,setHome]=useState(ex?.h??0);
   const[away,setAway]=useState(ex?.a??0);
-  const canPredict=!match.done&&!match.live&&config.open;
+  const started=hasStarted(match);
+  const canPredict=!match.done&&!match.live&&!started&&config.open;
   const f=t=>FLAGS[t]||'🏳️';
   const res=byMatch[match.id]||[];
-  const getName=uid=>users.find(u=>u.id===uid)?.name||'?';
-  const unscored=preds.filter(p=>p.mid===match.id&&!res.map(r=>r.uid).includes(p.uid));
+  const getU=uid=>users.find(u=>u.id===uid)||{name:'?',avatar:'⚽'};
+  const matchPreds=preds.filter(p=>p.mid===match.id);
+  const revealed=started||match.live||match.done;
+  const unscored=matchPreds.filter(p=>!res.map(r=>r.uid).includes(p.uid));
   return(
     <div>
       <button className="btn bts btsm" style={{marginBottom:14}} onClick={onBack}>← Volver</button>
@@ -333,7 +347,7 @@ function PredictView({match,user,preds,byMatch,users,config,onSavePred,onBack}){
           <div className="sc">
             {match.done?<div className="scn">{match.gh}–{match.ga}</div>:<div className="scv">VS</div>}
             {match.done&&<span className="badge bf" style={{fontSize:9,marginTop:4,display:'block'}}>FINAL</span>}
-            {match.live&&<span className="badge bl" style={{fontSize:9,marginTop:4,display:'block'}}>EN VIVO</span>}
+            {!match.done&&(match.live||started)&&<span className="badge bl" style={{fontSize:9,marginTop:4,display:'block'}}>EN JUEGO</span>}
           </div>
           <div className="team"><span className="tf">{f(match.away)}</span><span className="tn">{match.away}</span></div>
         </div>
@@ -349,8 +363,8 @@ function PredictView({match,user,preds,byMatch,users,config,onSavePred,onBack}){
             <button className="btn btp" onClick={()=>onSavePred(home,away)}>{ex?'Actualizar 🔄':'¡Guardar predicción! 🎯'}</button>
           </>
         ):(
-          <div style={{textAlign:'center',padding:'12px 0',fontSize:13,color:'var(--red)',fontWeight:600}}>
-            {match.live?'🔴 Partido en vivo · no se puede cambiar.':match.done?'✅ Partido finalizado.':'🔒 Predicciones cerradas.'}
+          !match.done&&<div style={{textAlign:'center',padding:'12px 0',fontSize:13,color:'var(--red)',fontWeight:600}}>
+            {started||match.live?'🔒 El partido ya empezó · no se puede cambiar.':'🔒 Predicciones cerradas.'}
           </div>
         )}
         {ex&&(
@@ -366,59 +380,108 @@ function PredictView({match,user,preds,byMatch,users,config,onSavePred,onBack}){
               <div style={{marginTop:10}}>
                 <div style={{fontSize:10,color:'var(--mut)',fontWeight:700,marginBottom:6}}>HISTORIAL</div>
                 {ex.history.map((h,i)=>(
-                  <div key={i} className="hist-item">
-                    <span style={{fontFamily:"'DM Mono',monospace"}}>{h.h} – {h.a}</span>
-                    <span>{fmt(h.ts)}</span>
-                  </div>
+                  <div key={i} className="hist-item"><span style={{fontFamily:"'DM Mono',monospace"}}>{h.h} – {h.a}</span><span>{fmt(h.ts)}</span></div>
                 ))}
               </div>
             )}
           </div>
         )}
+        {!revealed&&matchPreds.length>0&&(
+          <div className="secretbox">
+            🤫 {matchPreds.length} predicci{matchPreds.length===1?'ón':'ones'} guardada{matchPreds.length===1?'':'s'} en secreto.<br/>Se revelan cuando arranque el partido.
+          </div>
+        )}
       </div>
+      {revealed&&!match.done&&matchPreds.length>0&&(
+        <div style={{marginTop:4}}>
+          <div className="stit">PREDICCIONES REVELADAS 👀</div>
+          {matchPreds.map(p=>{
+            const u=getU(p.uid);
+            return(
+              <div key={p.uid} className={`rkrow ${p.uid===user.id?'me':''}`}>
+                <span style={{fontSize:18}}>{u.avatar||'⚽'}</span>
+                <div style={{flex:1,fontWeight:600,fontSize:13}}>{u.name}{p.uid===user.id?' ← tú':''}</div>
+                <span className="ptag" style={{fontSize:13}}>{p.h} – {p.a}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
       {match.done&&res.length>0&&(
         <div style={{marginTop:4}}>
           <div className="stit">RESULTADOS</div>
           {res.map(r=>{
             const medals=['🥇','🥈','🥉'];
-            const pred=preds.find(p=>p.mid===match.id&&p.uid===r.uid);
+            const u=getU(r.uid);
+            const pred=matchPreds.find(p=>p.uid===r.uid);
             return(
               <div key={r.uid} className={`rkrow ${r.uid===user.id?'me':''}`}>
                 <span style={{fontSize:18}}>{medals[r.rank-1]||'•'}</span>
-                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{getName(r.uid)}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {pred?.h}–{pred?.a} · Dif: {r.dist}{r.exact?' ⭐':''}</div></div>
+                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {pred?.h}–{pred?.a} · Dif: {r.dist}{r.exact?' ⭐':''}</div></div>
                 <div style={{textAlign:'center'}}><div className="rkp">+{r.pts}</div><div style={{fontSize:9,color:'var(--mut)'}}>pts</div></div>
               </div>
             );
           })}
-          {unscored.map(p=>(
-            <div key={p.uid} className={`rkrow ${p.uid===user.id?'me':''}`}>
-              <span style={{fontSize:18,color:'var(--mut)'}}>—</span>
-              <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{getName(p.uid)}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {p.h}–{p.a}</div></div>
-              <div style={{fontSize:12,color:'var(--mut)'}}>0 pts</div>
-            </div>
-          ))}
+          {unscored.map(p=>{
+            const u=getU(p.uid);
+            return(
+              <div key={p.uid} className={`rkrow ${p.uid===user.id?'me':''}`}>
+                <span style={{fontSize:18,color:'var(--mut)'}}>—</span>
+                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {p.h}–{p.a}</div></div>
+                <div style={{fontSize:12,color:'var(--mut)'}}>0 pts</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function RankingView({users,totals,user,matches}){
+function RankingView({users,totals,byMatch,user,matches,preds}){
   const ranked=[...users].map(u=>({...u,pts:totals[u.id]||0})).sort((a,b)=>b.pts-a.pts);
-  const done=matches.filter(m=>m.done).length;
+  const doneCount=matches.filter(m=>m.done).length;
   const medals=['🥇','🥈','🥉'];const rc=['r1','r2','r3','ro'];
+
+  const myResults=Object.values(byMatch).flat().filter(r=>r.uid===user.id);
+  const exactos=myResults.filter(r=>r.exact).length;
+  const podios=myResults.length;
+  const avgDist=myResults.length>0?(myResults.reduce((s,r)=>s+r.dist,0)/myResults.length).toFixed(1):'—';
+
+  const shareWA=()=>{
+    let txt='🏆 POLLA FAMILIAR 2026 · Familia Toro\n\n';
+    ranked.forEach((u,i)=>{txt+=`${i<3?medals[i]:(i+1)+'.'} ${u.avatar||'⚽'} ${u.name}: ${u.pts} pts\n`;});
+    txt+=`\n${doneCount} partido${doneCount!==1?'s':''} jugado${doneCount!==1?'s':''} ⚽`;
+    window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+  };
+
   return(
     <div>
-      <div className="stit">TABLA DE POSICIONES</div>
-      <div className="ssub">{done>0?`${done} partido${done>1?'s':''} finalizado${done>1?'s':''}.`:'Los puntos aparecen cuando Albeiro ingrese resultados.'}</div>
-      {ranked.length===0?<div className="empty"><div className="eico">🏆</div><div className="etxt">Nadie registrado aún.</div></div>
-        :ranked.map((u,i)=>(
-          <div key={u.id} className={`rkrow ${u.id===user.id?'me':''}`}>
-            <span className={`rkn ${rc[Math.min(i,3)]}`}>{i<3?medals[i]:i+1}</span>
-            <div className="rknm">{u.name}{u.id===user.id&&<span style={{marginLeft:6,fontSize:9,color:'var(--gld)'}}>← tú</span>}</div>
-            <div style={{textAlign:'center'}}><div className="rkp">{u.pts}</div><div style={{fontSize:9,color:'var(--mut)'}}>pts</div></div>
+      {user.id!=='admin'&&(
+        <>
+          <div className="stit">MIS ESTADÍSTICAS 📈</div>
+          <div className="statgrid">
+            <div className="statbox"><div className="statn">{totals[user.id]||0}</div><div className="statl">Puntos totales</div></div>
+            <div className="statbox"><div className="statn">{exactos}</div><div className="statl">⭐ Exactos</div></div>
+            <div className="statbox"><div className="statn">{podios}</div><div className="statl">Podios</div></div>
+            <div className="statbox"><div className="statn">{avgDist}</div><div className="statl">Dif. promedio</div></div>
           </div>
-        ))
+        </>
+      )}
+      <div className="stit">TABLA DE POSICIONES</div>
+      <div className="ssub">{doneCount>0?`${doneCount} partido${doneCount>1?'s':''} finalizado${doneCount>1?'s':''}.`:'Los puntos aparecen cuando terminen los partidos.'}</div>
+      {ranked.length===0?<div className="empty"><div className="eico">🏆</div><div className="etxt">Nadie registrado aún.</div></div>
+        :<>
+          {ranked.map((u,i)=>(
+            <div key={u.id} className={`rkrow ${u.id===user.id?'me':''}`}>
+              <span className={`rkn ${rc[Math.min(i,3)]}`}>{i<3?medals[i]:i+1}</span>
+              <span style={{fontSize:18}}>{u.avatar||'⚽'}</span>
+              <div className="rknm">{u.name}{u.id===user.id&&<span style={{marginLeft:6,fontSize:9,color:'var(--gld)'}}>← tú</span>}</div>
+              <div style={{textAlign:'center'}}><div className="rkp">{u.pts}</div><div style={{fontSize:9,color:'var(--mut)'}}>pts</div></div>
+            </div>
+          ))}
+          <button className="btn btw" style={{marginTop:8}} onClick={shareWA}>📤 Compartir ranking por WhatsApp</button>
+        </>
       }
       <div style={{marginTop:18}}>
         <div className="stit">PUNTOS</div>
@@ -434,7 +497,7 @@ function RankingView({users,totals,user,matches}){
 
 function PorPartidoView({matches,preds,users,byMatch,user}){
   const done=[...matches].filter(m=>m.done&&isSur(m)).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const getName=uid=>users.find(u=>u.id===uid)?.name||'?';
+  const getU=uid=>users.find(u=>u.id===uid)||{name:'?',avatar:'⚽'};
   const f=t=>FLAGS[t]||'🏳️';
   if(done.length===0)return<div className="empty"><div className="eico">📊</div><div className="etxt">Aquí verás quién ganó puntos en cada partido finalizado.</div></div>;
   return(
@@ -452,11 +515,12 @@ function PorPartidoView({matches,preds,users,byMatch,user}){
             </div>
             {res.length===0?<div style={{fontSize:12,color:'var(--mut)',textAlign:'center'}}>Nadie predijo este partido.</div>
               :res.map((r,i)=>{
+                const u=getU(r.uid);
                 const pred=preds.find(p=>p.mid===m.id&&p.uid===r.uid);
                 return(
                   <div key={r.uid} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:i<res.length-1?'1px solid var(--brd)':'none'}}>
                     <span style={{fontSize:15,minWidth:20}}>{medals[r.rank-1]||'•'}</span>
-                    <div style={{flex:1,fontSize:12,fontWeight:r.uid===user.id?700:400}}>{getName(r.uid)}{r.uid===user.id?' ← tú':''}</div>
+                    <div style={{flex:1,fontSize:12,fontWeight:r.uid===user.id?700:400}}>{(u.avatar||'⚽')+' '+u.name}{r.uid===user.id?' ← tú':''}</div>
                     <div style={{fontSize:11,color:'var(--mut)',fontFamily:"'DM Mono',monospace"}}>{pred?.h}–{pred?.a}{r.exact?' ⭐':''}</div>
                     <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:18,color:'var(--gld)',minWidth:28,textAlign:'right'}}>+{r.pts}</div>
                   </div>
@@ -485,23 +549,24 @@ function AdminView({matches,users,config,preds,ops,showToast}){
           <span style={{fontSize:13}}>{config.open?'✅ Abiertas':'🔒 Cerradas'}</span>
           <button className={`btn btsm ${config.open?'btd':'btp'}`} style={{width:'auto'}} onClick={()=>ops.saveConfig({...config,open:!config.open})}>{config.open?'Cerrar':'Abrir'}</button>
         </div>
+        <div style={{fontSize:11,color:'var(--mut)',marginTop:8,lineHeight:1.6}}>ℹ️ Cada partido se cierra automáticamente al llegar su hora de inicio.</div>
       </div>
       <div className="asec">
         <div className="asect">Reiniciar Datos de Prueba</div>
-        <div style={{fontSize:12,color:'var(--mut)',marginBottom:10,lineHeight:1.7}}>Borra todas las predicciones para que los puntos vuelvan a cero antes del torneo real.</div>
         <button className="btn btd" onClick={async()=>{
           if(window.confirm('¿Borrar TODAS las predicciones? Los puntos volverán a cero.')){
-            await ops.clearPreds();
-            showToast('✅ Predicciones borradas. Todo en cero.');
+            await ops.clearPreds();showToast('✅ Predicciones borradas.');
           }
         }}>🗑️ Borrar todas las predicciones</button>
       </div>
       <div className="asec">
         <div className="asect">Partido de Prueba</div>
         <button className="btn bts" onClick={async()=>{
-          const t={id:'test-'+Date.now(),home:'Colombia',away:'Argentina',date:new Date().toISOString().slice(0,10),time:'12:00',group:'TEST',done:false,live:false,gh:null,ga:null};
-          await ops.addMatch(t);showToast('🧪 Partido de prueba agregado');
-        }}>🧪 Agregar Colombia vs Argentina (hoy)</button>
+          const now=new Date();
+          const inOneHour=new Date(now.getTime()+3600000);
+          const t={id:'test-'+Date.now(),home:'Colombia',away:'Argentina',date:now.toISOString().slice(0,10),time:String(inOneHour.getHours()).padStart(2,'0')+':'+String(inOneHour.getMinutes()).padStart(2,'0'),group:'TEST',done:false,live:false,gh:null,ga:null};
+          await ops.addMatch(t);showToast('🧪 Partido de prueba agregado (arranca en 1 hora)');
+        }}>🧪 Agregar Colombia vs Argentina (en 1 hora)</button>
       </div>
       <div className="asec">
         <div className="asect">Agregar Partido</div>
@@ -527,7 +592,15 @@ function AdminView({matches,users,config,preds,ops,showToast}){
             <div key={m.id} className="arow">
               <span style={{flex:1,fontSize:10}}>{FLAGS[m.home]||'🏳️'} {m.home} vs {m.away}</span>
               {m.done
-                ?<span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:13,color:'var(--grn)'}}>✅ {m.gh}–{m.ga}</span>
+                ?<div style={{display:'flex',alignItems:'center',gap:4}}>
+                  <span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:13,color:'var(--grn)'}}>✅ {m.gh}–{m.ga}</span>
+                  <button className="btn bts btsm" style={{padding:'3px 7px',fontSize:10}} title="Deshacer resultado" onClick={async()=>{
+                    if(window.confirm(`¿Deshacer el resultado ${m.gh}–${m.ga} de ${m.home} vs ${m.away}?`)){
+                      await ops.updateMatch({...m,done:false,live:false,gh:null,ga:null});
+                      showToast('↩️ Resultado deshecho.');
+                    }
+                  }}>↩️</button>
+                </div>
                 :<div style={{display:'flex',alignItems:'center',gap:3}}>
                   <button className={`btn btsm ${m.live?'btd':'bts'}`} style={{width:'auto',padding:'3px 6px',fontSize:10}} onClick={()=>ops.updateMatch({...m,live:!m.live,done:false})}>{m.live?'⏹':'🔴'}</button>
                   <input type="number" min={0} max={20} className="sminp" placeholder="L" value={res[m.id]?.gh??''} onChange={e=>setRes({...res,[m.id]:{...res[m.id],gh:e.target.value}})}/>
@@ -555,7 +628,7 @@ function AdminView({matches,users,config,preds,ops,showToast}){
               <div style={{fontSize:11,color:'var(--red)',marginBottom:6,fontWeight:700}}>"{group[0].name}"</div>
               {group.map(u=>(
                 <div key={u.id} className="arow">
-                  <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>{preds.filter(p=>p.uid===u.id).length} predicciones</div></div>
+                  <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>{preds.filter(p=>p.uid===u.id).length} predicciones</div></div>
                   <button className="btn btd btsm" style={{padding:'4px 10px'}} onClick={()=>ops.deleteUser(u.id)}>Eliminar</button>
                 </div>
               ))}
@@ -568,7 +641,7 @@ function AdminView({matches,users,config,preds,ops,showToast}){
           <div className="asect">Participantes ({users.length})</div>
           {users.map(u=>(
             <div key={u.id} className="arow">
-              <div style={{flex:1,fontSize:13,fontWeight:600}}>{u.name}</div>
+              <div style={{flex:1,fontSize:13,fontWeight:600}}>{(u.avatar||'⚽')+' '+u.name}</div>
               <button className="btn btd btsm" style={{padding:'4px 10px'}} onClick={()=>ops.deleteUser(u.id)}>✕</button>
             </div>
           ))}
@@ -578,7 +651,6 @@ function AdminView({matches,users,config,preds,ops,showToast}){
   );
 }
 
-// ─── App principal ────────────────────────────────────
 function App(){
   const[view,setView]=useState('login');
   const[user,setUser]=useState(null);
@@ -588,6 +660,7 @@ function App(){
   const[selMatch,setSelMatch]=useState(null);
   const[theme,setTheme]=useState(()=>{try{return localStorage.getItem('pt26theme')||'dark';}catch{return'dark';}});
   const[data,setData]=useState({users:[],matches:[],preds:[],config:{open:true}});
+  const[,forceTick]=useState(0);
   const prevOpen=useRef(null);
   const userRef=useRef(null);
 
@@ -598,7 +671,8 @@ function App(){
     document.body.style.background=theme==='light'?'#f0f4f8':'#060e1c';
   },[theme]);
 
-  // ─── Listener en tiempo real (pt26v2 = nueva estructura) ──
+  useEffect(()=>{const t=setInterval(()=>forceTick(x=>x+1),30000);return()=>clearInterval(t);},[]);
+
   useEffect(()=>{
     const r=db.ref('pt26v2');
     const handler=snap=>{
@@ -622,14 +696,12 @@ function App(){
     prevOpen.current=data.config.open;
   },[data.config.open]);
 
-  // ─── Operaciones atómicas de Firebase ────────────────
-  // Cada función escribe solo su nodo — no hay conflictos
   const ops={
     addMatch:   m =>fbSet(`matches/${m.id}`,m),
     updateMatch:m =>fbSet(`matches/${m.id}`,m),
     deleteMatch:id=>fbRemove(`matches/${id}`),
     addUser:    u =>fbSet(`users/${u.id}`,u),
-    deleteUser: id=>Promise.all([fbRemove(`users/${id}`),db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s=>{if(!s.val())return;const upd={};Object.keys(s.val()).forEach(k=>{upd[k]=null;});return db.ref('pt26v2/preds').update(upd);}),]),
+    deleteUser: id=>Promise.all([fbRemove(`users/${id}`),db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s=>{if(!s.val())return;const upd={};Object.keys(s.val()).forEach(k=>{upd[k]=null;});return db.ref('pt26v2/preds').update(upd);})]),
     savePred:   p =>fbSet(`preds/${p.id}`,p),
     clearPreds: ()=>fbRemove('preds'),
     saveConfig: c =>fbSet('config',c),
@@ -669,7 +741,7 @@ function App(){
               </div>
               <div className="hdr-r">
                 <button className="thmbtn" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}>{theme==='dark'?'☀️':'🌙'}</button>
-                <button className="ubub" onClick={()=>{setUser(null);userRef.current=null;setIsAdmin(false);setView('login');}}>{user.name.split(' ')[0]}</button>
+                <button className="ubub" onClick={()=>{setUser(null);userRef.current=null;setIsAdmin(false);setView('login');}}>{(user.avatar||'⚽')+' '+user.name.split(' ')[0]}</button>
               </div>
               <div className="hdr-bar"/>
             </div>
@@ -686,24 +758,26 @@ function App(){
           {view==='login'&&(
             <LoginView users={data.users}
               onLogin={u=>{setUser(u);userRef.current=u;setView('matches');}}
-              onRegister={async name=>{
-                const nu={id:Date.now().toString(),name};
+              onRegister={async(name,avatar)=>{
+                const nu={id:Date.now().toString(),name,avatar};
                 await ops.addUser(nu);
                 setUser(nu);userRef.current=nu;setView('matches');
                 showToast('¡Bienvenido/a '+name+'! 🎉');
               }}
               onAdminLogin={pass=>{
-                if(pass===ADMIN_PASS){const u={id:'admin',name:'Albeiro 👑'};setUser(u);userRef.current=u;setIsAdmin(true);setView('admin');showToast('¡Bienvenido Albeiro! 👑');}
+                if(pass===ADMIN_PASS){const u={id:'admin',name:'Albeiro',avatar:'👑'};setUser(u);userRef.current=u;setIsAdmin(true);setView('admin');showToast('¡Bienvenido Albeiro! 👑');}
                 else showToast('❌ Contraseña incorrecta');
               }}
             />
           )}
           {(view==='matches'||(view==='predict'&&!selMatch))&&(
-            <MatchesView matches={data.matches} preds={data.preds} user={user} byMatch={byMatch} config={data.config} onSelect={m=>{setSelMatch(m);setView('predict');}}/>
+            <MatchesView matches={data.matches} preds={data.preds} user={user} config={data.config} onSelect={m=>{setSelMatch(m);setView('predict');}}/>
           )}
           {view==='predict'&&selMatch&&(
-            <PredictView match={selMatch} user={user} preds={data.preds} byMatch={byMatch} users={data.users} config={data.config}
+            <PredictView match={data.matches.find(m=>m.id===selMatch.id)||selMatch} user={user} preds={data.preds} byMatch={byMatch} users={data.users} config={data.config}
               onSavePred={async(h,a)=>{
+                const m=data.matches.find(x=>x.id===selMatch.id);
+                if(m&&(hasStarted(m)||m.live||m.done)){showToast('🔒 El partido ya empezó.');return;}
                 const now=Date.now();
                 const ex=data.preds.find(p=>p.mid===selMatch.id&&p.uid===user.id);
                 const id=ex?ex.id:Date.now().toString();
@@ -714,7 +788,7 @@ function App(){
               onBack={()=>{setSelMatch(null);setView('matches');}}
             />
           )}
-          {view==='ranking'&&<RankingView users={data.users} totals={totals} user={user} matches={data.matches}/>}
+          {view==='ranking'&&<RankingView users={data.users} totals={totals} byMatch={byMatch} user={user} matches={data.matches} preds={data.preds}/>}
           {view==='porpartido'&&<PorPartidoView matches={data.matches} preds={data.preds} users={data.users} byMatch={byMatch} user={user}/>}
           {view==='admin'&&isAdmin&&(
             <AdminView matches={data.matches} users={data.users} config={data.config} preds={data.preds} ops={ops} showToast={showToast}/>
