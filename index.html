@@ -43,7 +43,9 @@ const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá"
 const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela","Alemania","Arabia Saudita","Argelia","Australia","Austria","Bosnia y Herzegovina","Cabo Verde","Corea del Sur","Costa de Marfil","Croacia","Curazao","Escocia","España","Ghana","Haití","Inglaterra","Jordania","Marruecos","Portugal","Qatar","RD de Congo","República Checa","Sudáfrica","Suiza","Turquía","Uzbekistán"];
 const AVATARS=["⚽","🦁","🐯","🦅","⚡","🔥","🌟","🏆","🎯","🚀","🐉","🦊","🐺","👑","💎","🎩"];
 
-const hasStarted=m=>m.date?new Date()>=new Date(m.date+'T'+(m.time||'00:00')+':00'):false;
+// Hora Colombia (UTC-5) sin importar la zona horaria del dispositivo
+const colDate=m=>new Date(m.date+'T'+(m.time||'00:00')+':00-05:00');
+const hasStarted=m=>m.date?new Date()>=colDate(m):false;
 
 function calcScores(matches,preds){
   const totals={},byMatch={};
@@ -182,11 +184,11 @@ function Stepper({label,value,onChange}){
 
 function Countdown({matches}){
   const[cd,setCd]=useState('');
-  const next=[...matches].filter(m=>!m.done&&!m.live&&!hasStarted(m)&&isSur(m)).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')))[0];
+  const next=[...matches].filter(m=>!m.done&&!m.live&&!hasStarted(m)&&isSur(m)).sort((a,b)=>colDate(a)-colDate(b))[0];
   useEffect(()=>{
     if(!next){setCd('');return;}
     const tick=()=>{
-      const diff=new Date(next.date+'T'+(next.time||'00:00')+':00')-new Date();
+      const diff=colDate(next)-new Date();
       if(diff<=0){setCd('¡Ya!');return;}
       const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
       setCd(d>0?`${d}d ${h}h ${m}m`:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
@@ -300,7 +302,7 @@ function LoginView({users,onLogin,onRegister,onAdminLogin}){
 
 function MatchesView({matches,preds,user,config,onSelect}){
   const[filter,setFilter]=useState('todos');
-  const sur=[...matches].filter(isSur).sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));
+  const sur=[...matches].filter(isSur).sort((a,b)=>colDate(a)-colDate(b));
   const myMids=new Set(preds.filter(p=>p.uid===user.id).map(p=>p.mid));
   const list=filter==='mios'?sur.filter(m=>myMids.has(m.id)):sur;
   const live=list.filter(m=>!m.done&&(m.live||hasStarted(m)));
