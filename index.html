@@ -17,7 +17,11 @@
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel">
+<script>
+  // Forzar Babel a modo script (no módulo ES)
+  window.Babel = window.Babel || {};
+</script>
+<script type="text/babel" data-presets="react" data-type="script">
 const{useState,useEffect,useRef}=React;
 
 const FB={
@@ -66,13 +70,9 @@ function calcScores(matches,preds){
 }
 function fmt(ts){return new Date(ts).toLocaleString('es-CO',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 
-const mkCSS=dark=>`
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-${dark
-  ?':root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--grn:#00a651;--txt:#eef2f7;--mut:#637489;--nb:#0b1627}'
-  :':root{--bg:#f0f4f8;--surf:#fff;--card:#fff;--ch:#e8eef5;--brd:rgba(0,0,0,.1);--gld:#c9960a;--gdm:rgba(201,150,10,.1);--red:#b91c1c;--grn:#15803d;--txt:#0f172a;--mut:#64748b;--nb:#fff}'
-}
-html,body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
+const DARK_VARS=':root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--grn:#00a651;--txt:#eef2f7;--mut:#637489;--nb:#0b1627}';
+const LIGHT_VARS=':root{--bg:#f0f4f8;--surf:#fff;--card:#fff;--ch:#e8eef5;--brd:rgba(0,0,0,.1);--gld:#c9960a;--gdm:rgba(201,150,10,.1);--red:#b91c1c;--grn:#15803d;--txt:#0f172a;--mut:#64748b;--nb:#fff}';
+const mkCSS=dark=>('*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+(dark?DARK_VARS:LIGHT_VARS)+'html,body{background:var(--bg);color:var(--txt);font-family:\'Outfit\',sans-serif;min-height:100vh}')
 .wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 .hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid #FCD116;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}
 .hdr-t{font-family:'Bebas Neue',sans-serif;font-size:21px;color:#FCD116;letter-spacing:2px;line-height:1.1}
@@ -662,7 +662,7 @@ function App(){
   const[selMatch,setSelMatch]=useState(null);
   const[theme,setTheme]=useState(()=>{try{return localStorage.getItem('pt26theme')||'dark';}catch{return'dark';}});
   const[data,setData]=useState({users:[],matches:[],preds:[],config:{open:true}});
-  const[,forceTick]=useState(0);
+  const[_t,forceTick]=useState(0);
   const prevOpen=useRef(null);
   const userRef=useRef(null);
 
@@ -802,7 +802,11 @@ function App(){
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+try{
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+}catch(e){
+  document.getElementById('root').innerHTML='<div style="color:#FCD116;font-family:monospace;padding:20px;background:#060e1c;min-height:100vh"><h2>⚠️ Error al iniciar</h2><pre style="margin-top:12px;font-size:12px;color:#ff6b6b;white-space:pre-wrap">'+e.message+'\n\n'+e.stack+'</pre><p style="margin-top:16px;font-size:12px;color:#637489">Comparte este error con Pipe para solucionarlo.</p></div>';
+}
 </script>
 </body>
 </html>
