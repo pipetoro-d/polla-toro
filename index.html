@@ -9,7 +9,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -21,696 +20,1540 @@
   // Forzar Babel a modo script (no módulo ES)
   window.Babel = window.Babel || {};
 </script>
-<script type="text/babel" data-presets="react" data-type="script">
-const{useState,useEffect,useRef}=React;
-
-const FB={
-  apiKey:"AIzaSyDjJ4ErjOkxKiUHTaON74eW3w9L-O5eC5o",
-  authDomain:"polla-toro-2026.firebaseapp.com",
-  databaseURL:"https://polla-toro-2026-default-rtdb.firebaseio.com",
-  projectId:"polla-toro-2026",
-  storageBucket:"polla-toro-2026.firebasestorage.app",
-  messagingSenderId:"323693976595",
-  appId:"1:323693976595:web:8523b80b6a6fc53138b3e6"
+<script>
+const {
+  useState,
+  useEffect,
+  useRef
+} = React;
+const FB = {
+  apiKey: "AIzaSyDjJ4ErjOkxKiUHTaON74eW3w9L-O5eC5o",
+  authDomain: "polla-toro-2026.firebaseapp.com",
+  databaseURL: "https://polla-toro-2026-default-rtdb.firebaseio.com",
+  projectId: "polla-toro-2026",
+  storageBucket: "polla-toro-2026.firebasestorage.app",
+  messagingSenderId: "323693976595",
+  appId: "1:323693976595:web:8523b80b6a6fc53138b3e6"
 };
 firebase.initializeApp(FB);
-const db=firebase.database();
-const ref=p=>db.ref('pt26v2/'+p);
-const fbSet=(p,v)=>ref(p).set(v);
-const fbRemove=p=>ref(p).remove();
-
-const ADMIN_PASS="albeiro2026";
-const PTS=[3,2,1];
-const CONMEBOL=new Set(["Argentina","Brasil","Colombia","Ecuador","Paraguay","Uruguay","Bolivia","Chile","Perú","Venezuela","México"]);
-const isSur=m=>CONMEBOL.has(m.home)||CONMEBOL.has(m.away);
-const FLAGS={Argentina:"🇦🇷",Bolivia:"🇧🇴",Brasil:"🇧🇷","Canadá":"🇨🇦",Chile:"🇨🇱",Colombia:"🇨🇴","Costa Rica":"🇨🇷",Ecuador:"🇪🇨","Estados Unidos":"🇺🇸",Honduras:"🇭🇳",Jamaica:"🇯🇲","México":"🇲🇽","Panamá":"🇵🇦",Paraguay:"🇵🇾","Perú":"🇵🇪",Uruguay:"🇺🇾",Venezuela:"🇻🇪",Alemania:"🇩🇪","Arabia Saudita":"🇸🇦",Argelia:"🇩🇿",Australia:"🇦🇺",Austria:"🇦🇹","Bosnia y Herzegovina":"🇧🇦","Cabo Verde":"🇨🇻","Corea del Sur":"🇰🇷","Costa de Marfil":"🇨🇮",Croacia:"🇭🇷",Curazao:"🇨🇼",Escocia:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",España:"🇪🇸",Ghana:"🇬🇭","Haití":"🇭🇹",Inglaterra:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",Jordania:"🇯🇴",Marruecos:"🇲🇦",Portugal:"🇵🇹",Qatar:"🇶🇦","RD de Congo":"🇨🇩","República Checa":"🇨🇿","Sudáfrica":"🇿🇦",Suiza:"🇨🇭",Turquía:"🇹🇷",Uzbekistán:"🇺🇿"};
-const TEAMS=["Argentina","Bolivia","Brasil","Canadá","Chile","Colombia","Costa Rica","Ecuador","Estados Unidos","Honduras","Jamaica","México","Panamá","Paraguay","Perú","Uruguay","Venezuela","Alemania","Arabia Saudita","Argelia","Australia","Austria","Bosnia y Herzegovina","Cabo Verde","Corea del Sur","Costa de Marfil","Croacia","Curazao","Escocia","España","Ghana","Haití","Inglaterra","Jordania","Marruecos","Portugal","Qatar","RD de Congo","República Checa","Sudáfrica","Suiza","Turquía","Uzbekistán"];
-const AVATARS=["⚽","🦁","🐯","🦅","⚡","🔥","🌟","🏆","🎯","🚀","🐉","🦊","🐺","👑","💎","🎩"];
+const db = firebase.database();
+const ref = p => db.ref('pt26v2/' + p);
+const fbSet = (p, v) => ref(p).set(v);
+const fbRemove = p => ref(p).remove();
+const ADMIN_PASS = "albeiro2026";
+const PTS = [3, 2, 1];
+const CONMEBOL = new Set(["Argentina", "Brasil", "Colombia", "Ecuador", "Paraguay", "Uruguay", "Bolivia", "Chile", "Perú", "Venezuela", "México"]);
+const isSur = m => CONMEBOL.has(m.home) || CONMEBOL.has(m.away);
+const FLAGS = {
+  Argentina: "🇦🇷",
+  Bolivia: "🇧🇴",
+  Brasil: "🇧🇷",
+  "Canadá": "🇨🇦",
+  Chile: "🇨🇱",
+  Colombia: "🇨🇴",
+  "Costa Rica": "🇨🇷",
+  Ecuador: "🇪🇨",
+  "Estados Unidos": "🇺🇸",
+  Honduras: "🇭🇳",
+  Jamaica: "🇯🇲",
+  "México": "🇲🇽",
+  "Panamá": "🇵🇦",
+  Paraguay: "🇵🇾",
+  "Perú": "🇵🇪",
+  Uruguay: "🇺🇾",
+  Venezuela: "🇻🇪",
+  Alemania: "🇩🇪",
+  "Arabia Saudita": "🇸🇦",
+  Argelia: "🇩🇿",
+  Australia: "🇦🇺",
+  Austria: "🇦🇹",
+  "Bosnia y Herzegovina": "🇧🇦",
+  "Cabo Verde": "🇨🇻",
+  "Corea del Sur": "🇰🇷",
+  "Costa de Marfil": "🇨🇮",
+  Croacia: "🇭🇷",
+  Curazao: "🇨🇼",
+  Escocia: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  España: "🇪🇸",
+  Ghana: "🇬🇭",
+  "Haití": "🇭🇹",
+  Inglaterra: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  Jordania: "🇯🇴",
+  Marruecos: "🇲🇦",
+  Portugal: "🇵🇹",
+  Qatar: "🇶🇦",
+  "RD de Congo": "🇨🇩",
+  "República Checa": "🇨🇿",
+  "Sudáfrica": "🇿🇦",
+  Suiza: "🇨🇭",
+  Turquía: "🇹🇷",
+  Uzbekistán: "🇺🇿"
+};
+const TEAMS = ["Argentina", "Bolivia", "Brasil", "Canadá", "Chile", "Colombia", "Costa Rica", "Ecuador", "Estados Unidos", "Honduras", "Jamaica", "México", "Panamá", "Paraguay", "Perú", "Uruguay", "Venezuela", "Alemania", "Arabia Saudita", "Argelia", "Australia", "Austria", "Bosnia y Herzegovina", "Cabo Verde", "Corea del Sur", "Costa de Marfil", "Croacia", "Curazao", "Escocia", "España", "Ghana", "Haití", "Inglaterra", "Jordania", "Marruecos", "Portugal", "Qatar", "RD de Congo", "República Checa", "Sudáfrica", "Suiza", "Turquía", "Uzbekistán"];
+const AVATARS = ["⚽", "🦁", "🐯", "🦅", "⚡", "🔥", "🌟", "🏆", "🎯", "🚀", "🐉", "🦊", "🐺", "👑", "💎", "🎩"];
 
 // Hora Colombia (UTC-5) sin importar la zona horaria del dispositivo
-const colDate=m=>new Date(m.date+'T'+(m.time||'00:00')+':00-05:00');
-const hasStarted=m=>m.date?new Date()>=colDate(m):false;
-
-function calcScores(matches,preds){
-  const totals={},byMatch={};
-  for(const m of matches){
-    if(!m.done||m.gh==null)continue;
-    const mp=preds.filter(p=>p.mid===m.id);
-    const ranked=mp.map(p=>({...p,dist:Math.abs(p.h-m.gh)+Math.abs(p.a-m.ga),exact:p.h===m.gh&&p.a===m.ga})).sort((a,b)=>a.dist-b.dist);
-    let rank=0,prev=-1,res=[];
-    for(const p of ranked){
-      if(p.dist!==prev){rank++;prev=p.dist;}
-      if(rank>PTS.length)continue;
-      res.push({uid:p.uid,pts:PTS[rank-1],rank,dist:p.dist,exact:p.exact});
-      totals[p.uid]=(totals[p.uid]||0)+PTS[rank-1];
+const colDate = m => new Date(m.date + 'T' + (m.time || '00:00') + ':00-05:00');
+const hasStarted = m => m.date ? new Date() >= colDate(m) : false;
+function calcScores(matches, preds) {
+  const totals = {},
+    byMatch = {};
+  for (const m of matches) {
+    if (!m.done || m.gh == null) continue;
+    const mp = preds.filter(p => p.mid === m.id);
+    const ranked = mp.map(p => ({
+      ...p,
+      dist: Math.abs(p.h - m.gh) + Math.abs(p.a - m.ga),
+      exact: p.h === m.gh && p.a === m.ga
+    })).sort((a, b) => a.dist - b.dist);
+    let rank = 0,
+      prev = -1,
+      res = [];
+    for (const p of ranked) {
+      if (p.dist !== prev) {
+        rank++;
+        prev = p.dist;
+      }
+      if (rank > PTS.length) continue;
+      res.push({
+        uid: p.uid,
+        pts: PTS[rank - 1],
+        rank,
+        dist: p.dist,
+        exact: p.exact
+      });
+      totals[p.uid] = (totals[p.uid] || 0) + PTS[rank - 1];
     }
-    byMatch[m.id]=res;
+    byMatch[m.id] = res;
   }
-  return{totals,byMatch};
-}
-function fmt(ts){return new Date(ts).toLocaleString('es-CO',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
-
-const DARK_VARS=':root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--grn:#00a651;--txt:#eef2f7;--mut:#637489;--nb:#0b1627}';
-const LIGHT_VARS=':root{--bg:#f0f4f8;--surf:#fff;--card:#fff;--ch:#e8eef5;--brd:rgba(0,0,0,.1);--gld:#c9960a;--gdm:rgba(201,150,10,.1);--red:#b91c1c;--grn:#15803d;--txt:#0f172a;--mut:#64748b;--nb:#fff}';
-const mkCSS=dark=>(dark?DARK_VARS:LIGHT_VARS)+'*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'+'html,body{background:var(--bg);color:var(--txt);font-family:Outfit,sans-serif;min-height:100vh}'+'.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}.hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid #FCD116;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}.hdr-t{font-family:\'Bebas Neue\',sans-serif;font-size:21px;color:#FCD116;letter-spacing:2px;line-height:1.1}.hdr-s{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase}.hdr-r{display:flex;gap:7px;align-items:center}.ubub{background:rgba(252,209,22,.15);border:1px solid #FCD116;color:#FCD116;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'Outfit\',sans-serif}.thmbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer}.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#003087,#FCD116,#CE1126)}.nav{display:flex;background:var(--nb);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.ni{flex:1;min-width:58px;padding:8px 3px;text-align:center;font-size:7.5px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.4px;background:none;border-top:none;border-left:none;border-right:none}.ni.on{color:var(--gld);border-bottom-color:var(--gld)}.nico{font-size:15px;display:block;margin-bottom:2px}.pg{flex:1;padding:14px}.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:10px}.cclick{cursor:pointer;transition:all .2s}.cclick:hover{background:var(--ch);border-color:rgba(252,209,22,.3);transform:translateY(-1px)}.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}.team{flex:1;text-align:center}.tf{font-size:28px;display:block}.tn{font-size:10px;font-weight:600;color:var(--mut);margin-top:3px}.sc{text-align:center;flex-shrink:0;min-width:60px}.scn{font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:var(--gld);letter-spacing:4px;line-height:1}.scv{font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:var(--mut);letter-spacing:2px}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}.bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}.bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}.bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}.bk{background:rgba(252,209,22,.12);color:var(--gld);border:1px solid rgba(252,209,22,.3)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:\'DM Mono\',monospace;border:1px solid rgba(252,209,22,.2)}.gbadge{font-size:10px;background:rgba(0,48,135,.3);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:\'Outfit\',sans-serif;font-size:14px;outline:none;transition:border-color .2s}.inp:focus{border-color:var(--gld)}.inp::placeholder{color:var(--mut)}.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}.fg{margin-bottom:12px}select.inp{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'7\'%3E%3Cpath fill=\'%23637489\' d=\'M5 7 0 0h10z\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}select option{background:#0f1e35}.btn{padding:12px 20px;border-radius:8px;font-family:\'Outfit\',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}.btp{background:var(--gld);color:#000}.btp:hover{background:#e8c000;transform:translateY(-1px)}.btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}.bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}.bts:hover{background:rgba(255,255,255,.1)}.btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}.btw{background:#25D366;color:#fff}.btw:hover{background:#1faf54}.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}.steprow{display:flex;align-items:center;justify-content:center;gap:10px}.stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}.stepbtn:hover{background:rgba(252,209,22,.15)}.stepval{width:62px;height:62px;background:var(--gdm);border:2px solid var(--gld);border-radius:12px;color:var(--gld);font-family:\'Bebas Neue\',sans-serif;font-size:36px;display:flex;align-items:center;justify-content:center}.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:8px}.rkrow{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:7px}.rkrow.me{border-color:var(--gld);background:var(--gdm)}.rkn{font-family:\'Bebas Neue\',sans-serif;font-size:20px;min-width:26px;text-align:center}.r1{color:#FFD700}.r2{color:#C0C0C0}.r3{color:#CD7F32}.ro{color:var(--mut)}.rknm{flex:1;font-weight:600;font-size:14px}.rkp{font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:var(--gld)}.lhero{text-align:center;padding:24px 0 20px}.lball{font-size:56px;display:block;animation:bounce 2s infinite}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.ltit{font-family:\'Bebas Neue\',sans-serif;font-size:36px;color:#FCD116;letter-spacing:3px;line-height:1.1}.lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}.stit{font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}.divl{height:1px;background:var(--brd);margin:14px 0}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:#eef2f7;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}@keyframes tup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}.empty{text-align:center;padding:36px 16px;color:var(--mut)}.eico{font-size:44px;margin-bottom:12px}.etxt{font-size:13px;line-height:1.7}.tabs{display:flex;gap:6px;margin-bottom:14px}.tab{flex:1;padding:9px;text-align:center;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.tab.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.pres-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:11px 14px;margin-top:10px}.asec{margin-bottom:20px}.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}.arow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:12px}.arow:last-child{border-bottom:none}.sminp{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:5px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}.ntf-close{background:rgba(206,17,38,.1);border:1px solid rgba(206,17,38,.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;font-weight:600}.cd-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}.cd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}.cd-val{font-family:\'Bebas Neue\',sans-serif;font-size:26px;color:var(--gld);letter-spacing:2px}.frow{display:flex;gap:8px;margin-bottom:12px}.fbtn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.fbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.hist-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}.hist-item:last-child{border-bottom:none}.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}.avbtn{aspect-ratio:1;font-size:20px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.1)}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.statbox{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}.statn{font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--gld);line-height:1}.statl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700}.secretbox{background:var(--gdm);border:1px dashed rgba(252,209,22,.35);border-radius:8px;padding:11px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}';
-
-function Stepper({label,value,onChange}){
-  return(
-    <div>
-      <div className="sclab">{label}</div>
-      <div className="steprow">
-        <button className="stepbtn" onClick={()=>onChange(Math.max(0,value-1))}>−</button>
-        <div className="stepval">{value}</div>
-        <button className="stepbtn" onClick={()=>onChange(Math.min(20,value+1))}>+</button>
-      </div>
-    </div>
-  );
-}
-
-function Countdown({matches}){
-  const[cd,setCd]=useState('');
-  const next=[...matches].filter(m=>!m.done&&!m.live&&!hasStarted(m)&&isSur(m)).sort((a,b)=>colDate(a)-colDate(b))[0];
-  useEffect(()=>{
-    if(!next){setCd('');return;}
-    const tick=()=>{
-      const diff=colDate(next)-new Date();
-      if(diff<=0){setCd('¡Ya!');return;}
-      const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
-      setCd(d>0?`${d}d ${h}h ${m}m`:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
-    };
-    tick();const t=setInterval(tick,1000);return()=>clearInterval(t);
-  },[next?.id]);
-  if(!next||!cd)return null;
-  return(
-    <div className="cd-box">
-      <div>
-        <div className="cd-lbl">Próximo partido</div>
-        <div style={{fontSize:11,fontWeight:600}}>{FLAGS[next.home]||'🏳️'} {next.home} vs {next.away} {FLAGS[next.away]||'🏳️'}</div>
-        <div style={{fontSize:10,color:'var(--mut)',marginTop:2}}>{next.date} · {next.time} COL</div>
-      </div>
-      <div style={{textAlign:'right'}}>
-        <div className="cd-lbl">Faltan</div>
-        <div className="cd-val">{cd}</div>
-      </div>
-    </div>
-  );
-}
-
-function MatchCard({match,userPred,onClick}){
-  const f=t=>FLAGS[t]||'🏳️';
-  const started=hasStarted(match)&&!match.done&&!match.live;
-  const cls=match.done?'bf':match.live?'bl':started?'bk':'bp';
-  const lbl=match.done?'✅ Final':match.live?'🔴 En Vivo':started?'🔒 Iniciado':'⏳ Próximo';
-  return(
-    <div className="card cclick" onClick={onClick}>
-      <div className="trow">
-        <div className="team"><span className="tf">{f(match.home)}</span><span className="tn">{match.home}</span></div>
-        <div className="sc">
-          {match.done?<div className="scn">{match.gh}–{match.ga}</div>:<div className="scv">VS</div>}
-          {match.group&&<div style={{marginTop:4}}><span className="gbadge">Grupo {match.group}</span></div>}
-        </div>
-        <div className="team"><span className="tf">{f(match.away)}</span><span className="tn">{match.away}</span></div>
-      </div>
-      <div className="meta">
-        <span className={`badge ${cls}`}>{lbl}</span>
-        <span>{match.date}{match.time?` · ${match.time} COL`:''}</span>
-        {userPred&&<span className="ptag">{userPred.h}–{userPred.a}</span>}
-      </div>
-    </div>
-  );
-}
-
-function LoginView({users,onLogin,onRegister,onAdminLogin}){
-  const[mode,setMode]=useState('new');
-  const[name,setName]=useState('');
-  const[avatar,setAvatar]=useState('⚽');
-  const[sel,setSel]=useState('');
-  const[pass,setPass]=useState('');
-  return(
-    <div>
-      <div className="lhero">
-        <span className="lball">⚽</span>
-        <div className="ltit">POLLA FAMILIAR<br/>2026</div>
-        <div className="lsub">La tradición de la familia Toro<br/>ahora en digital 🇨🇴</div>
-      </div>
-      <div className="tabs">
-        <button className={`tab ${mode==='new'?'on':''}`} onClick={()=>setMode('new')}>Soy nuevo</button>
-        <button className={`tab ${mode==='existing'?'on':''}`} onClick={()=>setMode('existing')}>Ya juego</button>
-        <button className={`tab ${mode==='admin'?'on':''}`} onClick={()=>setMode('admin')}>👑 Admin</button>
-      </div>
-      {mode==='new'&&(
-        <div className="card">
-          <div className="fg">
-            <label className="lbl">Tu nombre completo</label>
-            <input className="inp" placeholder="Ej: Matías Toro" value={name} onChange={e=>setName(e.target.value)}/>
-          </div>
-          <div className="fg">
-            <label className="lbl">Elige tu avatar</label>
-            <div className="avgrid">
-              {AVATARS.map(a=>(
-                <button key={a} className={`avbtn ${avatar===a?'on':''}`} onClick={()=>setAvatar(a)}>{a}</button>
-              ))}
-            </div>
-          </div>
-          <button className="btn btp" disabled={!name.trim()} onClick={()=>onRegister(name.trim(),avatar)}>¡Registrarme y jugar! 🎯</button>
-        </div>
-      )}
-      {mode==='existing'&&(
-        <div className="card">
-          {users.length===0
-            ?<div className="empty"><div className="eico">👥</div><div className="etxt">Nadie registrado aún.</div></div>
-            :<>
-              <div className="fg">
-                <label className="lbl">¿Quién eres?</label>
-                <select className="inp" value={sel} onChange={e=>setSel(e.target.value)}>
-                  <option value="">Selecciona tu nombre...</option>
-                  {users.map(u=><option key={u.id} value={u.id}>{(u.avatar||'⚽')+' '+u.name}</option>)}
-                </select>
-              </div>
-              <button className="btn btp" disabled={!sel} onClick={()=>onLogin(users.find(u=>u.id===sel))}>Entrar →</button>
-            </>
-          }
-        </div>
-      )}
-      {mode==='admin'&&(
-        <div className="card">
-          <div className="fg">
-            <label className="lbl">Contraseña</label>
-            <input className="inp" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==='Enter'&&onAdminLogin(pass)}/>
-          </div>
-          <button className="btn btp" onClick={()=>onAdminLogin(pass)}>Entrar como Albeiro 👑</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MatchesView({matches,preds,user,config,onSelect}){
-  const[filter,setFilter]=useState('todos');
-  const sur=[...matches].filter(isSur).sort((a,b)=>colDate(a)-colDate(b));
-  const myMids=new Set(preds.filter(p=>p.uid===user.id).map(p=>p.mid));
-  const list=filter==='mios'?sur.filter(m=>myMids.has(m.id)):sur;
-  const live=list.filter(m=>!m.done&&(m.live||hasStarted(m)));
-  const up=list.filter(m=>!m.done&&!m.live&&!hasStarted(m));
-  const done=list.filter(m=>m.done);
-  const sec=(title,arr)=>arr.length>0&&(<div key={title}><div className="stit">{title}</div>{arr.map(m=><MatchCard key={m.id} match={m} userPred={preds.find(p=>p.mid===m.id&&p.uid===user.id)} onClick={()=>onSelect(m)}/>)}</div>);
-  return(
-    <div>
-      {!config.open&&<div className="ntf-close">🔒 Las predicciones están cerradas.</div>}
-      <Countdown matches={matches}/>
-      <div className="frow">
-        <button className={`fbtn ${filter==='todos'?'on':''}`} onClick={()=>setFilter('todos')}>⚽ Todos</button>
-        <button className={`fbtn ${filter==='mios'?'on':''}`} onClick={()=>setFilter('mios')}>🎯 Mis predicciones</button>
-      </div>
-      {list.length===0?<div className="empty"><div className="eico">{filter==='mios'?'🎯':'📅'}</div><div className="etxt">{filter==='mios'?'Aún no tienes predicciones.':'Los partidos aparecerán aquí.'}</div></div>
-        :<>{sec('🔴 EN JUEGO',live)}{sec('⚽ PRÓXIMOS',up)}{sec('✅ FINALIZADOS',done)}</>
-      }
-    </div>
-  );
-}
-
-function PredictView({match,user,preds,byMatch,users,config,onSavePred,onBack}){
-  const ex=preds.find(p=>p.mid===match.id&&p.uid===user.id);
-  const[home,setHome]=useState(ex?.h??0);
-  const[away,setAway]=useState(ex?.a??0);
-  const started=hasStarted(match);
-  const canPredict=!match.done&&!match.live&&!started&&config.open;
-  const f=t=>FLAGS[t]||'🏳️';
-  const res=byMatch[match.id]||[];
-  const getU=uid=>users.find(u=>u.id===uid)||{name:'?',avatar:'⚽'};
-  const matchPreds=preds.filter(p=>p.mid===match.id);
-  const revealed=started||match.live||match.done;
-  const unscored=matchPreds.filter(p=>!res.map(r=>r.uid).includes(p.uid));
-  return(
-    <div>
-      <button className="btn bts btsm" style={{marginBottom:14}} onClick={onBack}>← Volver</button>
-      <div className="card">
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          {match.group?<span className="gbadge">Grupo {match.group}</span>:<span/>}
-          <span style={{fontSize:11,color:'var(--mut)'}}>{match.date}{match.time?` · ${match.time} COL`:''}</span>
-        </div>
-        <div className="trow" style={{marginBottom:12}}>
-          <div className="team"><span className="tf">{f(match.home)}</span><span className="tn">{match.home}</span></div>
-          <div className="sc">
-            {match.done?<div className="scn">{match.gh}–{match.ga}</div>:<div className="scv">VS</div>}
-            {match.done&&<span className="badge bf" style={{fontSize:9,marginTop:4,display:'block'}}>FINAL</span>}
-            {!match.done&&(match.live||started)&&<span className="badge bl" style={{fontSize:9,marginTop:4,display:'block'}}>EN JUEGO</span>}
-          </div>
-          <div className="team"><span className="tf">{f(match.away)}</span><span className="tn">{match.away}</span></div>
-        </div>
-        {canPredict?(
-          <>
-            <div className="divl"/>
-            <div style={{textAlign:'center',fontSize:12,color:'var(--mut)',marginBottom:14}}>{ex?'¿Cambias tu predicción?':'¿Cuál es tu marcador?'}</div>
-            <div style={{display:'flex',justifyContent:'space-around',gap:8,marginBottom:18}}>
-              <Stepper label={match.home} value={home} onChange={setHome}/>
-              <div style={{display:'flex',alignItems:'flex-end',paddingBottom:14}}><span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,color:'var(--mut)'}}>–</span></div>
-              <Stepper label={match.away} value={away} onChange={setAway}/>
-            </div>
-            <button className="btn btp" onClick={()=>onSavePred(home,away)}>{ex?'Actualizar 🔄':'¡Guardar predicción! 🎯'}</button>
-          </>
-        ):(
-          !match.done&&<div style={{textAlign:'center',padding:'12px 0',fontSize:13,color:'var(--red)',fontWeight:600}}>
-            {started||match.live?'🔒 El partido ya empezó · no se puede cambiar.':'🔒 Predicciones cerradas.'}
-          </div>
-        )}
-        {ex&&(
-          <div className="pres-box" style={{marginTop:10}}>
-            <div style={{fontSize:10,color:'var(--mut)',marginBottom:4}}>TU PREDICCIÓN</div>
-            <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,color:'var(--gld)'}}>{ex.h} – {ex.a}</div>
-            {match.done&&(()=>{
-              const mr=res.find(r=>r.uid===user.id);
-              if(mr)return<div style={{marginTop:6,fontSize:12,color:'var(--grn)'}}>{mr.exact?'⭐ ':''} Posición #{mr.rank} · +{mr.pts} pts{mr.exact?' (¡Exacto!)':''}</div>;
-              return<div style={{marginTop:6,fontSize:12,color:'var(--mut)'}}>No ganaste puntos en este partido.</div>;
-            })()}
-            {ex.history&&ex.history.length>0&&(
-              <div style={{marginTop:10}}>
-                <div style={{fontSize:10,color:'var(--mut)',fontWeight:700,marginBottom:6}}>HISTORIAL</div>
-                {ex.history.map((h,i)=>(
-                  <div key={i} className="hist-item"><span style={{fontFamily:"'DM Mono',monospace"}}>{h.h} – {h.a}</span><span>{fmt(h.ts)}</span></div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        {!revealed&&matchPreds.length>0&&(
-          <div className="secretbox">
-            🤫 {matchPreds.length} predicci{matchPreds.length===1?'ón':'ones'} guardada{matchPreds.length===1?'':'s'} en secreto.<br/>Se revelan cuando arranque el partido.
-          </div>
-        )}
-      </div>
-      {revealed&&!match.done&&matchPreds.length>0&&(
-        <div style={{marginTop:4}}>
-          <div className="stit">PREDICCIONES REVELADAS 👀</div>
-          {matchPreds.map(p=>{
-            const u=getU(p.uid);
-            return(
-              <div key={p.uid} className={`rkrow ${p.uid===user.id?'me':''}`}>
-                <span style={{fontSize:18}}>{u.avatar||'⚽'}</span>
-                <div style={{flex:1,fontWeight:600,fontSize:13}}>{u.name}{p.uid===user.id?' ← tú':''}</div>
-                <span className="ptag" style={{fontSize:13}}>{p.h} – {p.a}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {match.done&&res.length>0&&(
-        <div style={{marginTop:4}}>
-          <div className="stit">RESULTADOS</div>
-          {res.map(r=>{
-            const medals=['🥇','🥈','🥉'];
-            const u=getU(r.uid);
-            const pred=matchPreds.find(p=>p.uid===r.uid);
-            return(
-              <div key={r.uid} className={`rkrow ${r.uid===user.id?'me':''}`}>
-                <span style={{fontSize:18}}>{medals[r.rank-1]||'•'}</span>
-                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {pred?.h}–{pred?.a} · Dif: {r.dist}{r.exact?' ⭐':''}</div></div>
-                <div style={{textAlign:'center'}}><div className="rkp">+{r.pts}</div><div style={{fontSize:9,color:'var(--mut)'}}>pts</div></div>
-              </div>
-            );
-          })}
-          {unscored.map(p=>{
-            const u=getU(p.uid);
-            return(
-              <div key={p.uid} className={`rkrow ${p.uid===user.id?'me':''}`}>
-                <span style={{fontSize:18,color:'var(--mut)'}}>—</span>
-                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>Pred: {p.h}–{p.a}</div></div>
-                <div style={{fontSize:12,color:'var(--mut)'}}>0 pts</div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RankingView({users,totals,byMatch,user,matches,preds}){
-  const ranked=[...users].map(u=>({...u,pts:totals[u.id]||0})).sort((a,b)=>b.pts-a.pts);
-  const doneCount=matches.filter(m=>m.done).length;
-  const medals=['🥇','🥈','🥉'];const rc=['r1','r2','r3','ro'];
-
-  const myResults=Object.values(byMatch).flat().filter(r=>r.uid===user.id);
-  const exactos=myResults.filter(r=>r.exact).length;
-  const podios=myResults.length;
-  const avgDist=myResults.length>0?(myResults.reduce((s,r)=>s+r.dist,0)/myResults.length).toFixed(1):'—';
-
-  const shareWA=()=>{
-    let txt='🏆 POLLA FAMILIAR 2026 · Familia Toro\n\n';
-    ranked.forEach((u,i)=>{txt+=`${i<3?medals[i]:(i+1)+'.'} ${u.avatar||'⚽'} ${u.name}: ${u.pts} pts\n`;});
-    txt+=`\n${doneCount} partido${doneCount!==1?'s':''} jugado${doneCount!==1?'s':''} ⚽`;
-    window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+  return {
+    totals,
+    byMatch
   };
-
-  return(
-    <div>
-      {user.id!=='admin'&&(
-        <>
-          <div className="stit">MIS ESTADÍSTICAS 📈</div>
-          <div className="statgrid">
-            <div className="statbox"><div className="statn">{totals[user.id]||0}</div><div className="statl">Puntos totales</div></div>
-            <div className="statbox"><div className="statn">{exactos}</div><div className="statl">⭐ Exactos</div></div>
-            <div className="statbox"><div className="statn">{podios}</div><div className="statl">Podios</div></div>
-            <div className="statbox"><div className="statn">{avgDist}</div><div className="statl">Dif. promedio</div></div>
-          </div>
-        </>
-      )}
-      <div className="stit">TABLA DE POSICIONES</div>
-      <div className="ssub">{doneCount>0?`${doneCount} partido${doneCount>1?'s':''} finalizado${doneCount>1?'s':''}.`:'Los puntos aparecen cuando terminen los partidos.'}</div>
-      {ranked.length===0?<div className="empty"><div className="eico">🏆</div><div className="etxt">Nadie registrado aún.</div></div>
-        :<>
-          {ranked.map((u,i)=>(
-            <div key={u.id} className={`rkrow ${u.id===user.id?'me':''}`}>
-              <span className={`rkn ${rc[Math.min(i,3)]}`}>{i<3?medals[i]:i+1}</span>
-              <span style={{fontSize:18}}>{u.avatar||'⚽'}</span>
-              <div className="rknm">{u.name}{u.id===user.id&&<span style={{marginLeft:6,fontSize:9,color:'var(--gld)'}}>← tú</span>}</div>
-              <div style={{textAlign:'center'}}><div className="rkp">{u.pts}</div><div style={{fontSize:9,color:'var(--mut)'}}>pts</div></div>
-            </div>
-          ))}
-          <button className="btn btw" style={{marginTop:8}} onClick={shareWA}>📤 Compartir ranking por WhatsApp</button>
-        </>
+}
+function fmt(ts) {
+  return new Date(ts).toLocaleString('es-CO', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+const DARK_VARS = ':root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--grn:#00a651;--txt:#eef2f7;--mut:#637489;--nb:#0b1627}';
+const LIGHT_VARS = ':root{--bg:#f0f4f8;--surf:#fff;--card:#fff;--ch:#e8eef5;--brd:rgba(0,0,0,.1);--gld:#c9960a;--gdm:rgba(201,150,10,.1);--red:#b91c1c;--grn:#15803d;--txt:#0f172a;--mut:#64748b;--nb:#fff}';
+const mkCSS = dark => (dark ? DARK_VARS : LIGHT_VARS) + '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}' + 'html,body{background:var(--bg);color:var(--txt);font-family:Outfit,sans-serif;min-height:100vh}' + '.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}.hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid #FCD116;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}.hdr-t{font-family:\'Bebas Neue\',sans-serif;font-size:21px;color:#FCD116;letter-spacing:2px;line-height:1.1}.hdr-s{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase}.hdr-r{display:flex;gap:7px;align-items:center}.ubub{background:rgba(252,209,22,.15);border:1px solid #FCD116;color:#FCD116;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'Outfit\',sans-serif}.thmbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer}.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#003087,#FCD116,#CE1126)}.nav{display:flex;background:var(--nb);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.ni{flex:1;min-width:58px;padding:8px 3px;text-align:center;font-size:7.5px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.4px;background:none;border-top:none;border-left:none;border-right:none}.ni.on{color:var(--gld);border-bottom-color:var(--gld)}.nico{font-size:15px;display:block;margin-bottom:2px}.pg{flex:1;padding:14px}.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:10px}.cclick{cursor:pointer;transition:all .2s}.cclick:hover{background:var(--ch);border-color:rgba(252,209,22,.3);transform:translateY(-1px)}.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}.team{flex:1;text-align:center}.tf{font-size:28px;display:block}.tn{font-size:10px;font-weight:600;color:var(--mut);margin-top:3px}.sc{text-align:center;flex-shrink:0;min-width:60px}.scn{font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:var(--gld);letter-spacing:4px;line-height:1}.scv{font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:var(--mut);letter-spacing:2px}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}.bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}.bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}.bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}.bk{background:rgba(252,209,22,.12);color:var(--gld);border:1px solid rgba(252,209,22,.3)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:\'DM Mono\',monospace;border:1px solid rgba(252,209,22,.2)}.gbadge{font-size:10px;background:rgba(0,48,135,.3);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:\'Outfit\',sans-serif;font-size:14px;outline:none;transition:border-color .2s}.inp:focus{border-color:var(--gld)}.inp::placeholder{color:var(--mut)}.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}.fg{margin-bottom:12px}select.inp{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'7\'%3E%3Cpath fill=\'%23637489\' d=\'M5 7 0 0h10z\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}select option{background:#0f1e35}.btn{padding:12px 20px;border-radius:8px;font-family:\'Outfit\',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}.btp{background:var(--gld);color:#000}.btp:hover{background:#e8c000;transform:translateY(-1px)}.btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}.bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}.bts:hover{background:rgba(255,255,255,.1)}.btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}.btw{background:#25D366;color:#fff}.btw:hover{background:#1faf54}.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}.steprow{display:flex;align-items:center;justify-content:center;gap:10px}.stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}.stepbtn:hover{background:rgba(252,209,22,.15)}.stepval{width:62px;height:62px;background:var(--gdm);border:2px solid var(--gld);border-radius:12px;color:var(--gld);font-family:\'Bebas Neue\',sans-serif;font-size:36px;display:flex;align-items:center;justify-content:center}.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:8px}.rkrow{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:7px}.rkrow.me{border-color:var(--gld);background:var(--gdm)}.rkn{font-family:\'Bebas Neue\',sans-serif;font-size:20px;min-width:26px;text-align:center}.r1{color:#FFD700}.r2{color:#C0C0C0}.r3{color:#CD7F32}.ro{color:var(--mut)}.rknm{flex:1;font-weight:600;font-size:14px}.rkp{font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:var(--gld)}.lhero{text-align:center;padding:24px 0 20px}.lball{font-size:56px;display:block;animation:bounce 2s infinite}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.ltit{font-family:\'Bebas Neue\',sans-serif;font-size:36px;color:#FCD116;letter-spacing:3px;line-height:1.1}.lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}.stit{font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}.divl{height:1px;background:var(--brd);margin:14px 0}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:#eef2f7;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}@keyframes tup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}.empty{text-align:center;padding:36px 16px;color:var(--mut)}.eico{font-size:44px;margin-bottom:12px}.etxt{font-size:13px;line-height:1.7}.tabs{display:flex;gap:6px;margin-bottom:14px}.tab{flex:1;padding:9px;text-align:center;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.tab.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.pres-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:11px 14px;margin-top:10px}.asec{margin-bottom:20px}.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}.arow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:12px}.arow:last-child{border-bottom:none}.sminp{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:5px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}.ntf-close{background:rgba(206,17,38,.1);border:1px solid rgba(206,17,38,.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;font-weight:600}.cd-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}.cd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}.cd-val{font-family:\'Bebas Neue\',sans-serif;font-size:26px;color:var(--gld);letter-spacing:2px}.frow{display:flex;gap:8px;margin-bottom:12px}.fbtn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.fbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.hist-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}.hist-item:last-child{border-bottom:none}.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}.avbtn{aspect-ratio:1;font-size:20px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.1)}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.statbox{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}.statn{font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--gld);line-height:1}.statl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700}.secretbox{background:var(--gdm);border:1px dashed rgba(252,209,22,.35);border-radius:8px;padding:11px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}';
+function Stepper({
+  label,
+  value,
+  onChange
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "sclab"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "steprow"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "stepbtn",
+    onClick: () => onChange(Math.max(0, value - 1))
+  }, "−"), /*#__PURE__*/React.createElement("div", {
+    className: "stepval"
+  }, value), /*#__PURE__*/React.createElement("button", {
+    className: "stepbtn",
+    onClick: () => onChange(Math.min(20, value + 1))
+  }, "+")));
+}
+function Countdown({
+  matches
+}) {
+  const [cd, setCd] = useState('');
+  const next = [...matches].filter(m => !m.done && !m.live && !hasStarted(m) && isSur(m)).sort((a, b) => colDate(a) - colDate(b))[0];
+  useEffect(() => {
+    if (!next) {
+      setCd('');
+      return;
+    }
+    const tick = () => {
+      const diff = colDate(next) - new Date();
+      if (diff <= 0) {
+        setCd('¡Ya!');
+        return;
       }
-      <div style={{marginTop:18}}>
-        <div className="stit">PUNTOS</div>
-        <div className="card" style={{fontSize:12,color:'var(--mut)',lineHeight:2.2}}>
-          {[['🥇 Marcador exacto','3 pts'],['🥈 Más cercano','2 pts'],['🥉 Segundo más cercano','1 pt']].map(([l,p])=>(
-            <div key={l}>{l}: <strong style={{color:'var(--txt)'}}>{p}</strong></div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+      const d = Math.floor(diff / 86400000),
+        h = Math.floor(diff % 86400000 / 3600000),
+        m = Math.floor(diff % 3600000 / 60000),
+        s = Math.floor(diff % 60000 / 1000);
+      setCd(d > 0 ? `${d}d ${h}h ${m}m` : `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [next?.id]);
+  if (!next || !cd) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "cd-box"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "cd-lbl"
+  }, "Próximo partido"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600
+    }
+  }, FLAGS[next.home] || '🏳️', " ", next.home, " vs ", next.away, " ", FLAGS[next.away] || '🏳️'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: 'var(--mut)',
+      marginTop: 2
+    }
+  }, next.date, " · ", next.time, " COL")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'right'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cd-lbl"
+  }, "Faltan"), /*#__PURE__*/React.createElement("div", {
+    className: "cd-val"
+  }, cd)));
 }
-
-function PorPartidoView({matches,preds,users,byMatch,user}){
-  const done=[...matches].filter(m=>m.done&&isSur(m)).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const getU=uid=>users.find(u=>u.id===uid)||{name:'?',avatar:'⚽'};
-  const f=t=>FLAGS[t]||'🏳️';
-  if(done.length===0)return<div className="empty"><div className="eico">📊</div><div className="etxt">Aquí verás quién ganó puntos en cada partido finalizado.</div></div>;
-  return(
-    <div>
-      <div className="stit">PUNTOS POR PARTIDO</div>
-      {done.map(m=>{
-        const res=byMatch[m.id]||[];
-        const medals=['🥇','🥈','🥉'];
-        return(
-          <div key={m.id} className="card" style={{marginBottom:14}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,paddingBottom:10,borderBottom:'1px solid var(--brd)'}}>
-              <span style={{fontSize:18}}>{f(m.home)}</span>
-              <div style={{flex:1}}><div style={{fontWeight:700,fontSize:13}}>{m.home} {m.gh}–{m.ga} {m.away}</div><div style={{fontSize:10,color:'var(--mut)'}}>{m.date}{m.group?` · Grupo ${m.group}`:''}</div></div>
-              <span style={{fontSize:18}}>{f(m.away)}</span>
-            </div>
-            {res.length===0?<div style={{fontSize:12,color:'var(--mut)',textAlign:'center'}}>Nadie predijo este partido.</div>
-              :res.map((r,i)=>{
-                const u=getU(r.uid);
-                const pred=preds.find(p=>p.mid===m.id&&p.uid===r.uid);
-                return(
-                  <div key={r.uid} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:i<res.length-1?'1px solid var(--brd)':'none'}}>
-                    <span style={{fontSize:15,minWidth:20}}>{medals[r.rank-1]||'•'}</span>
-                    <div style={{flex:1,fontSize:12,fontWeight:r.uid===user.id?700:400}}>{(u.avatar||'⚽')+' '+u.name}{r.uid===user.id?' ← tú':''}</div>
-                    <div style={{fontSize:11,color:'var(--mut)',fontFamily:"'DM Mono',monospace"}}>{pred?.h}–{pred?.a}{r.exact?' ⭐':''}</div>
-                    <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:18,color:'var(--gld)',minWidth:28,textAlign:'right'}}>+{r.pts}</div>
-                  </div>
-                );
-              })
-            }
-          </div>
-        );
-      })}
-    </div>
-  );
+function MatchCard({
+  match,
+  userPred,
+  onClick
+}) {
+  const f = t => FLAGS[t] || '🏳️';
+  const started = hasStarted(match) && !match.done && !match.live;
+  const cls = match.done ? 'bf' : match.live ? 'bl' : started ? 'bk' : 'bp';
+  const lbl = match.done ? '✅ Final' : match.live ? '🔴 En Vivo' : started ? '🔒 Iniciado' : '⏳ Próximo';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "card cclick",
+    onClick: onClick
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "trow"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "team"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "tf"
+  }, f(match.home)), /*#__PURE__*/React.createElement("span", {
+    className: "tn"
+  }, match.home)), /*#__PURE__*/React.createElement("div", {
+    className: "sc"
+  }, match.done ? /*#__PURE__*/React.createElement("div", {
+    className: "scn"
+  }, match.gh, "–", match.ga) : /*#__PURE__*/React.createElement("div", {
+    className: "scv"
+  }, "VS"), match.group && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gbadge"
+  }, "Grupo ", match.group))), /*#__PURE__*/React.createElement("div", {
+    className: "team"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "tf"
+  }, f(match.away)), /*#__PURE__*/React.createElement("span", {
+    className: "tn"
+  }, match.away))), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `badge ${cls}`
+  }, lbl), /*#__PURE__*/React.createElement("span", null, match.date, match.time ? ` · ${match.time} COL` : ''), userPred && /*#__PURE__*/React.createElement("span", {
+    className: "ptag"
+  }, userPred.h, "–", userPred.a)));
 }
-
-function AdminView({matches,users,config,preds,ops,showToast}){
-  const[nm,setNm]=useState({home:'Colombia',away:'Argentina',date:new Date().toISOString().slice(0,10),time:'12:00',group:'TEST'});
-  const[res,setRes]=useState({});
-  const nameMap={};
-  users.forEach(u=>{const k=u.name.toLowerCase().trim();if(!nameMap[k])nameMap[k]=[];nameMap[k].push(u);});
-  const dups=Object.values(nameMap).filter(g=>g.length>1);
-  return(
-    <div>
-      <div className="stit">PANEL ADMIN 👑</div>
-      <div className="asec">
-        <div className="asect">Predicciones</div>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:13}}>{config.open?'✅ Abiertas':'🔒 Cerradas'}</span>
-          <button className={`btn btsm ${config.open?'btd':'btp'}`} style={{width:'auto'}} onClick={()=>ops.saveConfig({...config,open:!config.open})}>{config.open?'Cerrar':'Abrir'}</button>
-        </div>
-        <div style={{fontSize:11,color:'var(--mut)',marginTop:8,lineHeight:1.6}}>ℹ️ Cada partido se cierra automáticamente al llegar su hora de inicio.</div>
-      </div>
-      <div className="asec">
-        <div className="asect">Reiniciar Datos de Prueba</div>
-        <button className="btn btd" onClick={async()=>{
-          if(window.confirm('¿Borrar TODAS las predicciones? Los puntos volverán a cero.')){
-            await ops.clearPreds();showToast('✅ Predicciones borradas.');
-          }
-        }}>🗑️ Borrar todas las predicciones</button>
-      </div>
-      <div className="asec">
-        <div className="asect">Partido de Prueba</div>
-        <button className="btn bts" onClick={async()=>{
-          const now=new Date();
-          const inOneHour=new Date(now.getTime()+3600000);
-          const t={id:'test-'+Date.now(),home:'Colombia',away:'Argentina',date:now.toISOString().slice(0,10),time:String(inOneHour.getHours()).padStart(2,'0')+':'+String(inOneHour.getMinutes()).padStart(2,'0'),group:'TEST',done:false,live:false,gh:null,ga:null};
-          await ops.addMatch(t);showToast('🧪 Partido de prueba agregado (arranca en 1 hora)');
-        }}>🧪 Agregar Colombia vs Argentina (en 1 hora)</button>
-      </div>
-      <div className="asec">
-        <div className="asect">Agregar Partido</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <div className="fg"><label className="lbl">Local</label><select className="inp" value={nm.home} onChange={e=>setNm({...nm,home:e.target.value})}>{TEAMS.map(t=><option key={t}>{t}</option>)}</select></div>
-          <div className="fg"><label className="lbl">Visitante</label><select className="inp" value={nm.away} onChange={e=>setNm({...nm,away:e.target.value})}>{TEAMS.map(t=><option key={t}>{t}</option>)}</select></div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 80px',gap:8}}>
-          <div className="fg"><label className="lbl">Fecha</label><input className="inp" type="date" value={nm.date} onChange={e=>setNm({...nm,date:e.target.value})}/></div>
-          <div className="fg"><label className="lbl">Hora COL</label><input className="inp" type="time" value={nm.time} onChange={e=>setNm({...nm,time:e.target.value})}/></div>
-          <div className="fg"><label className="lbl">Grupo</label><input className="inp" placeholder="A-L" value={nm.group} onChange={e=>setNm({...nm,group:e.target.value})}/></div>
-        </div>
-        <button className="btn btp" onClick={async()=>{
-          if(!nm.home||!nm.away||!nm.date)return;
-          await ops.addMatch({id:Date.now().toString(),...nm,done:false,live:false,gh:null,ga:null});
-          showToast('Partido agregado ✅');
-        }}>+ Agregar partido</button>
-      </div>
-      {matches.length>0&&(
-        <div className="asec">
-          <div className="asect">Resultados ({matches.length})</div>
-          {[...matches].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(m=>(
-            <div key={m.id} className="arow">
-              <span style={{flex:1,fontSize:10}}>{FLAGS[m.home]||'🏳️'} {m.home} vs {m.away}</span>
-              {m.done
-                ?<div style={{display:'flex',alignItems:'center',gap:4}}>
-                  <span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:13,color:'var(--grn)'}}>✅ {m.gh}–{m.ga}</span>
-                  <button className="btn bts btsm" style={{padding:'3px 7px',fontSize:10}} title="Deshacer resultado" onClick={async()=>{
-                    if(window.confirm(`¿Deshacer el resultado ${m.gh}–${m.ga} de ${m.home} vs ${m.away}?`)){
-                      await ops.updateMatch({...m,done:false,live:false,gh:null,ga:null});
-                      showToast('↩️ Resultado deshecho.');
-                    }
-                  }}>↩️</button>
-                </div>
-                :<div style={{display:'flex',alignItems:'center',gap:3}}>
-                  <button className={`btn btsm ${m.live?'btd':'bts'}`} style={{width:'auto',padding:'3px 6px',fontSize:10}} onClick={()=>ops.updateMatch({...m,live:!m.live,done:false})}>{m.live?'⏹':'🔴'}</button>
-                  <input type="number" min={0} max={20} className="sminp" placeholder="L" value={res[m.id]?.gh??''} onChange={e=>setRes({...res,[m.id]:{...res[m.id],gh:e.target.value}})}/>
-                  <span>–</span>
-                  <input type="number" min={0} max={20} className="sminp" placeholder="V" value={res[m.id]?.ga??''} onChange={e=>setRes({...res,[m.id]:{...res[m.id],ga:e.target.value}})}/>
-                  <button className="btn btp btsm" style={{padding:'3px 6px',fontSize:11}} onClick={async()=>{
-                    const r=res[m.id];if(r?.gh===''||r?.ga===''||r?.gh==null||r?.ga==null)return;
-                    await ops.updateMatch({...m,gh:parseInt(r.gh),ga:parseInt(r.ga),done:true,live:false});
-                    showToast('Resultado guardado ✅');
-                  }}>✓</button>
-                </div>
-              }
-              <button className="btn btd btsm" style={{padding:'3px 7px',fontSize:10}} onClick={async()=>{
-                await ops.deleteMatch(m.id);showToast('Partido eliminado');
-              }}>✕</button>
-            </div>
-          ))}
-        </div>
-      )}
-      {dups.length>0&&(
-        <div className="asec">
-          <div className="asect">⚠️ Posibles Duplicados</div>
-          {dups.map((group,i)=>(
-            <div key={i} style={{background:'rgba(206,17,38,.06)',border:'1px solid rgba(206,17,38,.2)',borderRadius:8,padding:10,marginBottom:8}}>
-              <div style={{fontSize:11,color:'var(--red)',marginBottom:6,fontWeight:700}}>"{group[0].name}"</div>
-              {group.map(u=>(
-                <div key={u.id} className="arow">
-                  <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{(u.avatar||'⚽')+' '+u.name}</div><div style={{fontSize:11,color:'var(--mut)'}}>{preds.filter(p=>p.uid===u.id).length} predicciones</div></div>
-                  <button className="btn btd btsm" style={{padding:'4px 10px'}} onClick={()=>ops.deleteUser(u.id)}>Eliminar</button>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-      {users.length>0&&(
-        <div className="asec">
-          <div className="asect">Participantes ({users.length})</div>
-          {users.map(u=>(
-            <div key={u.id} className="arow">
-              <div style={{flex:1,fontSize:13,fontWeight:600}}>{(u.avatar||'⚽')+' '+u.name}</div>
-              <button className="btn btd btsm" style={{padding:'4px 10px'}} onClick={()=>ops.deleteUser(u.id)}>✕</button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+function LoginView({
+  users,
+  onLogin,
+  onRegister,
+  onAdminLogin
+}) {
+  const [mode, setMode] = useState('new');
+  const [name, setName] = useState('');
+  const [avatar, setAvatar] = useState('⚽');
+  const [sel, setSel] = useState('');
+  const [pass, setPass] = useState('');
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "lhero"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "lball"
+  }, "⚽"), /*#__PURE__*/React.createElement("div", {
+    className: "ltit"
+  }, "POLLA FAMILIAR", /*#__PURE__*/React.createElement("br", null), "2026"), /*#__PURE__*/React.createElement("div", {
+    className: "lsub"
+  }, "La tradición de la familia Toro", /*#__PURE__*/React.createElement("br", null), "ahora en digital 🇨🇴")), /*#__PURE__*/React.createElement("div", {
+    className: "tabs"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `tab ${mode === 'new' ? 'on' : ''}`,
+    onClick: () => setMode('new')
+  }, "Soy nuevo"), /*#__PURE__*/React.createElement("button", {
+    className: `tab ${mode === 'existing' ? 'on' : ''}`,
+    onClick: () => setMode('existing')
+  }, "Ya juego"), /*#__PURE__*/React.createElement("button", {
+    className: `tab ${mode === 'admin' ? 'on' : ''}`,
+    onClick: () => setMode('admin')
+  }, "👑 Admin")), mode === 'new' && /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Tu nombre completo"), /*#__PURE__*/React.createElement("input", {
+    className: "inp",
+    placeholder: "Ej: Matías Toro",
+    value: name,
+    onChange: e => setName(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Elige tu avatar"), /*#__PURE__*/React.createElement("div", {
+    className: "avgrid"
+  }, AVATARS.map(a => /*#__PURE__*/React.createElement("button", {
+    key: a,
+    className: `avbtn ${avatar === a ? 'on' : ''}`,
+    onClick: () => setAvatar(a)
+  }, a)))), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp",
+    disabled: !name.trim(),
+    onClick: () => onRegister(name.trim(), avatar)
+  }, "¡Registrarme y jugar! 🎯")), mode === 'existing' && /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, users.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eico"
+  }, "👥"), /*#__PURE__*/React.createElement("div", {
+    className: "etxt"
+  }, "Nadie registrado aún.")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "¿Quién eres?"), /*#__PURE__*/React.createElement("select", {
+    className: "inp",
+    value: sel,
+    onChange: e => setSel(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Selecciona tu nombre..."), users.map(u => /*#__PURE__*/React.createElement("option", {
+    key: u.id,
+    value: u.id
+  }, (u.avatar || '⚽') + ' ' + u.name)))), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp",
+    disabled: !sel,
+    onClick: () => onLogin(users.find(u => u.id === sel))
+  }, "Entrar →"))), mode === 'admin' && /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Contraseña"), /*#__PURE__*/React.createElement("input", {
+    className: "inp",
+    type: "password",
+    placeholder: "••••••••",
+    value: pass,
+    onChange: e => setPass(e.target.value),
+    onKeyDown: e => e.key === 'Enter' && onAdminLogin(pass)
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp",
+    onClick: () => onAdminLogin(pass)
+  }, "Entrar como Albeiro 👑")));
 }
-
-function App(){
-  const[view,setView]=useState('login');
-  const[user,setUser]=useState(null);
-  const[isAdmin,setIsAdmin]=useState(false);
-  const[loading,setLoading]=useState(true);
-  const[toast,setToast]=useState(null);
-  const[selMatch,setSelMatch]=useState(null);
-  const[theme,setTheme]=useState(()=>{try{return localStorage.getItem('pt26theme')||'dark';}catch{return'dark';}});
-  const[data,setData]=useState({users:[],matches:[],preds:[],config:{open:true}});
-  const[_t,forceTick]=useState(0);
-  const prevOpen=useRef(null);
-  const userRef=useRef(null);
-
-  const showToast=(msg,dur=3000)=>{setToast(msg);setTimeout(()=>setToast(null),dur);};
-
-  useEffect(()=>{
-    try{localStorage.setItem('pt26theme',theme);}catch{}
-    document.body.style.background=theme==='light'?'#f0f4f8':'#060e1c';
-  },[theme]);
-
-  useEffect(()=>{const t=setInterval(()=>forceTick(x=>x+1),30000);return()=>clearInterval(t);},[]);
-
-  useEffect(()=>{
-    const r=db.ref('pt26v2');
-    const handler=snap=>{
-      const v=snap.val()||{};
+function MatchesView({
+  matches,
+  preds,
+  user,
+  config,
+  onSelect
+}) {
+  const [filter, setFilter] = useState('todos');
+  const sur = [...matches].filter(isSur).sort((a, b) => colDate(a) - colDate(b));
+  const myMids = new Set(preds.filter(p => p.uid === user.id).map(p => p.mid));
+  const list = filter === 'mios' ? sur.filter(m => myMids.has(m.id)) : sur;
+  const live = list.filter(m => !m.done && (m.live || hasStarted(m)));
+  const up = list.filter(m => !m.done && !m.live && !hasStarted(m));
+  const done = list.filter(m => m.done);
+  const sec = (title, arr) => arr.length > 0 && /*#__PURE__*/React.createElement("div", {
+    key: title
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, title), arr.map(m => /*#__PURE__*/React.createElement(MatchCard, {
+    key: m.id,
+    match: m,
+    userPred: preds.find(p => p.mid === m.id && p.uid === user.id),
+    onClick: () => onSelect(m)
+  })));
+  return /*#__PURE__*/React.createElement("div", null, !config.open && /*#__PURE__*/React.createElement("div", {
+    className: "ntf-close"
+  }, "🔒 Las predicciones están cerradas."), /*#__PURE__*/React.createElement(Countdown, {
+    matches: matches
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "frow"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `fbtn ${filter === 'todos' ? 'on' : ''}`,
+    onClick: () => setFilter('todos')
+  }, "⚽ Todos"), /*#__PURE__*/React.createElement("button", {
+    className: `fbtn ${filter === 'mios' ? 'on' : ''}`,
+    onClick: () => setFilter('mios')
+  }, "🎯 Mis predicciones")), list.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eico"
+  }, filter === 'mios' ? '🎯' : '📅'), /*#__PURE__*/React.createElement("div", {
+    className: "etxt"
+  }, filter === 'mios' ? 'Aún no tienes predicciones.' : 'Los partidos aparecerán aquí.')) : /*#__PURE__*/React.createElement(React.Fragment, null, sec('🔴 EN JUEGO', live), sec('⚽ PRÓXIMOS', up), sec('✅ FINALIZADOS', done)));
+}
+function PredictView({
+  match,
+  user,
+  preds,
+  byMatch,
+  users,
+  config,
+  onSavePred,
+  onBack
+}) {
+  const ex = preds.find(p => p.mid === match.id && p.uid === user.id);
+  const [home, setHome] = useState(ex?.h ?? 0);
+  const [away, setAway] = useState(ex?.a ?? 0);
+  const started = hasStarted(match);
+  const canPredict = !match.done && !match.live && !started && config.open;
+  const f = t => FLAGS[t] || '🏳️';
+  const res = byMatch[match.id] || [];
+  const getU = uid => users.find(u => u.id === uid) || {
+    name: '?',
+    avatar: '⚽'
+  };
+  const matchPreds = preds.filter(p => p.mid === match.id);
+  const revealed = started || match.live || match.done;
+  const unscored = matchPreds.filter(p => !res.map(r => r.uid).includes(p.uid));
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+    className: "btn bts btsm",
+    style: {
+      marginBottom: 14
+    },
+    onClick: onBack
+  }, "← Volver"), /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12
+    }
+  }, match.group ? /*#__PURE__*/React.createElement("span", {
+    className: "gbadge"
+  }, "Grupo ", match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: 'var(--mut)'
+    }
+  }, match.date, match.time ? ` · ${match.time} COL` : '')), /*#__PURE__*/React.createElement("div", {
+    className: "trow",
+    style: {
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "team"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "tf"
+  }, f(match.home)), /*#__PURE__*/React.createElement("span", {
+    className: "tn"
+  }, match.home)), /*#__PURE__*/React.createElement("div", {
+    className: "sc"
+  }, match.done ? /*#__PURE__*/React.createElement("div", {
+    className: "scn"
+  }, match.gh, "–", match.ga) : /*#__PURE__*/React.createElement("div", {
+    className: "scv"
+  }, "VS"), match.done && /*#__PURE__*/React.createElement("span", {
+    className: "badge bf",
+    style: {
+      fontSize: 9,
+      marginTop: 4,
+      display: 'block'
+    }
+  }, "FINAL"), !match.done && (match.live || started) && /*#__PURE__*/React.createElement("span", {
+    className: "badge bl",
+    style: {
+      fontSize: 9,
+      marginTop: 4,
+      display: 'block'
+    }
+  }, "EN JUEGO")), /*#__PURE__*/React.createElement("div", {
+    className: "team"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "tf"
+  }, f(match.away)), /*#__PURE__*/React.createElement("span", {
+    className: "tn"
+  }, match.away))), canPredict ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "divl"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      fontSize: 12,
+      color: 'var(--mut)',
+      marginBottom: 14
+    }
+  }, ex ? '¿Cambias tu predicción?' : '¿Cuál es tu marcador?'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-around',
+      gap: 8,
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement(Stepper, {
+    label: match.home,
+    value: home,
+    onChange: setHome
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'flex-end',
+      paddingBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'Bebas Neue',sans-serif",
+      fontSize: 26,
+      color: 'var(--mut)'
+    }
+  }, "–")), /*#__PURE__*/React.createElement(Stepper, {
+    label: match.away,
+    value: away,
+    onChange: setAway
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp",
+    onClick: () => onSavePred(home, away)
+  }, ex ? 'Actualizar 🔄' : '¡Guardar predicción! 🎯')) : !match.done && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      padding: '12px 0',
+      fontSize: 13,
+      color: 'var(--red)',
+      fontWeight: 600
+    }
+  }, started || match.live ? '🔒 El partido ya empezó · no se puede cambiar.' : '🔒 Predicciones cerradas.'), ex && /*#__PURE__*/React.createElement("div", {
+    className: "pres-box",
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: 'var(--mut)',
+      marginBottom: 4
+    }
+  }, "TU PREDICCIÓN"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Bebas Neue',sans-serif",
+      fontSize: 26,
+      color: 'var(--gld)'
+    }
+  }, ex.h, " – ", ex.a), match.done && (() => {
+    const mr = res.find(r => r.uid === user.id);
+    if (mr) return /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 6,
+        fontSize: 12,
+        color: 'var(--grn)'
+      }
+    }, mr.exact ? '⭐ ' : '', " Posición #", mr.rank, " · +", mr.pts, " pts", mr.exact ? ' (¡Exacto!)' : '');
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 6,
+        fontSize: 12,
+        color: 'var(--mut)'
+      }
+    }, "No ganaste puntos en este partido.");
+  })(), ex.history && ex.history.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: 'var(--mut)',
+      fontWeight: 700,
+      marginBottom: 6
+    }
+  }, "HISTORIAL"), ex.history.map((h, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "hist-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'DM Mono',monospace"
+    }
+  }, h.h, " – ", h.a), /*#__PURE__*/React.createElement("span", null, fmt(h.ts)))))), !revealed && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "secretbox"
+  }, "🤫 ", matchPreds.length, " predicci", matchPreds.length === 1 ? 'ón' : 'ones', " guardada", matchPreds.length === 1 ? '' : 's', " en secreto.", /*#__PURE__*/React.createElement("br", null), "Se revelan cuando arranque el partido.")), revealed && !match.done && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "PREDICCIONES REVELADAS 👀"), matchPreds.map(p => {
+    const u = getU(p.uid);
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.uid,
+      className: `rkrow ${p.uid === user.id ? 'me' : ''}`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, u.avatar || '⚽'), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontWeight: 600,
+        fontSize: 13
+      }
+    }, u.name, p.uid === user.id ? ' ← tú' : ''), /*#__PURE__*/React.createElement("span", {
+      className: "ptag",
+      style: {
+        fontSize: 13
+      }
+    }, p.h, " – ", p.a));
+  })), match.done && res.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "RESULTADOS"), res.map(r => {
+    const medals = ['🥇', '🥈', '🥉'];
+    const u = getU(r.uid);
+    const pred = matchPreds.find(p => p.uid === r.uid);
+    return /*#__PURE__*/React.createElement("div", {
+      key: r.uid,
+      className: `rkrow ${r.uid === user.id ? 'me' : ''}`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, medals[r.rank - 1] || '•'), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        fontSize: 13
+      }
+    }, (u.avatar || '⚽') + ' ' + u.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: 'var(--mut)'
+      }
+    }, "Pred: ", pred?.h, "–", pred?.a, " · Dif: ", r.dist, r.exact ? ' ⭐' : '')), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "rkp"
+    }, "+", r.pts), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: 'var(--mut)'
+      }
+    }, "pts")));
+  }), unscored.map(p => {
+    const u = getU(p.uid);
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.uid,
+      className: `rkrow ${p.uid === user.id ? 'me' : ''}`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18,
+        color: 'var(--mut)'
+      }
+    }, "—"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        fontSize: 13
+      }
+    }, (u.avatar || '⚽') + ' ' + u.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: 'var(--mut)'
+      }
+    }, "Pred: ", p.h, "–", p.a)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--mut)'
+      }
+    }, "0 pts"));
+  })));
+}
+function RankingView({
+  users,
+  totals,
+  byMatch,
+  user,
+  matches,
+  preds
+}) {
+  const ranked = [...users].map(u => ({
+    ...u,
+    pts: totals[u.id] || 0
+  })).sort((a, b) => b.pts - a.pts);
+  const doneCount = matches.filter(m => m.done).length;
+  const medals = ['🥇', '🥈', '🥉'];
+  const rc = ['r1', 'r2', 'r3', 'ro'];
+  const myResults = Object.values(byMatch).flat().filter(r => r.uid === user.id);
+  const exactos = myResults.filter(r => r.exact).length;
+  const podios = myResults.length;
+  const avgDist = myResults.length > 0 ? (myResults.reduce((s, r) => s + r.dist, 0) / myResults.length).toFixed(1) : '—';
+  const shareWA = () => {
+    let txt = '🏆 POLLA FAMILIAR 2026 · Familia Toro\n\n';
+    ranked.forEach((u, i) => {
+      txt += `${i < 3 ? medals[i] : i + 1 + '.'} ${u.avatar || '⚽'} ${u.name}: ${u.pts} pts\n`;
+    });
+    txt += `\n${doneCount} partido${doneCount !== 1 ? 's' : ''} jugado${doneCount !== 1 ? 's' : ''} ⚽`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+  };
+  return /*#__PURE__*/React.createElement("div", null, user.id !== 'admin' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "MIS ESTADÍSTICAS 📈"), /*#__PURE__*/React.createElement("div", {
+    className: "statgrid"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "statbox"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "statn"
+  }, totals[user.id] || 0), /*#__PURE__*/React.createElement("div", {
+    className: "statl"
+  }, "Puntos totales")), /*#__PURE__*/React.createElement("div", {
+    className: "statbox"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "statn"
+  }, exactos), /*#__PURE__*/React.createElement("div", {
+    className: "statl"
+  }, "⭐ Exactos")), /*#__PURE__*/React.createElement("div", {
+    className: "statbox"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "statn"
+  }, podios), /*#__PURE__*/React.createElement("div", {
+    className: "statl"
+  }, "Podios")), /*#__PURE__*/React.createElement("div", {
+    className: "statbox"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "statn"
+  }, avgDist), /*#__PURE__*/React.createElement("div", {
+    className: "statl"
+  }, "Dif. promedio")))), /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "TABLA DE POSICIONES"), /*#__PURE__*/React.createElement("div", {
+    className: "ssub"
+  }, doneCount > 0 ? `${doneCount} partido${doneCount > 1 ? 's' : ''} finalizado${doneCount > 1 ? 's' : ''}.` : 'Los puntos aparecen cuando terminen los partidos.'), ranked.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eico"
+  }, "🏆"), /*#__PURE__*/React.createElement("div", {
+    className: "etxt"
+  }, "Nadie registrado aún.")) : /*#__PURE__*/React.createElement(React.Fragment, null, ranked.map((u, i) => /*#__PURE__*/React.createElement("div", {
+    key: u.id,
+    className: `rkrow ${u.id === user.id ? 'me' : ''}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `rkn ${rc[Math.min(i, 3)]}`
+  }, i < 3 ? medals[i] : i + 1), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 18
+    }
+  }, u.avatar || '⚽'), /*#__PURE__*/React.createElement("div", {
+    className: "rknm"
+  }, u.name, u.id === user.id && /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: 6,
+      fontSize: 9,
+      color: 'var(--gld)'
+    }
+  }, "← tú")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rkp"
+  }, u.pts), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: 'var(--mut)'
+    }
+  }, "pts")))), /*#__PURE__*/React.createElement("button", {
+    className: "btn btw",
+    style: {
+      marginTop: 8
+    },
+    onClick: shareWA
+  }, "📤 Compartir ranking por WhatsApp")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "PUNTOS"), /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      fontSize: 12,
+      color: 'var(--mut)',
+      lineHeight: 2.2
+    }
+  }, [['🥇 Marcador exacto', '3 pts'], ['🥈 Más cercano', '2 pts'], ['🥉 Segundo más cercano', '1 pt']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
+    key: l
+  }, l, ": ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--txt)'
+    }
+  }, p))))));
+}
+function PorPartidoView({
+  matches,
+  preds,
+  users,
+  byMatch,
+  user
+}) {
+  const done = [...matches].filter(m => m.done && isSur(m)).sort((a, b) => new Date(b.date) - new Date(a.date));
+  const getU = uid => users.find(u => u.id === uid) || {
+    name: '?',
+    avatar: '⚽'
+  };
+  const f = t => FLAGS[t] || '🏳️';
+  if (done.length === 0) return /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eico"
+  }, "📊"), /*#__PURE__*/React.createElement("div", {
+    className: "etxt"
+  }, "Aquí verás quién ganó puntos en cada partido finalizado."));
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "PUNTOS POR PARTIDO"), done.map(m => {
+    const res = byMatch[m.id] || [];
+    const medals = ['🥇', '🥈', '🥉'];
+    return /*#__PURE__*/React.createElement("div", {
+      key: m.id,
+      className: "card",
+      style: {
+        marginBottom: 14
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 10,
+        paddingBottom: 10,
+        borderBottom: '1px solid var(--brd)'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, f(m.home)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 13
+      }
+    }, m.home, " ", m.gh, "–", m.ga, " ", m.away), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: 'var(--mut)'
+      }
+    }, m.date, m.group ? ` · Grupo ${m.group}` : '')), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, f(m.away))), res.length === 0 ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--mut)',
+        textAlign: 'center'
+      }
+    }, "Nadie predijo este partido.") : res.map((r, i) => {
+      const u = getU(r.uid);
+      const pred = preds.find(p => p.mid === m.id && p.uid === r.uid);
+      return /*#__PURE__*/React.createElement("div", {
+        key: r.uid,
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '5px 0',
+          borderBottom: i < res.length - 1 ? '1px solid var(--brd)' : 'none'
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 15,
+          minWidth: 20
+        }
+      }, medals[r.rank - 1] || '•'), /*#__PURE__*/React.createElement("div", {
+        style: {
+          flex: 1,
+          fontSize: 12,
+          fontWeight: r.uid === user.id ? 700 : 400
+        }
+      }, (u.avatar || '⚽') + ' ' + u.name, r.uid === user.id ? ' ← tú' : ''), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: 'var(--mut)',
+          fontFamily: "'DM Mono',monospace"
+        }
+      }, pred?.h, "–", pred?.a, r.exact ? ' ⭐' : ''), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontFamily: "'Bebas Neue',sans-serif",
+          fontSize: 18,
+          color: 'var(--gld)',
+          minWidth: 28,
+          textAlign: 'right'
+        }
+      }, "+", r.pts));
+    }));
+  }));
+}
+function AdminView({
+  matches,
+  users,
+  config,
+  preds,
+  ops,
+  showToast
+}) {
+  const [nm, setNm] = useState({
+    home: 'Colombia',
+    away: 'Argentina',
+    date: new Date().toISOString().slice(0, 10),
+    time: '12:00',
+    group: 'TEST'
+  });
+  const [res, setRes] = useState({});
+  const nameMap = {};
+  users.forEach(u => {
+    const k = u.name.toLowerCase().trim();
+    if (!nameMap[k]) nameMap[k] = [];
+    nameMap[k].push(u);
+  });
+  const dups = Object.values(nameMap).filter(g => g.length > 1);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "PANEL ADMIN 👑"), /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Predicciones"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13
+    }
+  }, config.open ? '✅ Abiertas' : '🔒 Cerradas'), /*#__PURE__*/React.createElement("button", {
+    className: `btn btsm ${config.open ? 'btd' : 'btp'}`,
+    style: {
+      width: 'auto'
+    },
+    onClick: () => ops.saveConfig({
+      ...config,
+      open: !config.open
+    })
+  }, config.open ? 'Cerrar' : 'Abrir')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--mut)',
+      marginTop: 8,
+      lineHeight: 1.6
+    }
+  }, "ℹ️ Cada partido se cierra automáticamente al llegar su hora de inicio.")), /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Reiniciar Datos de Prueba"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btd",
+    onClick: async () => {
+      if (window.confirm('¿Borrar TODAS las predicciones? Los puntos volverán a cero.')) {
+        await ops.clearPreds();
+        showToast('✅ Predicciones borradas.');
+      }
+    }
+  }, "🗑️ Borrar todas las predicciones")), /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Partido de Prueba"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bts",
+    onClick: async () => {
+      const now = new Date();
+      const inOneHour = new Date(now.getTime() + 3600000);
+      const t = {
+        id: 'test-' + Date.now(),
+        home: 'Colombia',
+        away: 'Argentina',
+        date: now.toISOString().slice(0, 10),
+        time: String(inOneHour.getHours()).padStart(2, '0') + ':' + String(inOneHour.getMinutes()).padStart(2, '0'),
+        group: 'TEST',
+        done: false,
+        live: false,
+        gh: null,
+        ga: null
+      };
+      await ops.addMatch(t);
+      showToast('🧪 Partido de prueba agregado (arranca en 1 hora)');
+    }
+  }, "🧪 Agregar Colombia vs Argentina (en 1 hora)")), /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Agregar Partido"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Local"), /*#__PURE__*/React.createElement("select", {
+    className: "inp",
+    value: nm.home,
+    onChange: e => setNm({
+      ...nm,
+      home: e.target.value
+    })
+  }, TEAMS.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t
+  }, t)))), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Visitante"), /*#__PURE__*/React.createElement("select", {
+    className: "inp",
+    value: nm.away,
+    onChange: e => setNm({
+      ...nm,
+      away: e.target.value
+    })
+  }, TEAMS.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t
+  }, t))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr 80px',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Fecha"), /*#__PURE__*/React.createElement("input", {
+    className: "inp",
+    type: "date",
+    value: nm.date,
+    onChange: e => setNm({
+      ...nm,
+      date: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Hora COL"), /*#__PURE__*/React.createElement("input", {
+    className: "inp",
+    type: "time",
+    value: nm.time,
+    onChange: e => setNm({
+      ...nm,
+      time: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl"
+  }, "Grupo"), /*#__PURE__*/React.createElement("input", {
+    className: "inp",
+    placeholder: "A-L",
+    value: nm.group,
+    onChange: e => setNm({
+      ...nm,
+      group: e.target.value
+    })
+  }))), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp",
+    onClick: async () => {
+      if (!nm.home || !nm.away || !nm.date) return;
+      await ops.addMatch({
+        id: Date.now().toString(),
+        ...nm,
+        done: false,
+        live: false,
+        gh: null,
+        ga: null
+      });
+      showToast('Partido agregado ✅');
+    }
+  }, "+ Agregar partido")), matches.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Resultados (", matches.length, ")"), [...matches].sort((a, b) => new Date(a.date) - new Date(b.date)).map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    className: "arow"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      fontSize: 10
+    }
+  }, FLAGS[m.home] || '🏳️', " ", m.home, " vs ", m.away), m.done ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "'Bebas Neue',sans-serif",
+      fontSize: 13,
+      color: 'var(--grn)'
+    }
+  }, "✅ ", m.gh, "–", m.ga), /*#__PURE__*/React.createElement("button", {
+    className: "btn bts btsm",
+    style: {
+      padding: '3px 7px',
+      fontSize: 10
+    },
+    title: "Deshacer resultado",
+    onClick: async () => {
+      if (window.confirm(`¿Deshacer el resultado ${m.gh}–${m.ga} de ${m.home} vs ${m.away}?`)) {
+        await ops.updateMatch({
+          ...m,
+          done: false,
+          live: false,
+          gh: null,
+          ga: null
+        });
+        showToast('↩️ Resultado deshecho.');
+      }
+    }
+  }, "↩️")) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 3
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `btn btsm ${m.live ? 'btd' : 'bts'}`,
+    style: {
+      width: 'auto',
+      padding: '3px 6px',
+      fontSize: 10
+    },
+    onClick: () => ops.updateMatch({
+      ...m,
+      live: !m.live,
+      done: false
+    })
+  }, m.live ? '⏹' : '🔴'), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 0,
+    max: 20,
+    className: "sminp",
+    placeholder: "L",
+    value: res[m.id]?.gh ?? '',
+    onChange: e => setRes({
+      ...res,
+      [m.id]: {
+        ...res[m.id],
+        gh: e.target.value
+      }
+    })
+  }), /*#__PURE__*/React.createElement("span", null, "–"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 0,
+    max: 20,
+    className: "sminp",
+    placeholder: "V",
+    value: res[m.id]?.ga ?? '',
+    onChange: e => setRes({
+      ...res,
+      [m.id]: {
+        ...res[m.id],
+        ga: e.target.value
+      }
+    })
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "btn btp btsm",
+    style: {
+      padding: '3px 6px',
+      fontSize: 11
+    },
+    onClick: async () => {
+      const r = res[m.id];
+      if (r?.gh === '' || r?.ga === '' || r?.gh == null || r?.ga == null) return;
+      await ops.updateMatch({
+        ...m,
+        gh: parseInt(r.gh),
+        ga: parseInt(r.ga),
+        done: true,
+        live: false
+      });
+      showToast('Resultado guardado ✅');
+    }
+  }, "✓")), /*#__PURE__*/React.createElement("button", {
+    className: "btn btd btsm",
+    style: {
+      padding: '3px 7px',
+      fontSize: 10
+    },
+    onClick: async () => {
+      await ops.deleteMatch(m.id);
+      showToast('Partido eliminado');
+    }
+  }, "✕")))), dups.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "⚠️ Posibles Duplicados"), dups.map((group, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: 'rgba(206,17,38,.06)',
+      border: '1px solid rgba(206,17,38,.2)',
+      borderRadius: 8,
+      padding: 10,
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--red)',
+      marginBottom: 6,
+      fontWeight: 700
+    }
+  }, "\"", group[0].name, "\""), group.map(u => /*#__PURE__*/React.createElement("div", {
+    key: u.id,
+    className: "arow"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600
+    }
+  }, (u.avatar || '⚽') + ' ' + u.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--mut)'
+    }
+  }, preds.filter(p => p.uid === u.id).length, " predicciones")), /*#__PURE__*/React.createElement("button", {
+    className: "btn btd btsm",
+    style: {
+      padding: '4px 10px'
+    },
+    onClick: () => ops.deleteUser(u.id)
+  }, "Eliminar")))))), users.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Participantes (", users.length, ")"), users.map(u => /*#__PURE__*/React.createElement("div", {
+    key: u.id,
+    className: "arow"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      fontSize: 13,
+      fontWeight: 600
+    }
+  }, (u.avatar || '⚽') + ' ' + u.name), /*#__PURE__*/React.createElement("button", {
+    className: "btn btd btsm",
+    style: {
+      padding: '4px 10px'
+    },
+    onClick: () => ops.deleteUser(u.id)
+  }, "✕")))));
+}
+function App() {
+  const [view, setView] = useState('login');
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [selMatch, setSelMatch] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('pt26theme') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+  const [data, setData] = useState({
+    users: [],
+    matches: [],
+    preds: [],
+    config: {
+      open: true
+    }
+  });
+  const [_t, forceTick] = useState(0);
+  const prevOpen = useRef(null);
+  const userRef = useRef(null);
+  const showToast = (msg, dur = 3000) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), dur);
+  };
+  useEffect(() => {
+    try {
+      localStorage.setItem('pt26theme', theme);
+    } catch {}
+    document.body.style.background = theme === 'light' ? '#f0f4f8' : '#060e1c';
+  }, [theme]);
+  useEffect(() => {
+    const t = setInterval(() => forceTick(x => x + 1), 30000);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    const r = db.ref('pt26v2');
+    const handler = snap => {
+      const v = snap.val() || {};
       setData({
-        matches:v.matches?Object.values(v.matches):[],
-        preds:  v.preds  ?Object.values(v.preds)  :[],
-        users:  v.users  ?Object.values(v.users)  :[],
-        config: v.config ||{open:true}
+        matches: v.matches ? Object.values(v.matches) : [],
+        preds: v.preds ? Object.values(v.preds) : [],
+        users: v.users ? Object.values(v.users) : [],
+        config: v.config || {
+          open: true
+        }
       });
       setLoading(false);
     };
-    r.on('value',handler);
-    return()=>r.off('value',handler);
-  },[]);
-
-  useEffect(()=>{
-    if(prevOpen.current!==null&&prevOpen.current!==data.config.open&&userRef.current){
-      showToast(data.config.open?'✅ ¡Predicciones abiertas!':'🔒 Predicciones cerradas.',4000);
+    r.on('value', handler);
+    return () => r.off('value', handler);
+  }, []);
+  useEffect(() => {
+    if (prevOpen.current !== null && prevOpen.current !== data.config.open && userRef.current) {
+      showToast(data.config.open ? '✅ ¡Predicciones abiertas!' : '🔒 Predicciones cerradas.', 4000);
     }
-    prevOpen.current=data.config.open;
-  },[data.config.open]);
-
-  const ops={
-    addMatch:   m =>fbSet(`matches/${m.id}`,m),
-    updateMatch:m =>fbSet(`matches/${m.id}`,m),
-    deleteMatch:id=>fbRemove(`matches/${id}`),
-    addUser:    u =>fbSet(`users/${u.id}`,u),
-    deleteUser: id=>Promise.all([fbRemove(`users/${id}`),db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s=>{if(!s.val())return;const upd={};Object.keys(s.val()).forEach(k=>{upd[k]=null;});return db.ref('pt26v2/preds').update(upd);})]),
-    savePred:   p =>fbSet(`preds/${p.id}`,p),
-    clearPreds: ()=>fbRemove('preds'),
-    saveConfig: c =>fbSet('config',c),
+    prevOpen.current = data.config.open;
+  }, [data.config.open]);
+  const ops = {
+    addMatch: m => fbSet(`matches/${m.id}`, m),
+    updateMatch: m => fbSet(`matches/${m.id}`, m),
+    deleteMatch: id => fbRemove(`matches/${id}`),
+    addUser: u => fbSet(`users/${u.id}`, u),
+    deleteUser: id => Promise.all([fbRemove(`users/${id}`), db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s => {
+      if (!s.val()) return;
+      const upd = {};
+      Object.keys(s.val()).forEach(k => {
+        upd[k] = null;
+      });
+      return db.ref('pt26v2/preds').update(upd);
+    })]),
+    savePred: p => fbSet(`preds/${p.id}`, p),
+    clearPreds: () => fbRemove('preds'),
+    saveConfig: c => fbSet('config', c)
   };
-
-  const{totals,byMatch}=calcScores(data.matches,data.preds);
-
-  const navs=[
-    {id:'matches',ico:'⚽',lbl:'Partidos'},
-    {id:'ranking',ico:'🏆',lbl:'Ranking'},
-    {id:'porpartido',ico:'📊',lbl:'Por Partido'},
-    ...(isAdmin?[{id:'admin',ico:'⚙️',lbl:'Admin'}]:[]),
-  ];
-  const goTo=v=>{setView(v);setSelMatch(null);};
-  const CSS=mkCSS(theme==='dark');
-
-  if(loading)return(
-    <>
-      <style dangerouslySetInnerHTML={{__html:CSS}}/>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',flexDirection:'column',gap:16}}>
-        <div style={{fontSize:56,animation:'bounce 1.2s infinite'}}>⚽</div>
-        <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:22,color:'#FCD116',letterSpacing:2}}>Conectando...</div>
-      </div>
-    </>
-  );
-
-  return(
-    <>
-      <style dangerouslySetInnerHTML={{__html:CSS}}/>
-      <div className="wrap">
-        {user&&(
-          <>
-            <div className="hdr">
-              <div>
-                <div className="hdr-t">⚽ Polla Familiar 2026</div>
-                <div className="hdr-s">La tradición de la familia Toro</div>
-              </div>
-              <div className="hdr-r">
-                <button className="thmbtn" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}>{theme==='dark'?'☀️':'🌙'}</button>
-                <button className="ubub" onClick={()=>{setUser(null);userRef.current=null;setIsAdmin(false);setView('login');}}>{(user.avatar||'⚽')+' '+user.name.split(' ')[0]}</button>
-              </div>
-              <div className="hdr-bar"/>
-            </div>
-            <nav className="nav">
-              {navs.map(n=>(
-                <button key={n.id} className={`ni ${(view===n.id||(view==='predict'&&n.id==='matches'))?'on':''}`} onClick={()=>goTo(n.id)}>
-                  <span className="nico">{n.ico}</span>{n.lbl}
-                </button>
-              ))}
-            </nav>
-          </>
-        )}
-        <div className="pg">
-          {view==='login'&&(
-            <LoginView users={data.users}
-              onLogin={u=>{setUser(u);userRef.current=u;setView('matches');}}
-              onRegister={async(name,avatar)=>{
-                const nu={id:Date.now().toString(),name,avatar};
-                await ops.addUser(nu);
-                setUser(nu);userRef.current=nu;setView('matches');
-                showToast('¡Bienvenido/a '+name+'! 🎉');
-              }}
-              onAdminLogin={pass=>{
-                if(pass===ADMIN_PASS){const u={id:'admin',name:'Albeiro',avatar:'👑'};setUser(u);userRef.current=u;setIsAdmin(true);setView('admin');showToast('¡Bienvenido Albeiro! 👑');}
-                else showToast('❌ Contraseña incorrecta');
-              }}
-            />
-          )}
-          {(view==='matches'||(view==='predict'&&!selMatch))&&(
-            <MatchesView matches={data.matches} preds={data.preds} user={user} config={data.config} onSelect={m=>{setSelMatch(m);setView('predict');}}/>
-          )}
-          {view==='predict'&&selMatch&&(
-            <PredictView match={data.matches.find(m=>m.id===selMatch.id)||selMatch} user={user} preds={data.preds} byMatch={byMatch} users={data.users} config={data.config}
-              onSavePred={async(h,a)=>{
-                const m=data.matches.find(x=>x.id===selMatch.id);
-                if(m&&(hasStarted(m)||m.live||m.done)){showToast('🔒 El partido ya empezó.');return;}
-                const now=Date.now();
-                const ex=data.preds.find(p=>p.mid===selMatch.id&&p.uid===user.id);
-                const id=ex?ex.id:Date.now().toString();
-                const hist=ex?[...(ex.history||[]),{h:ex.h,a:ex.a,ts:now}]:[];
-                await ops.savePred({id,mid:selMatch.id,uid:user.id,h,a,history:hist});
-                showToast('¡Predicción guardada! 🎯');setSelMatch(null);setView('matches');
-              }}
-              onBack={()=>{setSelMatch(null);setView('matches');}}
-            />
-          )}
-          {view==='ranking'&&<RankingView users={data.users} totals={totals} byMatch={byMatch} user={user} matches={data.matches} preds={data.preds}/>}
-          {view==='porpartido'&&<PorPartidoView matches={data.matches} preds={data.preds} users={data.users} byMatch={byMatch} user={user}/>}
-          {view==='admin'&&isAdmin&&(
-            <AdminView matches={data.matches} users={data.users} config={data.config} preds={data.preds} ops={ops} showToast={showToast}/>
-          )}
-        </div>
-        {toast&&<div className="toast">{toast}</div>}
-      </div>
-    </>
-  );
+  const {
+    totals,
+    byMatch
+  } = calcScores(data.matches, data.preds);
+  const navs = [{
+    id: 'matches',
+    ico: '⚽',
+    lbl: 'Partidos'
+  }, {
+    id: 'ranking',
+    ico: '🏆',
+    lbl: 'Ranking'
+  }, {
+    id: 'porpartido',
+    ico: '📊',
+    lbl: 'Por Partido'
+  }, ...(isAdmin ? [{
+    id: 'admin',
+    ico: '⚙️',
+    lbl: 'Admin'
+  }] : [])];
+  const goTo = v => {
+    setView(v);
+    setSelMatch(null);
+  };
+  const CSS = mkCSS(theme === 'dark');
+  if (loading) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("style", {
+    dangerouslySetInnerHTML: {
+      __html: CSS
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      flexDirection: 'column',
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 56,
+      animation: 'bounce 1.2s infinite'
+    }
+  }, "⚽"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Bebas Neue',sans-serif",
+      fontSize: 22,
+      color: '#FCD116',
+      letterSpacing: 2
+    }
+  }, "Conectando...")));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("style", {
+    dangerouslySetInnerHTML: {
+      __html: CSS
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "wrap"
+  }, user && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "hdr"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "hdr-t"
+  }, "⚽ Polla Familiar 2026"), /*#__PURE__*/React.createElement("div", {
+    className: "hdr-s"
+  }, "La tradición de la familia Toro")), /*#__PURE__*/React.createElement("div", {
+    className: "hdr-r"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "thmbtn",
+    onClick: () => setTheme(t => t === 'dark' ? 'light' : 'dark')
+  }, theme === 'dark' ? '☀️' : '🌙'), /*#__PURE__*/React.createElement("button", {
+    className: "ubub",
+    onClick: () => {
+      setUser(null);
+      userRef.current = null;
+      setIsAdmin(false);
+      setView('login');
+    }
+  }, (user.avatar || '⚽') + ' ' + user.name.split(' ')[0])), /*#__PURE__*/React.createElement("div", {
+    className: "hdr-bar"
+  })), /*#__PURE__*/React.createElement("nav", {
+    className: "nav"
+  }, navs.map(n => /*#__PURE__*/React.createElement("button", {
+    key: n.id,
+    className: `ni ${view === n.id || view === 'predict' && n.id === 'matches' ? 'on' : ''}`,
+    onClick: () => goTo(n.id)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "nico"
+  }, n.ico), n.lbl)))), /*#__PURE__*/React.createElement("div", {
+    className: "pg"
+  }, view === 'login' && /*#__PURE__*/React.createElement(LoginView, {
+    users: data.users,
+    onLogin: u => {
+      setUser(u);
+      userRef.current = u;
+      setView('matches');
+    },
+    onRegister: async (name, avatar) => {
+      const nu = {
+        id: Date.now().toString(),
+        name,
+        avatar
+      };
+      await ops.addUser(nu);
+      setUser(nu);
+      userRef.current = nu;
+      setView('matches');
+      showToast('¡Bienvenido/a ' + name + '! 🎉');
+    },
+    onAdminLogin: pass => {
+      if (pass === ADMIN_PASS) {
+        const u = {
+          id: 'admin',
+          name: 'Albeiro',
+          avatar: '👑'
+        };
+        setUser(u);
+        userRef.current = u;
+        setIsAdmin(true);
+        setView('admin');
+        showToast('¡Bienvenido Albeiro! 👑');
+      } else showToast('❌ Contraseña incorrecta');
+    }
+  }), (view === 'matches' || view === 'predict' && !selMatch) && /*#__PURE__*/React.createElement(MatchesView, {
+    matches: data.matches,
+    preds: data.preds,
+    user: user,
+    config: data.config,
+    onSelect: m => {
+      setSelMatch(m);
+      setView('predict');
+    }
+  }), view === 'predict' && selMatch && /*#__PURE__*/React.createElement(PredictView, {
+    match: data.matches.find(m => m.id === selMatch.id) || selMatch,
+    user: user,
+    preds: data.preds,
+    byMatch: byMatch,
+    users: data.users,
+    config: data.config,
+    onSavePred: async (h, a) => {
+      const m = data.matches.find(x => x.id === selMatch.id);
+      if (m && (hasStarted(m) || m.live || m.done)) {
+        showToast('🔒 El partido ya empezó.');
+        return;
+      }
+      const now = Date.now();
+      const ex = data.preds.find(p => p.mid === selMatch.id && p.uid === user.id);
+      const id = ex ? ex.id : Date.now().toString();
+      const hist = ex ? [...(ex.history || []), {
+        h: ex.h,
+        a: ex.a,
+        ts: now
+      }] : [];
+      await ops.savePred({
+        id,
+        mid: selMatch.id,
+        uid: user.id,
+        h,
+        a,
+        history: hist
+      });
+      showToast('¡Predicción guardada! 🎯');
+      setSelMatch(null);
+      setView('matches');
+    },
+    onBack: () => {
+      setSelMatch(null);
+      setView('matches');
+    }
+  }), view === 'ranking' && /*#__PURE__*/React.createElement(RankingView, {
+    users: data.users,
+    totals: totals,
+    byMatch: byMatch,
+    user: user,
+    matches: data.matches,
+    preds: data.preds
+  }), view === 'porpartido' && /*#__PURE__*/React.createElement(PorPartidoView, {
+    matches: data.matches,
+    preds: data.preds,
+    users: data.users,
+    byMatch: byMatch,
+    user: user
+  }), view === 'admin' && isAdmin && /*#__PURE__*/React.createElement(AdminView, {
+    matches: data.matches,
+    users: data.users,
+    config: data.config,
+    preds: data.preds,
+    ops: ops,
+    showToast: showToast
+  })), toast && /*#__PURE__*/React.createElement("div", {
+    className: "toast"
+  }, toast)));
 }
-
-try{
-  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-}catch(e){
-  document.getElementById('root').innerHTML='<div style="color:#FCD116;font-family:monospace;padding:20px;background:#060e1c;min-height:100vh"><h2>⚠️ Error al iniciar</h2><pre style="margin-top:12px;font-size:12px;color:#ff6b6b;white-space:pre-wrap">'+e.message+'\n\n'+e.stack+'</pre><p style="margin-top:16px;font-size:12px;color:#637489">Comparte este error con Pipe para solucionarlo.</p></div>';
+try {
+  ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
+} catch (e) {
+  document.getElementById('root').innerHTML = '<div style="color:#FCD116;font-family:monospace;padding:20px;background:#060e1c;min-height:100vh"><h2>⚠️ Error al iniciar</h2><pre style="margin-top:12px;font-size:12px;color:#ff6b6b;white-space:pre-wrap">' + e.message + '\n\n' + e.stack + '</pre><p style="margin-top:16px;font-size:12px;color:#637489">Comparte este error con Pipe para solucionarlo.</p></div>';
 }
 </script>
 </body>
