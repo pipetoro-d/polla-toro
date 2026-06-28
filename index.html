@@ -17,11 +17,6 @@
 <body>
 <div id="root"></div>
 <script>
-  // Forzar Babel a modo script (no módulo ES)
-  window.Babel = window.Babel || {};
-</script>
-<script>
-
 const {
   useState,
   useEffect,
@@ -42,7 +37,6 @@ const ref = p => db.ref('pt26v2/' + p);
 const fbSet = (p, v) => ref(p).set(v);
 const fbRemove = p => ref(p).remove();
 const ADMIN_PASS = "albeiro2026";
-const PTS = [3, 2, 1];
 const CONMEBOL = new Set(["Argentina", "Brasil", "Colombia", "Ecuador", "Paraguay", "Uruguay", "Bolivia", "Chile", "Perú", "Venezuela", "México"]);
 const isSur = m => CONMEBOL.has(m.home) || CONMEBOL.has(m.away);
 const FLAGS = {
@@ -79,47 +73,104 @@ const FLAGS = {
   Ghana: "🇬🇭",
   "Haití": "🇭🇹",
   Inglaterra: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "Japón": "🇯🇵",
   Jordania: "🇯🇴",
   Marruecos: "🇲🇦",
+  Noruega: "🇳🇴",
   Portugal: "🇵🇹",
   Qatar: "🇶🇦",
   "RD de Congo": "🇨🇩",
   "República Checa": "🇨🇿",
+  Senegal: "🇸🇳",
   "Sudáfrica": "🇿🇦",
+  Suecia: "🇸🇪",
   Suiza: "🇨🇭",
   Turquía: "🇹🇷",
+  "Países Bajos": "🇳🇱",
+  Bélgica: "🇧🇪",
+  Egipto: "🇪🇬",
+  Francia: "🇫🇷",
   Uzbekistán: "🇺🇿"
 };
-const TEAMS = ["Argentina", "Bolivia", "Brasil", "Canadá", "Chile", "Colombia", "Costa Rica", "Ecuador", "Estados Unidos", "Honduras", "Jamaica", "México", "Panamá", "Paraguay", "Perú", "Uruguay", "Venezuela", "Alemania", "Arabia Saudita", "Argelia", "Australia", "Austria", "Bosnia y Herzegovina", "Cabo Verde", "Corea del Sur", "Costa de Marfil", "Croacia", "Curazao", "Escocia", "España", "Ghana", "Haití", "Inglaterra", "Jordania", "Marruecos", "Portugal", "Qatar", "RD de Congo", "República Checa", "Sudáfrica", "Suiza", "Turquía", "Uzbekistán"];
+const TEAMS = Object.keys(FLAGS).sort();
 const AVATARS = ["⚽", "🦁", "🐯", "🦅", "⚡", "🔥", "🌟", "🏆", "🎯", "🚀", "🐉", "🦊", "🐺", "👑", "💎", "🎩"];
-
-// Hora Colombia (UTC-5) sin importar la zona horaria del dispositivo
+const hasStarted = m => m.date ? new Date() >= new Date(m.date + 'T' + (m.time || '00:00') + ':00-05:00') : false;
 const colDate = m => new Date(m.date + 'T' + (m.time || '00:00') + ':00-05:00');
-const hasStarted = m => m.date ? new Date() >= colDate(m) : false;
-function calcPts(h, a, gh, ga) {
-  if (h === gh && a === ga) return {pts: 10, cat: 'exacto'};
-  var pd = h - a, ad = gh - ga;
-  var predDraw = pd === 0, actDraw = ad === 0;
-  var rightWinner = pd > 0 && ad > 0 || pd < 0 && ad < 0;
-  var rightDiff = pd === ad;
-  if (predDraw && actDraw) return {pts: 5, cat: 'empate'};
-  if (rightWinner && rightDiff) return {pts: 5, cat: 'diferencia'};
-  if (rightWinner) return {pts: 3, cat: 'ganador'};
-  return {pts: 1, cat: 'participacion'};
+
+// ─── Puntos por categoría + bono por clasificado (penales) ───
+function calcPts(p, m) {
+  const h = p.h,
+    a = p.a,
+    gh = m.gh,
+    ga = m.ga;
+  let pts = 0,
+    cat = 'participacion';
+  if (h === gh && a === ga) {
+    pts = 10;
+    cat = 'exacto';
+  } else {
+    const pd = h - a,
+      ad = gh - ga;
+    const predDraw = pd === 0,
+      actDraw = ad === 0;
+    const rightWinner = pd > 0 && ad > 0 || pd < 0 && ad < 0;
+    if (predDraw && actDraw) {
+      pts = 5;
+      cat = 'empate';
+    } else if (rightWinner && pd === ad) {
+      pts = 5;
+      cat = 'diferencia';
+    } else if (rightWinner) {
+      pts = 3;
+      cat = 'ganador';
+    } else {
+      pts = 1;
+      cat = 'participacion';
+    }
+  }
+  // Bono clasificado: si el partido fue a penales y el usuario predijo empate y acertó quién pasó
+  let bonus = 0;
+  if (m.penales && m.winner && p.adv && p.adv === m.winner) {
+    bonus = 2;
+  }
+  return {
+    pts: pts + bonus,
+    base: pts,
+    bonus,
+    cat
+  };
 }
 function calcScores(matches, preds) {
-  const totals = {}, byMatch = {};
+  const totals = {},
+    byMatch = {};
   for (const m of matches) {
     if (!m.done || m.gh == null) continue;
     const mp = preds.filter(p => p.mid === m.id);
     const res = mp.map(p => {
-      const r = calcPts(p.h, p.a, m.gh, m.ga);
+      const r = calcPts(p, m);
       totals[p.uid] = (totals[p.uid] || 0) + r.pts;
-      return {uid: p.uid, pts: r.pts, cat: r.cat, exact: r.cat === 'exacto'};
+      return {
+        uid: p.uid,
+        pts: r.pts,
+        base: r.base,
+        bonus: r.bonus,
+        cat: r.cat,
+        exact: r.cat === 'exacto'
+      };
     }).sort((a, b) => b.pts - a.pts);
     byMatch[m.id] = res;
   }
-  return {totals, byMatch};
+  return {
+    totals,
+    byMatch
+  };
+}
+// Quién avanza según resultado (o penales)
+function advancer(m) {
+  if (!m.done || m.gh == null) return null;
+  if (m.gh > m.ga) return m.home;
+  if (m.ga > m.gh) return m.away;
+  return m.winner || null; // empate => definido por penales
 }
 function fmt(ts) {
   return new Date(ts).toLocaleString('es-CO', {
@@ -129,9 +180,17 @@ function fmt(ts) {
     minute: '2-digit'
   });
 }
+const CAT_LABEL = {
+  exacto: '⭐ ¡Marcador exacto!',
+  empate: '🤝 Empate acertado',
+  diferencia: '🎯 Ganador + diferencia',
+  ganador: '✅ Ganador acertado',
+  participacion: '📋 Punto participación'
+};
 const DARK_VARS = ':root{--bg:#060e1c;--surf:#0b1627;--card:#0f1e35;--ch:#142543;--brd:rgba(255,255,255,.07);--gld:#FCD116;--gdm:rgba(252,209,22,.12);--red:#CE1126;--grn:#00a651;--txt:#eef2f7;--mut:#637489;--nb:#0b1627}';
 const LIGHT_VARS = ':root{--bg:#f0f4f8;--surf:#fff;--card:#fff;--ch:#e8eef5;--brd:rgba(0,0,0,.1);--gld:#c9960a;--gdm:rgba(201,150,10,.1);--red:#b91c1c;--grn:#15803d;--txt:#0f172a;--mut:#64748b;--nb:#fff}';
-const mkCSS = dark => (dark ? DARK_VARS : LIGHT_VARS) + '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}' + 'html,body{background:var(--bg);color:var(--txt);font-family:Outfit,sans-serif;min-height:100vh}' + '.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}.hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid #FCD116;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}.hdr-t{font-family:\'Bebas Neue\',sans-serif;font-size:21px;color:#FCD116;letter-spacing:2px;line-height:1.1}.hdr-s{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase}.hdr-r{display:flex;gap:7px;align-items:center}.ubub{background:rgba(252,209,22,.15);border:1px solid #FCD116;color:#FCD116;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'Outfit\',sans-serif}.thmbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer}.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#003087,#FCD116,#CE1126)}.nav{display:flex;background:var(--nb);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.ni{flex:1;min-width:58px;padding:8px 3px;text-align:center;font-size:7.5px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.4px;background:none;border-top:none;border-left:none;border-right:none}.ni.on{color:var(--gld);border-bottom-color:var(--gld)}.nico{font-size:15px;display:block;margin-bottom:2px}.pg{flex:1;padding:14px}.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:10px}.cclick{cursor:pointer;transition:all .2s}.cclick:hover{background:var(--ch);border-color:rgba(252,209,22,.3);transform:translateY(-1px)}.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}.team{flex:1;text-align:center}.tf{font-size:28px;display:block}.tn{font-size:10px;font-weight:600;color:var(--mut);margin-top:3px}.sc{text-align:center;flex-shrink:0;min-width:60px}.scn{font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:var(--gld);letter-spacing:4px;line-height:1}.scv{font-family:\'Bebas Neue\',sans-serif;font-size:13px;color:var(--mut);letter-spacing:2px}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}.bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}.bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}.bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}.bk{background:rgba(252,209,22,.12);color:var(--gld);border:1px solid rgba(252,209,22,.3)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:\'DM Mono\',monospace;border:1px solid rgba(252,209,22,.2)}.gbadge{font-size:10px;background:rgba(0,48,135,.3);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:\'Outfit\',sans-serif;font-size:14px;outline:none;transition:border-color .2s}.inp:focus{border-color:var(--gld)}.inp::placeholder{color:var(--mut)}.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}.fg{margin-bottom:12px}select.inp{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'7\'%3E%3Cpath fill=\'%23637489\' d=\'M5 7 0 0h10z\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}select option{background:#0f1e35}.btn{padding:12px 20px;border-radius:8px;font-family:\'Outfit\',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}.btp{background:var(--gld);color:#000}.btp:hover{background:#e8c000;transform:translateY(-1px)}.btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}.bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}.bts:hover{background:rgba(255,255,255,.1)}.btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}.btw{background:#25D366;color:#fff}.btw:hover{background:#1faf54}.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}.steprow{display:flex;align-items:center;justify-content:center;gap:10px}.stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}.stepbtn:hover{background:rgba(252,209,22,.15)}.stepval{width:62px;height:62px;background:var(--gdm);border:2px solid var(--gld);border-radius:12px;color:var(--gld);font-family:\'Bebas Neue\',sans-serif;font-size:36px;display:flex;align-items:center;justify-content:center}.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:8px}.rkrow{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:7px}.rkrow.me{border-color:var(--gld);background:var(--gdm)}.rkn{font-family:\'Bebas Neue\',sans-serif;font-size:20px;min-width:26px;text-align:center}.r1{color:#FFD700}.r2{color:#C0C0C0}.r3{color:#CD7F32}.ro{color:var(--mut)}.rknm{flex:1;font-weight:600;font-size:14px}.rkp{font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:var(--gld)}.lhero{text-align:center;padding:24px 0 20px}.lball{font-size:56px;display:block;animation:bounce 2s infinite}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.ltit{font-family:\'Bebas Neue\',sans-serif;font-size:36px;color:#FCD116;letter-spacing:3px;line-height:1.1}.lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}.stit{font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}.divl{height:1px;background:var(--brd);margin:14px 0}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:#eef2f7;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}@keyframes tup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}.empty{text-align:center;padding:36px 16px;color:var(--mut)}.eico{font-size:44px;margin-bottom:12px}.etxt{font-size:13px;line-height:1.7}.tabs{display:flex;gap:6px;margin-bottom:14px}.tab{flex:1;padding:9px;text-align:center;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.tab.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.pres-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:11px 14px;margin-top:10px}.asec{margin-bottom:20px}.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}.arow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:12px}.arow:last-child{border-bottom:none}.sminp{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:5px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}.ntf-close{background:rgba(206,17,38,.1);border:1px solid rgba(206,17,38,.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;font-weight:600}.cd-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}.cd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}.cd-val{font-family:\'Bebas Neue\',sans-serif;font-size:26px;color:var(--gld);letter-spacing:2px}.frow{display:flex;gap:8px;margin-bottom:12px}.fbtn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:\'Outfit\',sans-serif}.fbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.hist-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}.hist-item:last-child{border-bottom:none}.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}.avbtn{aspect-ratio:1;font-size:20px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.1)}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.statbox{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}.statn{font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--gld);line-height:1}.statl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700}.secretbox{background:var(--gdm);border:1px dashed rgba(252,209,22,.35);border-radius:8px;padding:11px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}';
+const SHARED = '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{background:var(--bg);color:var(--txt);font-family:Outfit,sans-serif;min-height:100vh}.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}.hdr{background:linear-gradient(160deg,#001244,#003087 60%,#060e1c);border-bottom:2px solid #FCD116;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:relative}.hdr-t{font-family:Bebas Neue,sans-serif;font-size:21px;color:#FCD116;letter-spacing:2px;line-height:1.1}.hdr-s{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase}.hdr-r{display:flex;gap:7px;align-items:center}.ubub{background:rgba(252,209,22,.15);border:1px solid #FCD116;color:#FCD116;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif}.thmbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer}.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#003087,#FCD116,#CE1126)}.nav{display:flex;background:var(--nb);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.ni{flex:1;min-width:54px;padding:8px 3px;text-align:center;font-size:7.5px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.4px;background:none;border-top:none;border-left:none;border-right:none}.ni.on{color:var(--gld);border-bottom-color:var(--gld)}.nico{font-size:15px;display:block;margin-bottom:2px}.pg{flex:1;padding:14px}.card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:10px}.cclick{cursor:pointer;transition:all .2s}.cclick:hover{background:var(--ch);border-color:rgba(252,209,22,.3);transform:translateY(-1px)}.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}.team{flex:1;text-align:center;position:relative}.tf{font-size:28px;display:block}.tn{font-size:10px;font-weight:600;color:var(--mut);margin-top:3px}.adv-check{position:absolute;top:-4px;right:8px;font-size:14px}.team-adv .tn{color:var(--grn);font-weight:700}.sc{text-align:center;flex-shrink:0;min-width:60px}.scn{font-family:Bebas Neue,sans-serif;font-size:32px;color:var(--gld);letter-spacing:4px;line-height:1}.scv{font-family:Bebas Neue,sans-serif;font-size:13px;color:var(--mut);letter-spacing:2px}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}.bp{background:rgba(0,166,81,.15);color:var(--grn);border:1px solid rgba(0,166,81,.3)}.bl{background:rgba(206,17,38,.15);color:var(--red);border:1px solid rgba(206,17,38,.5);animation:pulse 1.5s infinite}.bf{background:rgba(99,116,137,.15);color:var(--mut);border:1px solid var(--brd)}.bk{background:rgba(252,209,22,.12);color:var(--gld);border:1px solid rgba(252,209,22,.3)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}.ptag{padding:2px 8px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10px;font-family:DM Mono,monospace;border:1px solid rgba(252,209,22,.2)}.gbadge{font-size:10px;background:rgba(0,48,135,.3);color:#7fa4ff;border:1px solid rgba(127,164,255,.2);border-radius:4px;padding:1px 6px;font-weight:700}.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--txt);font-family:Outfit,sans-serif;font-size:14px;outline:none;transition:border-color .2s}.inp:focus{border-color:var(--gld)}.inp::placeholder{color:var(--mut)}.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}.fg{margin-bottom:12px}select.inp{-webkit-appearance:none;padding-right:32px}select option{background:#0f1e35}.btn{padding:12px 20px;border-radius:8px;font-family:Outfit,sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}.btp{background:var(--gld);color:#000}.btp:hover{background:#e8c000;transform:translateY(-1px)}.btp:disabled{background:#3a3000;color:#6a5800;cursor:not-allowed;transform:none}.bts{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--brd)}.bts:hover{background:rgba(255,255,255,.1)}.btd{background:rgba(206,17,38,.12);color:var(--red);border:1px solid rgba(206,17,38,.3)}.btw{background:#25D366;color:#fff}.btw:hover{background:#1faf54}.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:6px}.steprow{display:flex;align-items:center;justify-content:center;gap:10px}.stepbtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}.stepbtn:hover{background:rgba(252,209,22,.15)}.stepval{width:62px;height:62px;background:var(--gdm);border:2px solid var(--gld);border-radius:12px;color:var(--gld);font-family:Bebas Neue,sans-serif;font-size:36px;display:flex;align-items:center;justify-content:center}.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:8px}.rkrow{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:7px;transition:all .3s}.rkrow.me{border-color:var(--gld);background:var(--gdm)}.rkn{font-family:Bebas Neue,sans-serif;font-size:20px;min-width:26px;text-align:center}.r1{color:#FFD700}.r2{color:#C0C0C0}.r3{color:#CD7F32}.ro{color:var(--mut)}.rknm{flex:1;font-weight:600;font-size:14px}.rkp{font-family:Bebas Neue,sans-serif;font-size:24px;color:var(--gld)}.trend{font-size:11px;margin-left:4px}.tup{color:var(--grn)}.tdn{color:var(--red)}.lhero{text-align:center;padding:24px 0 20px}.lball{font-size:56px;display:block;animation:bounce 2s infinite}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.ltit{font-family:Bebas Neue,sans-serif;font-size:36px;color:#FCD116;letter-spacing:3px;line-height:1.1}.lsub{color:var(--mut);font-size:13px;margin-top:8px;line-height:1.7}.stit{font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--gld);letter-spacing:2px;margin-bottom:10px}.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.6}.divl{height:1px;background:var(--brd);margin:14px 0}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#182940;border:1px solid #FCD116;color:#eef2f7;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;animation:tup2 .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);max-width:90%;text-align:center}@keyframes tup2{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}.empty{text-align:center;padding:36px 16px;color:var(--mut)}.eico{font-size:44px;margin-bottom:12px}.etxt{font-size:13px;line-height:1.7}.tabs{display:flex;gap:6px;margin-bottom:14px}.tab{flex:1;padding:9px;text-align:center;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:Outfit,sans-serif}.tab.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.pres-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:11px 14px;margin-top:10px}.asec{margin-bottom:20px}.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--brd)}.arow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--brd);font-size:12px}.arow:last-child{border-bottom:none}.sminp{width:38px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:5px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}.ntf-close{background:rgba(206,17,38,.1);border:1px solid rgba(206,17,38,.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;font-weight:600}.cd-box{background:var(--gdm);border:1px solid rgba(252,209,22,.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}.cd-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}.cd-val{font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--gld);letter-spacing:2px}.frow{display:flex;gap:8px;margin-bottom:12px}.fbtn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--mut);transition:all .2s;font-family:Outfit,sans-serif}.fbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.hist-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}.hist-item:last-child{border-bottom:none}.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}.avbtn{aspect-ratio:1;font-size:20px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.1)}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.statbox{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:12px;text-align:center}.statn{font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--gld);line-height:1}.statl{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700}.secretbox{background:var(--gdm);border:1px dashed rgba(252,209,22,.35);border-radius:8px;padding:11px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}.advsel{display:flex;gap:8px;margin-top:10px}.advbtn{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--txt);transition:all .2s;font-family:Outfit,sans-serif}.advbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld)}.champ{position:fixed;inset:0;background:rgba(6,14,28,.97);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;animation:fadein .5s}@keyframes fadein{from{opacity:0}to{opacity:1}}.champ-trophy{font-size:90px;animation:bounce 1.5s infinite}.champ-tit{font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--mut);letter-spacing:3px;margin-top:10px}.champ-name{font-family:Bebas Neue,sans-serif;font-size:52px;color:#FCD116;letter-spacing:2px;line-height:1.1;margin:10px 0}.champ-pts{font-size:16px;color:#fff}.confetti{position:fixed;top:-10px;font-size:20px;animation:fall linear infinite;z-index:1001}@keyframes fall{to{transform:translateY(105vh) rotate(360deg)}}.evobar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}.evoname{min-width:80px;font-weight:600}.evotrack{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}.evofill{height:100%;background:linear-gradient(90deg,#003087,#FCD116);border-radius:4px;transition:width .6s}';
+const mkCSS = dark => (dark ? DARK_VARS : LIGHT_VARS) + SHARED;
 function Stepper({
   label,
   value,
@@ -150,6 +209,26 @@ function Stepper({
     className: "stepbtn",
     onClick: () => onChange(Math.min(20, value + 1))
   }, "+")));
+}
+function Confetti() {
+  const items = [];
+  const emojis = ['🎉', '🎊', '⭐', '🏆', '🇨🇴', '✨', '🥳'];
+  for (let i = 0; i < 40; i++) {
+    const left = Math.random() * 100;
+    const dur = 2 + Math.random() * 3;
+    const delay = Math.random() * 3;
+    const e = emojis[Math.floor(Math.random() * emojis.length)];
+    items.push(/*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: "confetti",
+      style: {
+        left: left + '%',
+        animationDuration: dur + 's',
+        animationDelay: delay + 's'
+      }
+    }, e));
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, items);
 }
 function Countdown({
   matches
@@ -171,7 +250,7 @@ function Countdown({
         h = Math.floor(diff % 86400000 / 3600000),
         m = Math.floor(diff % 3600000 / 60000),
         s = Math.floor(diff % 60000 / 1000);
-      setCd(d > 0 ? `${d}d ${h}h ${m}m` : `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+      setCd(d > 0 ? d + 'd ' + h + 'h ' + m + 'm' : String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'));
     };
     tick();
     const t = setInterval(tick, 1000);
@@ -187,13 +266,13 @@ function Countdown({
       fontSize: 11,
       fontWeight: 600
     }
-  }, FLAGS[next.home] || '🏳️', " ", next.home, " vs ", next.away, " ", FLAGS[next.away] || '🏳️'), /*#__PURE__*/React.createElement("div", {
+  }, (FLAGS[next.home] || '🏳️') + ' ' + next.home + ' vs ' + next.away + ' ' + (FLAGS[next.away] || '🏳️')), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
       color: 'var(--mut)',
       marginTop: 2
     }
-  }, next.date, " · ", next.time, " COL")), /*#__PURE__*/React.createElement("div", {
+  }, next.date + ' · ' + next.time + ' COL')), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'right'
     }
@@ -212,14 +291,17 @@ function MatchCard({
   const started = hasStarted(match) && !match.done && !match.live;
   const cls = match.done ? 'bf' : match.live ? 'bl' : started ? 'bk' : 'bp';
   const lbl = match.done ? '✅ Final' : match.live ? '🔴 En Vivo' : started ? '🔒 Iniciado' : '⏳ Próximo';
+  const adv = advancer(match);
   return /*#__PURE__*/React.createElement("div", {
     className: "card cclick",
     onClick: onClick
   }, /*#__PURE__*/React.createElement("div", {
     className: "trow"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "team"
-  }, /*#__PURE__*/React.createElement("span", {
+    className: 'team' + (adv === match.home ? ' team-adv' : '')
+  }, adv === match.home && /*#__PURE__*/React.createElement("span", {
+    className: "adv-check"
+  }, "✅"), /*#__PURE__*/React.createElement("span", {
     className: "tf"
   }, f(match.home)), /*#__PURE__*/React.createElement("span", {
     className: "tn"
@@ -227,27 +309,35 @@ function MatchCard({
     className: "sc"
   }, match.done ? /*#__PURE__*/React.createElement("div", {
     className: "scn"
-  }, match.gh, "–", match.ga) : /*#__PURE__*/React.createElement("div", {
+  }, match.gh + '–' + match.ga) : /*#__PURE__*/React.createElement("div", {
     className: "scv"
-  }, "VS"), match.group && /*#__PURE__*/React.createElement("div", {
+  }, "VS"), match.penales && match.done && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: 'var(--mut)',
+      marginTop: 2
+    }
+  }, "(pen)"), match.group && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 4
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, "Grupo ", match.group))), /*#__PURE__*/React.createElement("div", {
-    className: "team"
-  }, /*#__PURE__*/React.createElement("span", {
+  }, match.group === 'R16' ? '16avos' : 'Grupo ' + match.group))), /*#__PURE__*/React.createElement("div", {
+    className: 'team' + (adv === match.away ? ' team-adv' : '')
+  }, adv === match.away && /*#__PURE__*/React.createElement("span", {
+    className: "adv-check"
+  }, "✅"), /*#__PURE__*/React.createElement("span", {
     className: "tf"
   }, f(match.away)), /*#__PURE__*/React.createElement("span", {
     className: "tn"
   }, match.away))), /*#__PURE__*/React.createElement("div", {
     className: "meta"
   }, /*#__PURE__*/React.createElement("span", {
-    className: `badge ${cls}`
-  }, lbl), /*#__PURE__*/React.createElement("span", null, match.date, match.time ? ` · ${match.time} COL` : ''), userPred && /*#__PURE__*/React.createElement("span", {
+    className: 'badge ' + cls
+  }, lbl), /*#__PURE__*/React.createElement("span", null, match.date + (match.time ? ' · ' + match.time + ' COL' : '')), userPred && /*#__PURE__*/React.createElement("span", {
     className: "ptag"
-  }, userPred.h, "–", userPred.a)));
+  }, userPred.h + '–' + userPred.a)));
 }
 function LoginView({
   users,
@@ -271,13 +361,13 @@ function LoginView({
   }, "La tradición de la familia Toro", /*#__PURE__*/React.createElement("br", null), "ahora en digital 🇨🇴")), /*#__PURE__*/React.createElement("div", {
     className: "tabs"
   }, /*#__PURE__*/React.createElement("button", {
-    className: `tab ${mode === 'new' ? 'on' : ''}`,
+    className: 'tab' + (mode === 'new' ? ' on' : ''),
     onClick: () => setMode('new')
   }, "Soy nuevo"), /*#__PURE__*/React.createElement("button", {
-    className: `tab ${mode === 'existing' ? 'on' : ''}`,
+    className: 'tab' + (mode === 'existing' ? ' on' : ''),
     onClick: () => setMode('existing')
   }, "Ya juego"), /*#__PURE__*/React.createElement("button", {
-    className: `tab ${mode === 'admin' ? 'on' : ''}`,
+    className: 'tab' + (mode === 'admin' ? ' on' : ''),
     onClick: () => setMode('admin')
   }, "👑 Admin")), mode === 'new' && /*#__PURE__*/React.createElement("div", {
     className: "card"
@@ -298,7 +388,7 @@ function LoginView({
     className: "avgrid"
   }, AVATARS.map(a => /*#__PURE__*/React.createElement("button", {
     key: a,
-    className: `avbtn ${avatar === a ? 'on' : ''}`,
+    className: 'avbtn' + (avatar === a ? ' on' : ''),
     onClick: () => setAvatar(a)
   }, a)))), /*#__PURE__*/React.createElement("button", {
     className: "btn btp",
@@ -378,10 +468,10 @@ function MatchesView({
   }), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement("button", {
-    className: `fbtn ${filter === 'todos' ? 'on' : ''}`,
+    className: 'fbtn' + (filter === 'todos' ? ' on' : ''),
     onClick: () => setFilter('todos')
   }, "⚽ Todos"), /*#__PURE__*/React.createElement("button", {
-    className: `fbtn ${filter === 'mios' ? 'on' : ''}`,
+    className: 'fbtn' + (filter === 'mios' ? ' on' : ''),
     onClick: () => setFilter('mios')
   }, "🎯 Mis predicciones")), list.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "empty"
@@ -402,8 +492,9 @@ function PredictView({
   onBack
 }) {
   const ex = preds.find(p => p.mid === match.id && p.uid === user.id);
-  const [home, setHome] = useState(ex?.h ?? 0);
-  const [away, setAway] = useState(ex?.a ?? 0);
+  const [home, setHome] = useState(ex ? ex.h : 0);
+  const [away, setAway] = useState(ex ? ex.a : 0);
+  const [adv, setAdv] = useState(ex && ex.adv ? ex.adv : '');
   const started = hasStarted(match);
   const canPredict = !match.done && !match.live && !started && config.open;
   const f = t => FLAGS[t] || '🏳️';
@@ -415,6 +506,8 @@ function PredictView({
   const matchPreds = preds.filter(p => p.mid === match.id);
   const revealed = started || match.live || match.done;
   const unscored = matchPreds.filter(p => !res.map(r => r.uid).includes(p.uid));
+  const isDraw = home === away;
+  const advWho = advancer(match);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
     className: "btn bts btsm",
     style: {
@@ -432,19 +525,21 @@ function PredictView({
     }
   }, match.group ? /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, "Grupo ", match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+  }, match.group === 'R16' ? '16avos de final' : 'Grupo ' + match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
       color: 'var(--mut)'
     }
-  }, match.date, match.time ? ` · ${match.time} COL` : '')), /*#__PURE__*/React.createElement("div", {
+  }, match.date + (match.time ? ' · ' + match.time + ' COL' : ''))), /*#__PURE__*/React.createElement("div", {
     className: "trow",
     style: {
       marginBottom: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "team"
-  }, /*#__PURE__*/React.createElement("span", {
+    className: 'team' + (advWho === match.home ? ' team-adv' : '')
+  }, advWho === match.home && /*#__PURE__*/React.createElement("span", {
+    className: "adv-check"
+  }, "✅"), /*#__PURE__*/React.createElement("span", {
     className: "tf"
   }, f(match.home)), /*#__PURE__*/React.createElement("span", {
     className: "tn"
@@ -452,9 +547,15 @@ function PredictView({
     className: "sc"
   }, match.done ? /*#__PURE__*/React.createElement("div", {
     className: "scn"
-  }, match.gh, "–", match.ga) : /*#__PURE__*/React.createElement("div", {
+  }, match.gh + '–' + match.ga) : /*#__PURE__*/React.createElement("div", {
     className: "scv"
-  }, "VS"), match.done && /*#__PURE__*/React.createElement("span", {
+  }, "VS"), match.penales && match.done && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: 'var(--gld)',
+      marginTop: 2
+    }
+  }, "Penales: ", f(match.winner), " ", match.winner), match.done && /*#__PURE__*/React.createElement("span", {
     className: "badge bf",
     style: {
       fontSize: 9,
@@ -469,8 +570,10 @@ function PredictView({
       display: 'block'
     }
   }, "EN JUEGO")), /*#__PURE__*/React.createElement("div", {
-    className: "team"
-  }, /*#__PURE__*/React.createElement("span", {
+    className: 'team' + (advWho === match.away ? ' team-adv' : '')
+  }, advWho === match.away && /*#__PURE__*/React.createElement("span", {
+    className: "adv-check"
+  }, "✅"), /*#__PURE__*/React.createElement("span", {
     className: "tf"
   }, f(match.away)), /*#__PURE__*/React.createElement("span", {
     className: "tn"
@@ -502,7 +605,7 @@ function PredictView({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "'Bebas Neue',sans-serif",
+      fontFamily: 'Bebas Neue,sans-serif',
       fontSize: 26,
       color: 'var(--mut)'
     }
@@ -510,9 +613,26 @@ function PredictView({
     label: match.away,
     value: away,
     onChange: setAway
-  })), /*#__PURE__*/React.createElement("button", {
+  })), isDraw && match.group === 'R16' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "lbl",
+    style: {
+      textAlign: 'center'
+    }
+  }, "🥅 Si hay empate, ¿quién pasa por penales? (+2 pts si aciertas)"), /*#__PURE__*/React.createElement("div", {
+    className: "advsel"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: 'advbtn' + (adv === match.home ? ' on' : ''),
+    onClick: () => setAdv(match.home)
+  }, f(match.home) + ' ' + match.home), /*#__PURE__*/React.createElement("button", {
+    className: 'advbtn' + (adv === match.away ? ' on' : ''),
+    onClick: () => setAdv(match.away)
+  }, f(match.away) + ' ' + match.away))), /*#__PURE__*/React.createElement("button", {
     className: "btn btp",
-    onClick: () => onSavePred(home, away)
+    onClick: () => onSavePred(home, away, isDraw ? adv : '')
   }, ex ? 'Actualizar 🔄' : '¡Guardar predicción! 🎯')) : !match.done && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
@@ -534,11 +654,17 @@ function PredictView({
     }
   }, "TU PREDICCIÓN"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "'Bebas Neue',sans-serif",
+      fontFamily: 'Bebas Neue,sans-serif',
       fontSize: 26,
       color: 'var(--gld)'
     }
-  }, ex.h, " – ", ex.a), match.done && (() => {
+  }, ex.h + ' – ' + ex.a), ex.adv && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--mut)',
+      marginTop: 2
+    }
+  }, "Penales: ", f(ex.adv) + ' ' + ex.adv), match.done && (() => {
     const mr = res.find(r => r.uid === user.id);
     if (mr) return /*#__PURE__*/React.createElement("div", {
       style: {
@@ -546,14 +672,14 @@ function PredictView({
         fontSize: 12,
         color: 'var(--grn)'
       }
-    }, mr.exact ? '⭐ ' : '', " +", mr.pts, " pts", {exacto:" ⭐ ¡Exacto!",empate:" 🤝 Empate",diferencia:" 🎯 Diferencia",ganador:" ✅ Ganador",participacion:" 📋 Participación"}[mr.cat]||"");
+    }, '+' + mr.pts + ' pts · ' + CAT_LABEL[mr.cat] + (mr.bonus > 0 ? ' +' + mr.bonus + ' bono clasificado 🥅' : ''));
     return /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: 6,
         fontSize: 12,
         color: 'var(--mut)'
       }
-    }, "No ganaste puntos en este partido.");
+    }, "Sin puntos en este partido.");
   })(), ex.history && ex.history.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10
@@ -570,11 +696,11 @@ function PredictView({
     className: "hist-item"
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "'DM Mono',monospace"
+      fontFamily: 'DM Mono,monospace'
     }
-  }, h.h, " – ", h.a), /*#__PURE__*/React.createElement("span", null, fmt(h.ts)))))), !revealed && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, h.h + ' – ' + h.a), /*#__PURE__*/React.createElement("span", null, fmt(h.ts)))))), !revealed && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "secretbox"
-  }, "🤫 ", matchPreds.length, " predicci", matchPreds.length === 1 ? 'ón' : 'ones', " guardada", matchPreds.length === 1 ? '' : 's', " en secreto.", /*#__PURE__*/React.createElement("br", null), "Se revelan cuando arranque el partido.")), revealed && !match.done && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "🤫 ", matchPreds.length + ' predicci' + (matchPreds.length === 1 ? 'ón' : 'ones') + ' en secreto.', /*#__PURE__*/React.createElement("br", null), "Se revelan cuando arranque el partido.")), revealed && !match.done && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 4
     }
@@ -584,7 +710,7 @@ function PredictView({
     const u = getU(p.uid);
     return /*#__PURE__*/React.createElement("div", {
       key: p.uid,
-      className: `rkrow ${p.uid === user.id ? 'me' : ''}`
+      className: 'rkrow' + (p.uid === user.id ? ' me' : '')
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 18
@@ -595,12 +721,12 @@ function PredictView({
         fontWeight: 600,
         fontSize: 13
       }
-    }, u.name, p.uid === user.id ? ' ← tú' : ''), /*#__PURE__*/React.createElement("span", {
+    }, u.name + (p.uid === user.id ? ' ← tú' : '')), /*#__PURE__*/React.createElement("span", {
       className: "ptag",
       style: {
         fontSize: 13
       }
-    }, p.h, " – ", p.a));
+    }, p.h + ' – ' + p.a));
   })), match.done && res.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 4
@@ -608,17 +734,16 @@ function PredictView({
   }, /*#__PURE__*/React.createElement("div", {
     className: "stit"
   }, "RESULTADOS"), res.map(r => {
-    const medals = ['🥇', '🥈', '🥉'];
     const u = getU(r.uid);
     const pred = matchPreds.find(p => p.uid === r.uid);
     return /*#__PURE__*/React.createElement("div", {
       key: r.uid,
-      className: `rkrow ${r.uid === user.id ? 'me' : ''}`
+      className: 'rkrow' + (r.uid === user.id ? ' me' : '')
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 18
+        fontSize: 16
       }
-    }, medals[r.rank - 1] || '•'), /*#__PURE__*/React.createElement("div", {
+    }, r.cat === 'exacto' ? '⭐' : r.pts >= 5 ? '🎯' : r.pts >= 3 ? '✅' : '📋'), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: 1
       }
@@ -632,13 +757,13 @@ function PredictView({
         fontSize: 11,
         color: 'var(--mut)'
       }
-    }, "Pred: ", pred?.h, "–", pred?.a, " · Dif: ", r.dist, r.exact ? ' ⭐' : '')), /*#__PURE__*/React.createElement("div", {
+    }, 'Pred: ' + (pred ? pred.h : '?') + '–' + (pred ? pred.a : '?') + ' · ' + CAT_LABEL[r.cat])), /*#__PURE__*/React.createElement("div", {
       style: {
         textAlign: 'center'
       }
     }, /*#__PURE__*/React.createElement("div", {
       className: "rkp"
-    }, "+", r.pts), /*#__PURE__*/React.createElement("div", {
+    }, '+' + r.pts), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 9,
         color: 'var(--mut)'
@@ -648,10 +773,10 @@ function PredictView({
     const u = getU(p.uid);
     return /*#__PURE__*/React.createElement("div", {
       key: p.uid,
-      className: `rkrow ${p.uid === user.id ? 'me' : ''}`
+      className: 'rkrow' + (p.uid === user.id ? ' me' : '')
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 18,
+        fontSize: 16,
         color: 'var(--mut)'
       }
     }, "—"), /*#__PURE__*/React.createElement("div", {
@@ -668,7 +793,7 @@ function PredictView({
         fontSize: 11,
         color: 'var(--mut)'
       }
-    }, "Pred: ", p.h, "–", p.a)), /*#__PURE__*/React.createElement("div", {
+    }, 'Pred: ' + p.h + '–' + p.a)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 12,
         color: 'var(--mut)'
@@ -682,7 +807,8 @@ function RankingView({
   byMatch,
   user,
   matches,
-  preds
+  preds,
+  prevRanking
 }) {
   const ranked = [...users].map(u => ({
     ...u,
@@ -693,15 +819,29 @@ function RankingView({
   const rc = ['r1', 'r2', 'r3', 'ro'];
   const myResults = Object.values(byMatch).flat().filter(r => r.uid === user.id);
   const exactos = myResults.filter(r => r.exact).length;
-  const podios = myResults.length;
-  const avgDist = myResults.length > 0 ? (myResults.reduce((s, r) => s + r.dist, 0) / myResults.length).toFixed(1) : '—';
+  const aciertos = myResults.filter(r => r.pts >= 3).length;
+  const avgPts = myResults.length > 0 ? (myResults.reduce((s, r) => s + r.pts, 0) / myResults.length).toFixed(1) : '—';
+  const maxPts = ranked.length > 0 ? Math.max(ranked[0].pts, 1) : 1;
   const shareWA = () => {
     let txt = '🏆 POLLA FAMILIAR 2026 · Familia Toro\n\n';
     ranked.forEach((u, i) => {
-      txt += `${i < 3 ? medals[i] : i + 1 + '.'} ${u.avatar || '⚽'} ${u.name}: ${u.pts} pts\n`;
+      txt += (i < 3 ? medals[i] : i + 1 + '.') + ' ' + (u.avatar || '⚽') + ' ' + u.name + ': ' + u.pts + ' pts\n';
     });
-    txt += `\n${doneCount} partido${doneCount !== 1 ? 's' : ''} jugado${doneCount !== 1 ? 's' : ''} ⚽`;
+    txt += '\n' + doneCount + ' partido' + (doneCount !== 1 ? 's' : '') + ' jugado' + (doneCount !== 1 ? 's' : '') + ' ⚽';
     window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+  };
+  const trend = uid => {
+    if (!prevRanking || !prevRanking.length) return null;
+    const prev = prevRanking.indexOf(uid);
+    const now = ranked.findIndex(u => u.id === uid);
+    if (prev < 0) return null;
+    if (prev > now) return /*#__PURE__*/React.createElement("span", {
+      className: "trend tup"
+    }, "▲", prev - now);
+    if (prev < now) return /*#__PURE__*/React.createElement("span", {
+      className: "trend tdn"
+    }, "▼", now - prev);
+    return null;
   };
   return /*#__PURE__*/React.createElement("div", null, user.id !== 'admin' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "stit"
@@ -723,19 +863,19 @@ function RankingView({
     className: "statbox"
   }, /*#__PURE__*/React.createElement("div", {
     className: "statn"
-  }, podios), /*#__PURE__*/React.createElement("div", {
+  }, aciertos), /*#__PURE__*/React.createElement("div", {
     className: "statl"
-  }, "Podios")), /*#__PURE__*/React.createElement("div", {
+  }, "Aciertos")), /*#__PURE__*/React.createElement("div", {
     className: "statbox"
   }, /*#__PURE__*/React.createElement("div", {
     className: "statn"
-  }, avgDist), /*#__PURE__*/React.createElement("div", {
+  }, avgPts), /*#__PURE__*/React.createElement("div", {
     className: "statl"
-  }, "Dif. promedio")))), /*#__PURE__*/React.createElement("div", {
+  }, "Pts promedio")))), /*#__PURE__*/React.createElement("div", {
     className: "stit"
   }, "TABLA DE POSICIONES"), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, doneCount > 0 ? `${doneCount} partido${doneCount > 1 ? 's' : ''} finalizado${doneCount > 1 ? 's' : ''}.` : 'Los puntos aparecen cuando terminen los partidos.'), ranked.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, doneCount > 0 ? doneCount + ' partido' + (doneCount > 1 ? 's' : '') + ' finalizado' + (doneCount > 1 ? 's' : '') + '.' : 'Los puntos aparecen cuando terminen los partidos.'), ranked.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
@@ -743,16 +883,16 @@ function RankingView({
     className: "etxt"
   }, "Nadie registrado aún.")) : /*#__PURE__*/React.createElement(React.Fragment, null, ranked.map((u, i) => /*#__PURE__*/React.createElement("div", {
     key: u.id,
-    className: `rkrow ${u.id === user.id ? 'me' : ''}`
+    className: 'rkrow' + (u.id === user.id ? ' me' : '')
   }, /*#__PURE__*/React.createElement("span", {
-    className: `rkn ${rc[Math.min(i, 3)]}`
+    className: 'rkn ' + rc[Math.min(i, 3)]
   }, i < 3 ? medals[i] : i + 1), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 18
     }
   }, u.avatar || '⚽'), /*#__PURE__*/React.createElement("div", {
     className: "rknm"
-  }, u.name, u.id === user.id && /*#__PURE__*/React.createElement("span", {
+  }, u.name, trend(u.id), u.id === user.id && /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: 6,
       fontSize: 9,
@@ -775,7 +915,35 @@ function RankingView({
       marginTop: 8
     },
     onClick: shareWA
-  }, "📤 Compartir ranking por WhatsApp")), /*#__PURE__*/React.createElement("div", {
+  }, "📤 Compartir ranking por WhatsApp")), ranked.length > 0 && doneCount > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "EVOLUCIÓN 📊"), /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, ranked.map(u => /*#__PURE__*/React.createElement("div", {
+    key: u.id,
+    className: "evobar"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "evoname"
+  }, (u.avatar || '⚽') + ' ' + u.name.split(' ')[0]), /*#__PURE__*/React.createElement("div", {
+    className: "evotrack"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "evofill",
+    style: {
+      width: Math.round(u.pts / maxPts * 100) + '%'
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      minWidth: 30,
+      textAlign: 'right',
+      fontFamily: 'Bebas Neue,sans-serif',
+      fontSize: 16,
+      color: 'var(--gld)'
+    }
+  }, u.pts))))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 18
     }
@@ -788,11 +956,11 @@ function RankingView({
       color: 'var(--mut)',
       lineHeight: 2.2
     }
-  }, [['🥇 Marcador exacto', '10 pts'], ['🥈 Empate simple / Ganador+diferencia', '5 pts'], ['🥉 Ganador simple', '3 pts'], ['📋 Participación (predijo)', '1 pt']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
+  }, [['⭐ Marcador exacto', '10 pts'], ['🤝 Empate simple', '5 pts'], ['🎯 Ganador + diferencia', '5 pts'], ['✅ Ganador simple', '3 pts'], ['📋 Participación', '1 pt'], ['🥅 Bono clasificado (penales)', '+2 pts']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
     key: l
-  }, l, ": ", /*#__PURE__*/React.createElement("strong", {
+  }, l + ': ', /*#__PURE__*/React.createElement("strong", {
     style: {
-      color: 'var(--txt)'
+      color: l.indexOf('🥅') >= 0 ? 'var(--gld)' : 'var(--txt)'
     }
   }, p))))));
 }
@@ -803,7 +971,7 @@ function PorPartidoView({
   byMatch,
   user
 }) {
-  const done = [...matches].filter(m => m.done && isSur(m)).sort((a, b) => new Date(b.date) - new Date(a.date));
+  const done = [...matches].filter(m => m.done && isSur(m)).sort((a, b) => colDate(b) - colDate(a));
   const getU = uid => users.find(u => u.id === uid) || {
     name: '?',
     avatar: '⚽'
@@ -820,7 +988,7 @@ function PorPartidoView({
     className: "stit"
   }, "PUNTOS POR PARTIDO"), done.map(m => {
     const res = byMatch[m.id] || [];
-    const medals = ['🥇', '🥈', '🥉'];
+    const adv = advancer(m);
     return /*#__PURE__*/React.createElement("div", {
       key: m.id,
       className: "card",
@@ -849,12 +1017,12 @@ function PorPartidoView({
         fontWeight: 700,
         fontSize: 13
       }
-    }, m.home, " ", m.gh, "–", m.ga, " ", m.away), /*#__PURE__*/React.createElement("div", {
+    }, m.home + ' ' + m.gh + '–' + m.ga + ' ' + m.away), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         color: 'var(--mut)'
       }
-    }, m.date, m.group ? ` · Grupo ${m.group}` : '')), /*#__PURE__*/React.createElement("span", {
+    }, m.date + (adv ? ' · Pasa ' + f(adv) + ' ' + adv : '') + (m.penales ? ' (pen)' : ''))), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 18
       }
@@ -881,27 +1049,27 @@ function PorPartidoView({
           fontSize: 15,
           minWidth: 20
         }
-      }, medals[r.rank - 1] || '•'), /*#__PURE__*/React.createElement("div", {
+      }, r.cat === 'exacto' ? '⭐' : r.pts >= 5 ? '🎯' : r.pts >= 3 ? '✅' : '📋'), /*#__PURE__*/React.createElement("div", {
         style: {
           flex: 1,
           fontSize: 12,
           fontWeight: r.uid === user.id ? 700 : 400
         }
-      }, (u.avatar || '⚽') + ' ' + u.name, r.uid === user.id ? ' ← tú' : ''), /*#__PURE__*/React.createElement("div", {
+      }, (u.avatar || '⚽') + ' ' + u.name + (r.uid === user.id ? ' ← tú' : '')), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
           color: 'var(--mut)',
-          fontFamily: "'DM Mono',monospace"
+          fontFamily: 'DM Mono,monospace'
         }
-      }, pred?.h, "–", pred?.a, r.exact ? ' ⭐' : ''), /*#__PURE__*/React.createElement("div", {
+      }, (pred ? pred.h : '?') + '–' + (pred ? pred.a : '?')), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontFamily: "'Bebas Neue',sans-serif",
+          fontFamily: 'Bebas Neue,sans-serif',
           fontSize: 18,
           color: 'var(--gld)',
           minWidth: 28,
           textAlign: 'right'
         }
-      }, "+", r.pts));
+      }, '+' + r.pts));
     }));
   }));
 }
@@ -918,7 +1086,7 @@ function AdminView({
     away: 'Argentina',
     date: new Date().toISOString().slice(0, 10),
     time: '12:00',
-    group: 'TEST'
+    group: 'R16'
   });
   const [res, setRes] = useState({});
   const nameMap = {};
@@ -945,7 +1113,7 @@ function AdminView({
       fontSize: 13
     }
   }, config.open ? '✅ Abiertas' : '🔒 Cerradas'), /*#__PURE__*/React.createElement("button", {
-    className: `btn btsm ${config.open ? 'btd' : 'btp'}`,
+    className: 'btn btsm ' + (config.open ? 'btd' : 'btp'),
     style: {
       width: 'auto'
     },
@@ -960,11 +1128,41 @@ function AdminView({
       marginTop: 8,
       lineHeight: 1.6
     }
-  }, "ℹ️ Cada partido se cierra automáticamente al llegar su hora de inicio.")), /*#__PURE__*/React.createElement("div", {
+  }, "ℹ️ Cada partido se cierra automáticamente al llegar su hora.")), /*#__PURE__*/React.createElement("div", {
     className: "asec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "asect"
-  }, "Reiniciar Datos de Prueba"), /*#__PURE__*/React.createElement("button", {
+  }, "🏆 Campeón de la Polla"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: 'var(--mut)',
+      marginBottom: 10,
+      lineHeight: 1.7
+    }
+  }, "Cuando termine el torneo, activa la pantalla de campeón con confeti para celebrar al ganador."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13
+    }
+  }, config.finished ? '🎉 Torneo finalizado' : '⚽ En curso'), /*#__PURE__*/React.createElement("button", {
+    className: 'btn btsm ' + (config.finished ? 'btd' : 'btp'),
+    style: {
+      width: 'auto'
+    },
+    onClick: () => ops.saveConfig({
+      ...config,
+      finished: !config.finished
+    })
+  }, config.finished ? 'Reabrir' : '¡Finalizar!'))), /*#__PURE__*/React.createElement("div", {
+    className: "asec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "asect"
+  }, "Reiniciar Datos"), /*#__PURE__*/React.createElement("button", {
     className: "btn btd",
     onClick: async () => {
       if (window.confirm('¿Borrar TODAS las predicciones? Los puntos volverán a cero.')) {
@@ -973,30 +1171,6 @@ function AdminView({
       }
     }
   }, "🗑️ Borrar todas las predicciones")), /*#__PURE__*/React.createElement("div", {
-    className: "asec"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "asect"
-  }, "Partido de Prueba"), /*#__PURE__*/React.createElement("button", {
-    className: "btn bts",
-    onClick: async () => {
-      const now = new Date();
-      const inOneHour = new Date(now.getTime() + 3600000);
-      const t = {
-        id: 'test-' + Date.now(),
-        home: 'Colombia',
-        away: 'Argentina',
-        date: now.toISOString().slice(0, 10),
-        time: String(inOneHour.getHours()).padStart(2, '0') + ':' + String(inOneHour.getMinutes()).padStart(2, '0'),
-        group: 'TEST',
-        done: false,
-        live: false,
-        gh: null,
-        ga: null
-      };
-      await ops.addMatch(t);
-      showToast('🧪 Partido de prueba agregado (arranca en 1 hora)');
-    }
-  }, "🧪 Agregar Colombia vs Argentina (en 1 hora)")), /*#__PURE__*/React.createElement("div", {
     className: "asec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "asect"
@@ -1066,9 +1240,8 @@ function AdminView({
     className: "fg"
   }, /*#__PURE__*/React.createElement("label", {
     className: "lbl"
-  }, "Grupo"), /*#__PURE__*/React.createElement("input", {
+  }, "Fase"), /*#__PURE__*/React.createElement("input", {
     className: "inp",
-    placeholder: "A-L",
     value: nm.group,
     onChange: e => setNm({
       ...nm,
@@ -1084,7 +1257,9 @@ function AdminView({
         done: false,
         live: false,
         gh: null,
-        ga: null
+        ga: null,
+        penales: false,
+        winner: ''
       });
       showToast('Partido agregado ✅');
     }
@@ -1092,15 +1267,24 @@ function AdminView({
     className: "asec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "asect"
-  }, "Resultados (", matches.length, ")"), [...matches].sort((a, b) => new Date(a.date) - new Date(b.date)).map(m => /*#__PURE__*/React.createElement("div", {
+  }, "Resultados (", matches.length, ")"), [...matches].sort((a, b) => colDate(a) - colDate(b)).map(m => /*#__PURE__*/React.createElement("div", {
     key: m.id,
-    className: "arow"
+    style: {
+      borderBottom: '1px solid var(--brd)',
+      padding: '10px 0'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       flex: 1,
-      fontSize: 10
+      fontSize: 11
     }
-  }, FLAGS[m.home] || '🏳️', " ", m.home, " vs ", m.away), m.done ? /*#__PURE__*/React.createElement("div", {
+  }, (FLAGS[m.home] || '🏳️') + ' ' + m.home + ' vs ' + m.away + ' ' + (FLAGS[m.away] || '🏳️')), m.done ? /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -1108,25 +1292,27 @@ function AdminView({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontFamily: "'Bebas Neue',sans-serif",
+      fontFamily: 'Bebas Neue,sans-serif',
       fontSize: 13,
       color: 'var(--grn)'
     }
-  }, "✅ ", m.gh, "–", m.ga), /*#__PURE__*/React.createElement("button", {
+  }, '✅ ' + m.gh + '–' + m.ga), /*#__PURE__*/React.createElement("button", {
     className: "btn bts btsm",
     style: {
       padding: '3px 7px',
       fontSize: 10
     },
-    title: "Deshacer resultado",
+    title: "Deshacer",
     onClick: async () => {
-      if (window.confirm(`¿Deshacer el resultado ${m.gh}–${m.ga} de ${m.home} vs ${m.away}?`)) {
+      if (window.confirm('¿Deshacer el resultado ' + m.gh + '–' + m.ga + '?')) {
         await ops.updateMatch({
           ...m,
           done: false,
           live: false,
           gh: null,
-          ga: null
+          ga: null,
+          penales: false,
+          winner: ''
         });
         showToast('↩️ Resultado deshecho.');
       }
@@ -1138,7 +1324,7 @@ function AdminView({
       gap: 3
     }
   }, /*#__PURE__*/React.createElement("button", {
-    className: `btn btsm ${m.live ? 'btd' : 'bts'}`,
+    className: 'btn btsm ' + (m.live ? 'btd' : 'bts'),
     style: {
       width: 'auto',
       padding: '3px 6px',
@@ -1186,12 +1372,26 @@ function AdminView({
     onClick: async () => {
       const r = res[m.id];
       if (r?.gh === '' || r?.ga === '' || r?.gh == null || r?.ga == null) return;
+      const gh = parseInt(r.gh),
+        ga = parseInt(r.ga);
+      if (gh === ga && m.group === 'R16') {
+        setRes({
+          ...res,
+          [m.id]: {
+            ...r,
+            needWinner: true
+          }
+        });
+        return;
+      }
       await ops.updateMatch({
         ...m,
-        gh: parseInt(r.gh),
-        ga: parseInt(r.ga),
+        gh,
+        ga,
         done: true,
-        live: false
+        live: false,
+        penales: false,
+        winner: ''
       });
       showToast('Resultado guardado ✅');
     }
@@ -1205,7 +1405,48 @@ function AdminView({
       await ops.deleteMatch(m.id);
       showToast('Partido eliminado');
     }
-  }, "✕")))), dups.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "✕")), !m.done && res[m.id]?.needWinner && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      background: 'var(--gdm)',
+      borderRadius: 8,
+      padding: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--gld)',
+      marginBottom: 6,
+      fontWeight: 700
+    }
+  }, "🥅 Empate ", res[m.id].gh, "–", res[m.id].ga, ". ¿Quién pasó por penales?"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6
+    }
+  }, [m.home, m.away].map(t => /*#__PURE__*/React.createElement("button", {
+    key: t,
+    className: "btn bts btsm",
+    style: {
+      flex: 1
+    },
+    onClick: async () => {
+      await ops.updateMatch({
+        ...m,
+        gh: parseInt(res[m.id].gh),
+        ga: parseInt(res[m.id].ga),
+        done: true,
+        live: false,
+        penales: true,
+        winner: t
+      });
+      setRes({
+        ...res,
+        [m.id]: {}
+      });
+      showToast('Resultado + penales guardado ✅');
+    }
+  }, (FLAGS[t] || '🏳️') + ' ' + t))))))), dups.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "asec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "asect"
@@ -1225,7 +1466,7 @@ function AdminView({
       marginBottom: 6,
       fontWeight: 700
     }
-  }, "\"", group[0].name, "\""), group.map(u => /*#__PURE__*/React.createElement("div", {
+  }, '"' + group[0].name + '"'), group.map(u => /*#__PURE__*/React.createElement("div", {
     key: u.id,
     className: "arow"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1242,7 +1483,7 @@ function AdminView({
       fontSize: 11,
       color: 'var(--mut)'
     }
-  }, preds.filter(p => p.uid === u.id).length, " predicciones")), /*#__PURE__*/React.createElement("button", {
+  }, preds.filter(p => p.uid === u.id).length + ' predicciones')), /*#__PURE__*/React.createElement("button", {
     className: "btn btd btsm",
     style: {
       padding: '4px 10px'
@@ -1269,6 +1510,55 @@ function AdminView({
     onClick: () => ops.deleteUser(u.id)
   }, "✕")))));
 }
+function ChampionScreen({
+  users,
+  totals,
+  onClose
+}) {
+  const ranked = [...users].map(u => ({
+    ...u,
+    pts: totals[u.id] || 0
+  })).sort((a, b) => b.pts - a.pts);
+  const champ = ranked[0];
+  if (!champ) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "champ",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement(Confetti, null), /*#__PURE__*/React.createElement("div", {
+    className: "champ-trophy"
+  }, "🏆"), /*#__PURE__*/React.createElement("div", {
+    className: "champ-tit"
+  }, "¡CAMPEÓN DE LA POLLA!"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 40,
+      margin: '6px 0'
+    }
+  }, champ.avatar || '⚽'), /*#__PURE__*/React.createElement("div", {
+    className: "champ-name"
+  }, champ.name), /*#__PURE__*/React.createElement("div", {
+    className: "champ-pts"
+  }, champ.pts + ' puntos'), ranked.length > 1 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      fontSize: 14,
+      color: 'var(--mut)',
+      lineHeight: 2
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "🥈 ", ranked[1].name + ' · ' + ranked[1].pts + ' pts'), ranked[2] && /*#__PURE__*/React.createElement("div", null, "🥉 ", ranked[2].name + ' · ' + ranked[2].pts + ' pts')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 30,
+      fontSize: 12,
+      color: 'var(--mut)'
+    }
+  }, "Familia Toro · Mundial 2026 🇨🇴"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bts",
+    style: {
+      marginTop: 24,
+      maxWidth: 200
+    },
+    onClick: onClose
+  }, "Cerrar"));
+}
 function App() {
   const [view, setView] = useState('login');
   const [user, setUser] = useState(null);
@@ -1279,7 +1569,7 @@ function App() {
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem('pt26theme') || 'dark';
-    } catch {
+    } catch (e) {
       return 'dark';
     }
   });
@@ -1291,21 +1581,24 @@ function App() {
       open: true
     }
   });
-  const [_t, forceTick] = useState(0);
+  const [champOpen, setChampOpen] = useState(false);
+  const [tick, setTick] = useState(0);
   const prevOpen = useRef(null);
+  const prevLeader = useRef(null);
+  const prevRanking = useRef([]);
   const userRef = useRef(null);
-  const showToast = (msg, dur = 3000) => {
+  const showToast = (msg, dur = 3200) => {
     setToast(msg);
     setTimeout(() => setToast(null), dur);
   };
   useEffect(() => {
     try {
       localStorage.setItem('pt26theme', theme);
-    } catch {}
+    } catch (e) {}
     document.body.style.background = theme === 'light' ? '#f0f4f8' : '#060e1c';
   }, [theme]);
   useEffect(() => {
-    const t = setInterval(() => forceTick(x => x + 1), 30000);
+    const t = setInterval(() => setTick(x => x + 1), 30000);
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
@@ -1325,18 +1618,51 @@ function App() {
     r.on('value', handler);
     return () => r.off('value', handler);
   }, []);
+  const {
+    totals,
+    byMatch
+  } = calcScores(data.matches, data.preds);
+
+  // Notificación abrir/cerrar predicciones
   useEffect(() => {
     if (prevOpen.current !== null && prevOpen.current !== data.config.open && userRef.current) {
       showToast(data.config.open ? '✅ ¡Predicciones abiertas!' : '🔒 Predicciones cerradas.', 4000);
     }
     prevOpen.current = data.config.open;
   }, [data.config.open]);
+
+  // Notificación cambio de líder
+  useEffect(() => {
+    const ranked = [...data.users].map(u => ({
+      ...u,
+      pts: totals[u.id] || 0
+    })).sort((a, b) => b.pts - a.pts);
+    const leader = ranked[0];
+    if (leader && leader.pts > 0 && userRef.current) {
+      if (prevLeader.current && prevLeader.current !== leader.id && leader.id !== 'admin') {
+        showToast('👑 ' + leader.name + ' tomó la punta con ' + leader.pts + ' pts!', 4500);
+      }
+    }
+    if (leader && leader.pts > 0) prevLeader.current = leader.id;
+    // Guardar ranking previo para tendencias
+    const order = ranked.map(u => u.id);
+    if (JSON.stringify(order) !== JSON.stringify(prevRanking.current) && prevRanking.current.length) {
+      // se actualiza solo cuando cambia
+    }
+  }, [JSON.stringify(totals)]);
+
+  // Auto-mostrar pantalla campeón cuando admin finaliza
+  useEffect(() => {
+    if (data.config.finished && userRef.current && Object.keys(totals).length > 0) {
+      setChampOpen(true);
+    }
+  }, [data.config.finished]);
   const ops = {
-    addMatch: m => fbSet(`matches/${m.id}`, m),
-    updateMatch: m => fbSet(`matches/${m.id}`, m),
-    deleteMatch: id => fbRemove(`matches/${id}`),
-    addUser: u => fbSet(`users/${u.id}`, u),
-    deleteUser: id => Promise.all([fbRemove(`users/${id}`), db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s => {
+    addMatch: m => fbSet('matches/' + m.id, m),
+    updateMatch: m => fbSet('matches/' + m.id, m),
+    deleteMatch: id => fbRemove('matches/' + id),
+    addUser: u => fbSet('users/' + u.id, u),
+    deleteUser: id => Promise.all([fbRemove('users/' + id), db.ref('pt26v2/preds').orderByChild('uid').equalTo(id).get().then(s => {
       if (!s.val()) return;
       const upd = {};
       Object.keys(s.val()).forEach(k => {
@@ -1344,14 +1670,10 @@ function App() {
       });
       return db.ref('pt26v2/preds').update(upd);
     })]),
-    savePred: p => fbSet(`preds/${p.id}`, p),
+    savePred: p => fbSet('preds/' + p.id, p),
     clearPreds: () => fbRemove('preds'),
     saveConfig: c => fbSet('config', c)
   };
-  const {
-    totals,
-    byMatch
-  } = calcScores(data.matches, data.preds);
   const navs = [{
     id: 'matches',
     ico: '⚽',
@@ -1394,7 +1716,7 @@ function App() {
     }
   }, "⚽"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontFamily: "'Bebas Neue',sans-serif",
+      fontFamily: 'Bebas Neue,sans-serif',
       fontSize: 22,
       color: '#FCD116',
       letterSpacing: 2
@@ -1404,6 +1726,10 @@ function App() {
     dangerouslySetInnerHTML: {
       __html: CSS
     }
+  }), champOpen && /*#__PURE__*/React.createElement(ChampionScreen, {
+    users: data.users,
+    totals: totals,
+    onClose: () => setChampOpen(false)
   }), /*#__PURE__*/React.createElement("div", {
     className: "wrap"
   }, user && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
@@ -1414,7 +1740,11 @@ function App() {
     className: "hdr-s"
   }, "La tradición de la familia Toro")), /*#__PURE__*/React.createElement("div", {
     className: "hdr-r"
-  }, /*#__PURE__*/React.createElement("button", {
+  }, data.config.finished && /*#__PURE__*/React.createElement("button", {
+    className: "thmbtn",
+    onClick: () => setChampOpen(true),
+    title: "Ver campeón"
+  }, "🏆"), /*#__PURE__*/React.createElement("button", {
     className: "thmbtn",
     onClick: () => setTheme(t => t === 'dark' ? 'light' : 'dark')
   }, theme === 'dark' ? '☀️' : '🌙'), /*#__PURE__*/React.createElement("button", {
@@ -1431,7 +1761,7 @@ function App() {
     className: "nav"
   }, navs.map(n => /*#__PURE__*/React.createElement("button", {
     key: n.id,
-    className: `ni ${view === n.id || view === 'predict' && n.id === 'matches' ? 'on' : ''}`,
+    className: 'ni' + (view === n.id || view === 'predict' && n.id === 'matches' ? ' on' : ''),
     onClick: () => goTo(n.id)
   }, /*#__PURE__*/React.createElement("span", {
     className: "nico"
@@ -1486,7 +1816,7 @@ function App() {
     byMatch: byMatch,
     users: data.users,
     config: data.config,
-    onSavePred: async (h, a) => {
+    onSavePred: async (h, a, adv) => {
       const m = data.matches.find(x => x.id === selMatch.id);
       if (m && (hasStarted(m) || m.live || m.done)) {
         showToast('🔒 El partido ya empezó.');
@@ -1500,14 +1830,16 @@ function App() {
         a: ex.a,
         ts: now
       }] : [];
-      await ops.savePred({
+      const pred = {
         id,
         mid: selMatch.id,
         uid: user.id,
         h,
         a,
         history: hist
-      });
+      };
+      if (adv) pred.adv = adv;
+      await ops.savePred(pred);
       showToast('¡Predicción guardada! 🎯');
       setSelMatch(null);
       setView('matches');
@@ -1522,7 +1854,8 @@ function App() {
     byMatch: byMatch,
     user: user,
     matches: data.matches,
-    preds: data.preds
+    preds: data.preds,
+    prevRanking: prevRanking.current
   }), view === 'porpartido' && /*#__PURE__*/React.createElement(PorPartidoView, {
     matches: data.matches,
     preds: data.preds,
@@ -1540,12 +1873,11 @@ function App() {
     className: "toast"
   }, toast)));
 }
-try {
-  ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
-} catch (e) {
-  document.getElementById('root').innerHTML = '<div style="color:#FCD116;font-family:monospace;padding:20px;background:#060e1c;min-height:100vh"><h2>⚠️ Error al iniciar</h2><pre style="margin-top:12px;font-size:12px;color:#ff6b6b;white-space:pre-wrap">' + e.message + '\n\n' + e.stack + '</pre><p style="margin-top:16px;font-size:12px;color:#637489">Comparte este error con Pipe para solucionarlo.</p></div>';
+try{
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
+}catch(e){
+  document.getElementById('root').innerHTML='<div style="color:#FCD116;font-family:monospace;padding:20px"><h3>Error</h3><pre style="color:#ff6b6b;white-space:pre-wrap;font-size:11px">'+e.message+'\n'+e.stack+'</pre></div>';
 }
-
 </script>
 </body>
 </html>
