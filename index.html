@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
-  <title>Polla Familiar 2026 · Familia Toro</title>
+  <title>Polla Familiar de la Alegría 2026 · Familia Toro</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -356,7 +356,7 @@ function LoginView({
     className: "lball"
   }, "⚽"), /*#__PURE__*/React.createElement("div", {
     className: "ltit"
-  }, "POLLA FAMILIAR", /*#__PURE__*/React.createElement("br", null), "2026"), /*#__PURE__*/React.createElement("div", {
+  }, "POLLA FAMILIAR", /*#__PURE__*/React.createElement("br", null), "DE LA ALEGRÍA", /*#__PURE__*/React.createElement("br", null), "2026"), /*#__PURE__*/React.createElement("div", {
     className: "lsub"
   }, "La tradición de la familia Toro", /*#__PURE__*/React.createElement("br", null), "ahora en digital 🇨🇴")), /*#__PURE__*/React.createElement("div", {
     className: "tabs"
@@ -823,7 +823,7 @@ function RankingView({
   const avgPts = myResults.length > 0 ? (myResults.reduce((s, r) => s + r.pts, 0) / myResults.length).toFixed(1) : '—';
   const maxPts = ranked.length > 0 ? Math.max(ranked[0].pts, 1) : 1;
   const shareWA = () => {
-    let txt = '🏆 POLLA FAMILIAR 2026 · Familia Toro\n\n';
+    let txt = '🏆 POLLA FAMILIAR DE LA ALEGRÍA 2026 · Familia Toro\n\n';
     ranked.forEach((u, i) => {
       txt += (i < 3 ? medals[i] : i + 1 + '.') + ' ' + (u.avatar || '⚽') + ' ' + u.name + ': ' + u.pts + ' pts\n';
     });
@@ -1736,7 +1736,7 @@ function App() {
     className: "hdr"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "hdr-t"
-  }, "⚽ Polla Familiar 2026"), /*#__PURE__*/React.createElement("div", {
+  }, "⚽ Polla Familiar de la Alegría 2026"), /*#__PURE__*/React.createElement("div", {
     className: "hdr-s"
   }, "La tradición de la familia Toro")), /*#__PURE__*/React.createElement("div", {
     className: "hdr-r"
@@ -1873,11 +1873,7 @@ function App() {
     className: "toast"
   }, toast)));
 }
-try{
-  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
-}catch(e){
-  document.getElementById('root').innerHTML='<div style="color:#FCD116;font-family:monospace;padding:20px"><h3>Error</h3><pre style="color:#ff6b6b;white-space:pre-wrap;font-size:11px">'+e.message+'\n'+e.stack+'</pre></div>';
-}
+try{ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App,null));}catch(e){document.getElementById('root').innerHTML='<div style="color:#FCD116;font-family:monospace;padding:20px"><h3>Error</h3><pre style="color:#ff6b6b;white-space:pre-wrap;font-size:11px">'+e.message+'\n'+e.stack+'</pre></div>';}
 </script>
 </body>
 </html>
