@@ -21,6 +21,7 @@
   window.Babel = window.Babel || {};
 </script>
 <script>
+
 const {
   useState,
   useEffect,
@@ -95,41 +96,30 @@ const AVATARS = ["⚽", "🦁", "🐯", "🦅", "⚡", "🔥", "🌟", "🏆", "
 // Hora Colombia (UTC-5) sin importar la zona horaria del dispositivo
 const colDate = m => new Date(m.date + 'T' + (m.time || '00:00') + ':00-05:00');
 const hasStarted = m => m.date ? new Date() >= colDate(m) : false;
+function calcPts(h, a, gh, ga) {
+  if (h === gh && a === ga) return {pts: 10, cat: 'exacto'};
+  var pd = h - a, ad = gh - ga;
+  var predDraw = pd === 0, actDraw = ad === 0;
+  var rightWinner = pd > 0 && ad > 0 || pd < 0 && ad < 0;
+  var rightDiff = pd === ad;
+  if (predDraw && actDraw) return {pts: 5, cat: 'empate'};
+  if (rightWinner && rightDiff) return {pts: 5, cat: 'diferencia'};
+  if (rightWinner) return {pts: 3, cat: 'ganador'};
+  return {pts: 1, cat: 'participacion'};
+}
 function calcScores(matches, preds) {
-  const totals = {},
-    byMatch = {};
+  const totals = {}, byMatch = {};
   for (const m of matches) {
     if (!m.done || m.gh == null) continue;
     const mp = preds.filter(p => p.mid === m.id);
-    const ranked = mp.map(p => ({
-      ...p,
-      dist: Math.abs(p.h - m.gh) + Math.abs(p.a - m.ga),
-      exact: p.h === m.gh && p.a === m.ga
-    })).sort((a, b) => a.dist - b.dist);
-    let rank = 0,
-      prev = -1,
-      res = [];
-    for (const p of ranked) {
-      if (p.dist !== prev) {
-        rank++;
-        prev = p.dist;
-      }
-      if (rank > PTS.length) continue;
-      res.push({
-        uid: p.uid,
-        pts: PTS[rank - 1],
-        rank,
-        dist: p.dist,
-        exact: p.exact
-      });
-      totals[p.uid] = (totals[p.uid] || 0) + PTS[rank - 1];
-    }
+    const res = mp.map(p => {
+      const r = calcPts(p.h, p.a, m.gh, m.ga);
+      totals[p.uid] = (totals[p.uid] || 0) + r.pts;
+      return {uid: p.uid, pts: r.pts, cat: r.cat, exact: r.cat === 'exacto'};
+    }).sort((a, b) => b.pts - a.pts);
     byMatch[m.id] = res;
   }
-  return {
-    totals,
-    byMatch
-  };
+  return {totals, byMatch};
 }
 function fmt(ts) {
   return new Date(ts).toLocaleString('es-CO', {
@@ -556,7 +546,7 @@ function PredictView({
         fontSize: 12,
         color: 'var(--grn)'
       }
-    }, mr.exact ? '⭐ ' : '', " Posición #", mr.rank, " · +", mr.pts, " pts", mr.exact ? ' (¡Exacto!)' : '');
+    }, mr.exact ? '⭐ ' : '', " +", mr.pts, " pts", {exacto:" ⭐ ¡Exacto!",empate:" 🤝 Empate",diferencia:" 🎯 Diferencia",ganador:" ✅ Ganador",participacion:" 📋 Participación"}[mr.cat]||"");
     return /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: 6,
@@ -798,7 +788,7 @@ function RankingView({
       color: 'var(--mut)',
       lineHeight: 2.2
     }
-  }, [['🥇 Marcador exacto', '3 pts'], ['🥈 Más cercano', '2 pts'], ['🥉 Segundo más cercano', '1 pt']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
+  }, [['🥇 Marcador exacto', '10 pts'], ['🥈 Empate simple / Ganador+diferencia', '5 pts'], ['🥉 Ganador simple', '3 pts'], ['📋 Participación (predijo)', '1 pt']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
     key: l
   }, l, ": ", /*#__PURE__*/React.createElement("strong", {
     style: {
@@ -1555,6 +1545,7 @@ try {
 } catch (e) {
   document.getElementById('root').innerHTML = '<div style="color:#FCD116;font-family:monospace;padding:20px;background:#060e1c;min-height:100vh"><h2>⚠️ Error al iniciar</h2><pre style="margin-top:12px;font-size:12px;color:#ff6b6b;white-space:pre-wrap">' + e.message + '\n\n' + e.stack + '</pre><p style="margin-top:16px;font-size:12px;color:#637489">Comparte este error con Pipe para solucionarlo.</p></div>';
 }
+
 </script>
 </body>
 </html>
