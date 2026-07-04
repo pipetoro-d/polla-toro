@@ -234,7 +234,7 @@ function Countdown({
   matches
 }) {
   const [cd, setCd] = useState('');
-  const next = [...matches].filter(m => !m.done && !m.live && !hasStarted(m) && isSur(m)).sort((a, b) => colDate(a) - colDate(b))[0];
+  const next = [...matches].filter(m => !m.done && !m.live && !hasStarted(m)).sort((a, b) => colDate(a) - colDate(b))[0];
   useEffect(() => {
     if (!next) {
       setCd('');
@@ -323,7 +323,7 @@ function MatchCard({
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, match.group === 'R16' ? '16avos' : 'Grupo ' + match.group))), /*#__PURE__*/React.createElement("div", {
+  }, match.group === 'R16' ? '16avos' : match.group === '8vos' ? 'Octavos' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group))), /*#__PURE__*/React.createElement("div", {
     className: 'team' + (adv === match.away ? ' team-adv' : '')
   }, adv === match.away && /*#__PURE__*/React.createElement("span", {
     className: "adv-check"
@@ -445,7 +445,7 @@ function MatchesView({
   onSelect
 }) {
   const [filter, setFilter] = useState('todos');
-  const sur = [...matches].filter(isSur).sort((a, b) => colDate(a) - colDate(b));
+  const sur = [...matches].sort((a, b) => colDate(a) - colDate(b));
   const myMids = new Set(preds.filter(p => p.uid === user.id).map(p => p.mid));
   const list = filter === 'mios' ? sur.filter(m => myMids.has(m.id)) : sur;
   const live = list.filter(m => !m.done && (m.live || hasStarted(m)));
@@ -525,7 +525,7 @@ function PredictView({
     }
   }, match.group ? /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, match.group === 'R16' ? '16avos de final' : 'Grupo ' + match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+  }, match.group === 'R16' ? '16avos de final' : match.group === '8vos' ? 'Octavos de final' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
       color: 'var(--mut)'
@@ -613,7 +613,7 @@ function PredictView({
     label: match.away,
     value: away,
     onChange: setAway
-  })), isDraw && match.group === 'R16' && /*#__PURE__*/React.createElement("div", {
+  })), isDraw && (match.group === 'R16' || match.group === '8vos') && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 14
     }
@@ -971,7 +971,7 @@ function PorPartidoView({
   byMatch,
   user
 }) {
-  const done = [...matches].filter(m => m.done && isSur(m)).sort((a, b) => colDate(b) - colDate(a));
+  const done = [...matches].filter(m => m.done).sort((a, b) => colDate(b) - colDate(a));
   const getU = uid => users.find(u => u.id === uid) || {
     name: '?',
     avatar: '⚽'
@@ -1374,7 +1374,7 @@ function AdminView({
       if (r?.gh === '' || r?.ga === '' || r?.gh == null || r?.ga == null) return;
       const gh = parseInt(r.gh),
         ga = parseInt(r.ga);
-      if (gh === ga && m.group === 'R16') {
+      if (gh === ga && (m.group === 'R16' || m.group === '8vos')) {
         setRes({
           ...res,
           [m.id]: {
