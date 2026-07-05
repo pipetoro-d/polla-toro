@@ -229,6 +229,180 @@ const CAT_LABEL = {
   ganador: '✅ Ganador acertado',
   participacion: '📋 Punto participación'
 };
+
+// ─── Previas editoriales por cruce ───
+const PREVIAS = {
+  'Canadá|Marruecos': 'El anfitrión norteamericano quiere seguir haciendo historia en casa ante un Marruecos que ya sabe lo que es llegar lejos: fue semifinalista en Qatar 2022. Duelo de velocidad por las bandas.',
+  'Paraguay|Francia': 'La garra guaraní contra el campeón de 2018. Paraguay vuelve a unos octavos después de años y enfrenta al gran favorito: partido para héroes anónimos.',
+  'Brasil|Noruega': 'La Canarinha ante el vendaval nórdico. Brasil va por su sexta estrella; Noruega es la gran sorpresa del torneo y no tiene nada que perder.',
+  'México|Inglaterra': 'El Tri juega como anfitrión su partido más esperado en décadas. Inglaterra llega con plantel de élite, pero jugar en casa... pesa.',
+  'Portugal|España': 'El clásico ibérico en un Mundial: el toque español contra la eficacia lusa. Se juega mucho más que un cupo a cuartos.',
+  'Estados Unidos|Bélgica': 'El anfitrión ante la generación belga renovada. Revancha del épico octavos de Brasil 2014 que Bélgica ganó en tiempo extra.',
+  'Argentina|Egipto': 'El campeón defensor inicia la defensa seria del título ante el sorprendente Egipto. Los faraones sueñan; la Albiceleste no perdona.',
+  'Suiza|Colombia': 'La precisión relojera suiza contra la alegría cafetera. Colombia llega embalada y con la ilusión de todo un país... y de toda la familia Toro. 🇨🇴'
+};
+
+// ─── Trivia mundialista (una por día) ───
+const QUIZ = [{
+  q: '¿Qué país ganó el primer Mundial en 1930?',
+  o: ['Brasil', 'Uruguay', 'Argentina', 'Italia'],
+  a: 1
+}, {
+  q: '¿Cuántas Copas del Mundo tiene Brasil?',
+  o: ['3', '4', '5', '6'],
+  a: 2
+}, {
+  q: '¿Quién es el máximo goleador histórico de los Mundiales?',
+  o: ['Pelé', 'Ronaldo', 'Messi', 'Miroslav Klose'],
+  a: 3
+}, {
+  q: '¿En qué Mundial debutó Colombia?',
+  o: ['Chile 1962', 'México 1970', 'Italia 1990', 'USA 1994'],
+  a: 0
+}, {
+  q: '¿Qué jugador ha ganado más Mundiales?',
+  o: ['Maradona', 'Pelé', 'Messi', 'Beckenbauer'],
+  a: 1
+}, {
+  q: '¿Dónde se jugó el Mundial 2014?',
+  o: ['Sudáfrica', 'Alemania', 'Brasil', 'Rusia'],
+  a: 2
+}, {
+  q: '¿Quién anotó la famosa "Mano de Dios"?',
+  o: ['Pelé', 'Maradona', 'Batistuta', 'Valderrama'],
+  a: 1
+}, {
+  q: '¿Qué país ganó el Mundial 2010?',
+  o: ['Alemania', 'Países Bajos', 'Italia', 'España'],
+  a: 3
+}, {
+  q: '¿Contra quién anotó James el mejor gol del Mundial 2014?',
+  o: ['Brasil', 'Japón', 'Uruguay', 'Grecia'],
+  a: 2
+}, {
+  q: '¿Qué arquero colombiano hizo el famoso "escorpión"?',
+  o: ['Óscar Córdoba', 'René Higuita', 'Faryd Mondragón', 'David Ospina'],
+  a: 1
+}, {
+  q: '¿Cuál fue el marcador del "Mineirazo" Brasil vs Alemania 2014?',
+  o: ['0-5', '1-7', '2-6', '0-4'],
+  a: 1
+}, {
+  q: '¿Qué país organizó el Mundial de 1986?',
+  o: ['Argentina', 'España', 'México', 'Italia'],
+  a: 2
+}, {
+  q: '¿Quién ganó el Mundial 2022?',
+  o: ['Francia', 'Brasil', 'Argentina', 'Croacia'],
+  a: 2
+}, {
+  q: '¿Cuántas selecciones juegan el Mundial 2026?',
+  o: ['32', '40', '48', '64'],
+  a: 2
+}, {
+  q: '¿Qué países organizan el Mundial 2026?',
+  o: ['USA y Canadá', 'USA, México y Canadá', 'México y USA', 'Solo USA'],
+  a: 1
+}, {
+  q: '¿Quién es el máximo goleador de Colombia en Mundiales?',
+  o: ['Falcao', 'Valderrama', 'James Rodríguez', 'Asprilla'],
+  a: 2
+}, {
+  q: '¿Qué país ha jugado TODOS los Mundiales?',
+  o: ['Alemania', 'Argentina', 'Italia', 'Brasil'],
+  a: 3
+}, {
+  q: '¿En qué año Colombia venció 5-0 a Argentina en Buenos Aires?',
+  o: ['1990', '1993', '1994', '1998'],
+  a: 1
+}, {
+  q: '¿Quién anotó el gol del título de Alemania en 2014?',
+  o: ['Müller', 'Klose', 'Mario Götze', 'Özil'],
+  a: 2
+}, {
+  q: '¿Cuántas finales de Mundial ha perdido Países Bajos?',
+  o: ['1', '2', '3', '4'],
+  a: 2
+}, {
+  q: '¿Qué selección africana llegó primero a unas semifinales?',
+  o: ['Camerún', 'Ghana', 'Senegal', 'Marruecos'],
+  a: 3
+}, {
+  q: '¿Quién ganó el Balón de Oro del Mundial 2014?',
+  o: ['Neymar', 'Messi', 'Robben', 'Müller'],
+  a: 1
+}, {
+  q: '¿A qué selección le dicen "La Naranja Mecánica"?',
+  o: ['Bélgica', 'Países Bajos', 'Suecia', 'Dinamarca'],
+  a: 1
+}, {
+  q: '¿En qué Mundial jugó Colombia antes del 2026?',
+  o: ['Brasil 2014', 'Rusia 2018', 'Qatar 2022', 'Sudáfrica 2010'],
+  a: 1
+}, {
+  q: '¿Quién era el DT de Colombia en Italia 90?',
+  o: ['Pékerman', 'Bolillo Gómez', 'Francisco Maturana', 'Lorenzo'],
+  a: 2
+}, {
+  q: '¿Cuántos Mundiales ha ganado Italia?',
+  o: ['2', '3', '4', '5'],
+  a: 2
+}, {
+  q: '¿Qué país ganó su primer Mundial en 1998?',
+  o: ['Inglaterra', 'Francia', 'España', 'Portugal'],
+  a: 1
+}, {
+  q: '¿Quién ganó el "Milagro de Berna" en 1954?',
+  o: ['Hungría', 'Brasil', 'Alemania', 'Uruguay'],
+  a: 2
+}, {
+  q: '¿Quién anotó el "Gol del Siglo" en 1986?',
+  o: ['Pelé', 'Zico', 'Platini', 'Maradona'],
+  a: 3
+}, {
+  q: '¿Cómo se llamó la mascota del Mundial México 86?',
+  o: ['Naranjito', 'Pique', 'Zakumi', 'Footix'],
+  a: 1
+}];
+const colToday = () => new Date(Date.now() - 5 * 3600000).toISOString().slice(0, 10);
+const quizOfDay = () => {
+  const d0 = new Date('2026-06-11');
+  const d1 = new Date(colToday());
+  const days = Math.max(0, Math.floor((d1 - d0) / 86400000));
+  return {
+    idx: days % QUIZ.length,
+    key: colToday()
+  };
+};
+
+// ─── Canvas helper para tarjetas compartibles ───
+function cardCanvas(h) {
+  const cv = document.createElement('canvas');
+  cv.width = 1000;
+  cv.height = h;
+  const x = cv.getContext('2d');
+  x.fillStyle = '#04091a';
+  x.fillRect(0, 0, 1000, h);
+  const rg = x.createRadialGradient(500, -60, 60, 500, -60, 520);
+  rg.addColorStop(0, 'rgba(255,216,77,.28)');
+  rg.addColorStop(1, 'rgba(255,216,77,0)');
+  x.fillStyle = rg;
+  x.fillRect(0, 0, 1000, 440);
+  const g = x.createLinearGradient(0, 0, 1000, 0);
+  g.addColorStop(0, '#2b6cff');
+  g.addColorStop(.5, '#FFD84D');
+  g.addColorStop(1, '#ff4d5e');
+  x.fillStyle = g;
+  x.fillRect(0, 0, 1000, 12);
+  x.fillRect(0, h - 12, 1000, 12);
+  return [cv, x];
+}
+function dlCanvas(cv, name) {
+  const a = document.createElement('a');
+  a.href = cv.toDataURL('image/png');
+  a.download = name;
+  a.click();
+}
 const DARK_VARS = ':root{--bg:#04091a;--surf:rgba(13,26,52,.72);--card:rgba(16,32,62,.72);--ch:rgba(28,50,92,.8);--brd:rgba(120,160,255,.14);--gld:#FFD84D;--gdm:rgba(255,216,77,.1);--red:#ff4d5e;--grn:#2fd575;--txt:#f2f6ff;--mut:#6f83a8;--nb:rgba(8,17,36,.92);--glow:rgba(255,216,77,.28)}';
 const LIGHT_VARS = ':root{--bg:#eef2f9;--surf:rgba(255,255,255,.85);--card:rgba(255,255,255,.9);--ch:#e3ebf7;--brd:rgba(20,40,90,.12);--gld:#b8860b;--gdm:rgba(184,134,11,.1);--red:#c22333;--grn:#127a43;--txt:#101a30;--mut:#5d6f8e;--nb:rgba(255,255,255,.95);--glow:rgba(184,134,11,.18)}';
 const SHARED = '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{background:var(--bg)}body{background:radial-gradient(1100px 500px at 15% -8%,rgba(43,108,255,.22),transparent 60%),radial-gradient(900px 420px at 92% 2%,rgba(255,216,77,.12),transparent 55%),radial-gradient(700px 500px at 50% 108%,rgba(206,17,38,.1),transparent 60%),var(--bg);color:var(--txt);font-family:Outfit,sans-serif;min-height:100vh;background-attachment:fixed}' + '@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}' + '.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}' + '.hdr{background:linear-gradient(155deg,#001045 0%,#0a2f8f 45%,#04122e 100%);border-bottom:none;padding:16px;display:flex;align-items:center;justify-content:space-between;position:relative;box-shadow:0 8px 32px rgba(0,10,40,.55)}' + '.hdr::after{content:"";position:absolute;inset:0;background:radial-gradient(420px 120px at 50% -40%,rgba(255,216,77,.35),transparent 70%);pointer-events:none}' + '.hdr-t{font-family:"Bebas Neue",sans-serif;font-size:23px;color:var(--gld);letter-spacing:2.5px;line-height:1.05;text-shadow:0 0 24px var(--glow)}' + '.hdr-s{font-size:8px;color:rgba(255,255,255,.45);letter-spacing:2.5px;text-transform:uppercase;margin-top:2px}' + '.hdr-r{display:flex;gap:7px;align-items:center;position:relative;z-index:1}' + '.ubub{background:rgba(255,216,77,.14);border:1px solid rgba(255,216,77,.55);color:var(--gld);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;backdrop-filter:blur(6px)}' + '.thmbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}' + '.hdr-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2b6cff,#FFD84D 45%,#FFD84D 55%,#ff4d5e);background-size:220% 100%;animation:shimmer 6s linear infinite}' + '@keyframes shimmer{0%{background-position:0% 0}100%{background-position:220% 0}}' + '.nav{display:flex;background:var(--nb);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;backdrop-filter:blur(14px);position:sticky;top:0;z-index:50}' + '.nav::-webkit-scrollbar{display:none}' + '.ni{flex:1;min-width:54px;padding:9px 3px 8px;text-align:center;font-size:7.5px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;text-transform:uppercase;letter-spacing:.6px;background:none;border-top:none;border-left:none;border-right:none}' + '.ni.on{color:var(--gld);border-bottom-color:var(--gld);text-shadow:0 0 14px var(--glow)}' + '.nico{font-size:16px;display:block;margin-bottom:2px;transition:transform .2s}' + '.ni.on .nico{transform:translateY(-1px) scale(1.12)}' + '.pg{flex:1;padding:14px 14px 28px}' + '@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}' + '.card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:15px;margin-bottom:11px;backdrop-filter:blur(14px);box-shadow:0 4px 22px rgba(0,5,25,.35),inset 0 1px 0 rgba(255,255,255,.05);animation:rise .35s both}' + '.cclick{cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s}' + '.cclick:hover{border-color:rgba(255,216,77,.5);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,5,25,.5),0 0 0 1px rgba(255,216,77,.25),0 0 24px rgba(255,216,77,.12)}' + '.trow{display:flex;align-items:center;justify-content:space-between;gap:8px}' + '.team{flex:1;text-align:center;position:relative}' + '.tf{font-size:32px;display:block;filter:drop-shadow(0 3px 8px rgba(0,0,0,.45))}' + '.tn{font-size:10px;font-weight:600;color:var(--mut);margin-top:4px;letter-spacing:.3px}' + '.adv-check{position:absolute;top:-5px;right:6px;font-size:14px;filter:drop-shadow(0 0 6px rgba(47,213,117,.7))}' + '.team-adv .tn{color:var(--grn);font-weight:700}' + '.sc{text-align:center;flex-shrink:0;min-width:64px}' + '.scn{font-family:"Bebas Neue",sans-serif;font-size:38px;letter-spacing:4px;line-height:1;background:linear-gradient(180deg,#fff2b8,#FFD84D 55%,#c99b00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px rgba(255,216,77,.35))}' + '.scv{font-family:"Bebas Neue",sans-serif;font-size:14px;color:var(--mut);letter-spacing:3px}' + '.meta{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:11px;border-top:1px solid var(--brd);font-size:11px;color:var(--mut);gap:6px;flex-wrap:wrap}' + '.badge{padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:700;text-transform:uppercase;white-space:nowrap;letter-spacing:.4px}' + '.bp{background:rgba(47,213,117,.13);color:var(--grn);border:1px solid rgba(47,213,117,.35)}' + '.bl{background:rgba(255,77,94,.14);color:var(--red);border:1px solid rgba(255,77,94,.55);animation:pulse 1.4s infinite;box-shadow:0 0 14px rgba(255,77,94,.25)}' + '.bf{background:rgba(111,131,168,.12);color:var(--mut);border:1px solid var(--brd)}' + '.bk{background:var(--gdm);color:var(--gld);border:1px solid rgba(255,216,77,.35)}' + '@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}' + '.ptag{padding:2px 9px;background:var(--gdm);color:var(--gld);border-radius:20px;font-size:10.5px;font-family:"DM Mono",monospace;border:1px solid rgba(255,216,77,.3)}' + '.gbadge{font-size:9.5px;background:rgba(43,108,255,.16);color:#8fb0ff;border:1px solid rgba(143,176,255,.3);border-radius:5px;padding:2px 7px;font-weight:700;letter-spacing:.4px}' + '.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:11px 14px;color:var(--txt);font-family:Outfit,sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}' + '.inp:focus{border-color:var(--gld);box-shadow:0 0 0 3px var(--gdm)}' + '.inp::placeholder{color:var(--mut)}' + '.lbl{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;display:block}' + '.fg{margin-bottom:12px}' + 'select.inp{-webkit-appearance:none;padding-right:32px}' + 'select option{background:#0f1e35;color:#eef2f7}' + '.btn{padding:13px 20px;border-radius:11px;font-family:Outfit,sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:transform .15s,box-shadow .2s,filter .2s;width:100%;letter-spacing:.2px}' + '.btp{background:linear-gradient(180deg,#ffe27a,#FFD84D 50%,#e6b800);color:#231a00;box-shadow:0 4px 18px rgba(255,216,77,.3),inset 0 1px 0 rgba(255,255,255,.5)}' + '.btp:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 8px 26px rgba(255,216,77,.4)}' + '.btp:disabled{background:#3a3000;color:#7a6410;cursor:not-allowed;transform:none;box-shadow:none;filter:none}' + '.bts{background:rgba(255,255,255,.07);color:var(--txt);border:1px solid var(--brd);backdrop-filter:blur(8px)}' + '.bts:hover{background:rgba(255,255,255,.12)}' + '.btd{background:rgba(255,77,94,.12);color:var(--red);border:1px solid rgba(255,77,94,.35)}' + '.btw{background:linear-gradient(180deg,#3ce07c,#25D366 60%,#1cab52);color:#fff;box-shadow:0 4px 16px rgba(37,211,102,.3)}' + '.btw:hover{filter:brightness(1.06)}' + '.btsm{padding:5px 10px;font-size:11px;width:auto;border-radius:7px}' + '.steprow{display:flex;align-items:center;justify-content:center;gap:12px}' + '.stepbtn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--brd);color:var(--txt);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .1s}' + '.stepbtn:hover{background:var(--gdm);border-color:rgba(255,216,77,.4)}' + '.stepbtn:active{transform:scale(.92)}' + '.stepval{width:66px;height:66px;background:linear-gradient(170deg,rgba(255,216,77,.16),rgba(255,216,77,.05));border:2px solid var(--gld);border-radius:15px;font-family:"Bebas Neue",sans-serif;font-size:40px;display:flex;align-items:center;justify-content:center;background-clip:padding-box;color:var(--gld);text-shadow:0 0 16px var(--glow);box-shadow:0 0 22px rgba(255,216,77,.14),inset 0 1px 0 rgba(255,255,255,.12)}' + '.sclab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-bottom:9px}' + '.rkrow{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--brd);border-radius:13px;margin-bottom:8px;transition:transform .18s,border-color .18s;backdrop-filter:blur(10px);animation:rise .35s both}' + '.rkrow:hover{transform:translateX(2px)}' + '.rkrow.me{border-color:rgba(255,216,77,.55);background:linear-gradient(160deg,rgba(255,216,77,.12),var(--card));box-shadow:0 0 20px rgba(255,216,77,.1)}' + '.rkn{font-family:"Bebas Neue",sans-serif;font-size:21px;min-width:26px;text-align:center}' + '.r1{color:#FFD700;text-shadow:0 0 14px rgba(255,215,0,.5)}.r2{color:#C9CFDB}.r3{color:#D8925B}.ro{color:var(--mut)}' + '.rknm{flex:1;font-weight:600;font-size:14px}' + '.rkp{font-family:"Bebas Neue",sans-serif;font-size:25px;background:linear-gradient(180deg,#fff2b8,#FFD84D 55%,#c99b00);-webkit-background-clip:text;background-clip:text;color:transparent}' + '.trend{font-size:11px;margin-left:4px}.tup{color:var(--grn)}.tdn{color:var(--red)}' + '.lhero{text-align:center;padding:30px 0 22px}' + '.lball{font-size:60px;display:block;animation:bounce 2.2s infinite;filter:drop-shadow(0 10px 22px rgba(0,0,0,.5))}' + '@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}' + '.ltit{font-family:"Bebas Neue",sans-serif;font-size:40px;letter-spacing:4px;line-height:1.08;background:linear-gradient(180deg,#fff5c4,#FFD84D 60%,#cfa400);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 20px rgba(255,216,77,.3));margin-top:8px}' + '.lsub{color:var(--mut);font-size:13px;margin-top:10px;line-height:1.8;letter-spacing:.2px}' + '.stit{font-family:"Bebas Neue",sans-serif;font-size:21px;color:var(--gld);letter-spacing:2.5px;margin-bottom:10px;text-shadow:0 0 18px var(--glow)}' + '.ssub{font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.7}' + '.divl{height:1px;background:linear-gradient(90deg,transparent,var(--brd) 20%,var(--brd) 80%,transparent);margin:15px 0}' + '.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:linear-gradient(160deg,rgba(24,42,78,.96),rgba(12,24,48,.98));border:1px solid rgba(255,216,77,.6);color:#f2f6ff;padding:12px 22px;border-radius:12px;font-size:13px;z-index:999;animation:tup2 .3s ease;white-space:nowrap;box-shadow:0 10px 34px rgba(0,0,0,.55),0 0 26px rgba(255,216,77,.14);max-width:92%;text-align:center;backdrop-filter:blur(10px)}' + '@keyframes tup2{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}' + '.empty{text-align:center;padding:42px 16px;color:var(--mut)}' + '.eico{font-size:48px;margin-bottom:14px;filter:grayscale(.3)}' + '.etxt{font-size:13px;line-height:1.8}' + '.tabs{display:flex;gap:7px;margin-bottom:14px}' + '.tab{flex:1;padding:10px;text-align:center;border-radius:10px;font-size:10.5px;font-weight:700;cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.03);color:var(--mut);transition:all .2s;font-family:Outfit,sans-serif;text-transform:uppercase;letter-spacing:.9px}' + '.tab.on{background:var(--gdm);border-color:rgba(255,216,77,.5);color:var(--gld);box-shadow:0 0 16px rgba(255,216,77,.1)}' + '.pres-box{background:linear-gradient(160deg,rgba(255,216,77,.12),rgba(255,216,77,.04));border:1px solid rgba(255,216,77,.3);border-radius:11px;padding:12px 15px;margin-top:10px}' + '.asec{margin-bottom:22px}' + '.asect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--brd)}' + '.arow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--brd);font-size:12px}' + '.arow:last-child{border-bottom:none}' + '.sminp{width:38px;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:6px;padding:6px;color:var(--txt);text-align:center;font-size:13px;-moz-appearance:textfield;outline:none}' + '.sminp::-webkit-inner-spin-button,.sminp::-webkit-outer-spin-button{-webkit-appearance:none}' + '.sminp:focus{border-color:var(--gld)}' + '.ntf-close{background:rgba(255,77,94,.1);border:1px solid rgba(255,77,94,.35);color:var(--red);padding:11px 14px;border-radius:10px;font-size:12px;margin-bottom:12px;font-weight:600}' + '.cd-box{background:linear-gradient(160deg,rgba(255,216,77,.14),rgba(255,216,77,.03));border:1px solid rgba(255,216,77,.3);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 0 26px rgba(255,216,77,.08);backdrop-filter:blur(10px)}' + '.cd-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut)}' + '.cd-val{font-family:"Bebas Neue",sans-serif;font-size:29px;letter-spacing:2px;background:linear-gradient(180deg,#fff2b8,#FFD84D 55%,#c99b00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,216,77,.35))}' + '.frow{display:flex;gap:8px;margin-bottom:12px}' + '.fbtn{flex:1;padding:8px;border-radius:9px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.03);color:var(--mut);transition:all .2s;font-family:Outfit,sans-serif}' + '.fbtn.on{background:var(--gdm);border-color:rgba(255,216,77,.5);color:var(--gld)}' + '.hist-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--brd);font-size:11px;color:var(--mut)}' + '.hist-item:last-child{border-bottom:none}' + '.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-bottom:4px}' + '.avbtn{aspect-ratio:1;font-size:21px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}' + '.avbtn.on{background:var(--gdm);border-color:var(--gld);transform:scale(1.14);box-shadow:0 0 14px rgba(255,216,77,.25)}' + '.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}' + '.statbox{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:13px;text-align:center;backdrop-filter:blur(10px);animation:rise .35s both}' + '.statn{font-family:"Bebas Neue",sans-serif;font-size:30px;line-height:1;background:linear-gradient(180deg,#fff2b8,#FFD84D 55%,#c99b00);-webkit-background-clip:text;background-clip:text;color:transparent}' + '.statl{font-size:8.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px;margin-top:5px;font-weight:700}' + '.secretbox{background:var(--gdm);border:1px dashed rgba(255,216,77,.4);border-radius:10px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12px;color:var(--mut)}' + '.advsel{display:flex;gap:8px;margin-top:10px}' + '.advbtn{flex:1;padding:11px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.03);color:var(--txt);transition:all .2s;font-family:Outfit,sans-serif}' + '.advbtn.on{background:var(--gdm);border-color:var(--gld);color:var(--gld);box-shadow:0 0 14px rgba(255,216,77,.15)}' + '.champ{position:fixed;inset:0;background:radial-gradient(800px 500px at 50% 20%,rgba(255,216,77,.15),transparent 65%),rgba(4,9,26,.97);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;animation:fadein .5s}' + '@keyframes fadein{from{opacity:0}to{opacity:1}}' + '.champ-trophy{font-size:96px;animation:bounce 1.5s infinite;filter:drop-shadow(0 0 40px rgba(255,216,77,.55))}' + '.champ-tit{font-family:"Bebas Neue",sans-serif;font-size:28px;color:var(--mut);letter-spacing:4px;margin-top:12px}' + '.champ-name{font-family:"Bebas Neue",sans-serif;font-size:56px;letter-spacing:2px;line-height:1.1;margin:10px 0;background:linear-gradient(180deg,#fff5c4,#FFD84D 60%,#cfa400);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 26px rgba(255,216,77,.45))}' + '.champ-pts{font-size:17px;color:#fff}' + '.confetti{position:fixed;top:-10px;font-size:20px;animation:fall linear infinite;z-index:1001}' + '@keyframes fall{to{transform:translateY(105vh) rotate(360deg)}}' + '.evobar{display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:12px}' + '.stit{display:flex;align-items:center;gap:10px}' + '.stit::before{content:"";width:6px;height:19px;background:linear-gradient(180deg,#ffe27a,#FFD84D 60%,#c99b00);transform:skewX(-14deg);border-radius:1px;box-shadow:0 0 12px rgba(255,216,77,.35);flex-shrink:0}' + '.stit::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brd),transparent)}' + '.ticker{overflow:hidden;background:linear-gradient(90deg,rgba(8,17,36,.95),rgba(13,26,52,.9));border:1px solid var(--brd);border-left:4px solid var(--gld);border-radius:8px;margin-bottom:13px;display:flex;align-items:center;backdrop-filter:blur(10px)}' + '.ticker-tag{background:linear-gradient(180deg,#ffe27a,#FFD84D 60%,#e6b800);color:#231a00;font-family:"Bebas Neue",sans-serif;font-size:12px;letter-spacing:1.5px;padding:7px 12px 6px;transform:skewX(-10deg);margin:0 8px 0 -4px;flex-shrink:0;border-radius:2px}' + '.ticker-view{overflow:hidden;flex:1}' + '.ticker-inner{display:inline-flex;gap:26px;white-space:nowrap;animation:tickmove 28s linear infinite;padding:8px 0;font-size:12px;font-family:"DM Mono",monospace;color:var(--txt)}' + '.ticker:hover .ticker-inner{animation-play-state:paused}' + '@keyframes tickmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}' + '.hero{position:relative;border-radius:18px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,216,77,.3);background:linear-gradient(115deg,#0a1f52 0%,#0c2a6e 42%,#3d0f1c 100%);box-shadow:0 14px 44px rgba(0,5,25,.6),0 0 0 1px rgba(255,255,255,.04) inset;animation:rise .4s both;cursor:pointer;transition:transform .18s,box-shadow .18s}' + '.hero:hover{transform:translateY(-2px);box-shadow:0 18px 54px rgba(0,5,25,.7),0 0 30px rgba(255,216,77,.15)}' + '.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 200px at 50% -30%,rgba(255,216,77,.22),transparent 65%),repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,255,255,.025) 46px 48px);pointer-events:none}' + '.hero::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:120px;transform:translateX(-50%) skewX(-14deg);background:linear-gradient(90deg,transparent,rgba(255,216,77,.08),transparent);pointer-events:none}' + '.hero-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0;position:relative}' + '.hero-eyebrow{font-family:"Bebas Neue",sans-serif;font-size:12px;letter-spacing:2.5px;color:var(--gld);background:rgba(255,216,77,.12);border:1px solid rgba(255,216,77,.4);padding:3px 11px 2px;transform:skewX(-10deg);border-radius:3px}' + '.hero-date{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:1px;text-transform:uppercase;font-weight:700}' + '.hero-main{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 8px;position:relative}' + '.hero-team{flex:1;text-align:center}' + '.hero-flag{font-size:58px;display:block;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55))}' + '.hero-name{font-family:"Bebas Neue",sans-serif;font-size:17px;letter-spacing:1.5px;color:#fff;margin-top:6px;text-transform:uppercase}' + '.hero-vs{font-family:"Bebas Neue",sans-serif;font-size:34px;letter-spacing:2px;transform:skewX(-12deg);background:linear-gradient(180deg,#fff5c4,#FFD84D 60%,#cfa400);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(255,216,77,.4));padding:0 10px}' + '.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 14px;position:relative}' + '.hero-cd{font-family:"DM Mono",monospace;font-size:13px;color:var(--gld);letter-spacing:1px;background:rgba(0,0,0,.3);border:1px solid rgba(255,216,77,.25);padding:6px 12px;border-radius:8px}' + '.hero-cta{font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:1.8px;background:linear-gradient(180deg,#ffe27a,#FFD84D 60%,#e6b800);color:#231a00;padding:8px 18px 6px;transform:skewX(-10deg);border-radius:3px;box-shadow:0 4px 16px rgba(255,216,77,.35)}' + '.hero-pred{font-family:"DM Mono",monospace;font-size:12px;color:#9fe8bb;background:rgba(47,213,117,.12);border:1px solid rgba(47,213,117,.35);padding:7px 13px;border-radius:8px}' + '.lg-panel{position:relative;border-radius:22px;overflow:hidden;background:linear-gradient(125deg,#071740 0%,#0c2a6e 45%,#421022 100%);border:1px solid rgba(255,216,77,.32);padding:34px 18px 26px;margin:16px 0 20px;text-align:center;box-shadow:0 18px 50px rgba(0,5,25,.65),inset 0 1px 0 rgba(255,255,255,.06);animation:rise .45s both}' + '.lg-panel::before{content:"";position:absolute;inset:0;background:radial-gradient(560px 240px at 50% -30%,rgba(255,216,77,.26),transparent 62%),repeating-linear-gradient(115deg,transparent 0 52px,rgba(255,255,255,.02) 52px 54px);pointer-events:none}' + '.lg-panel::after{content:"";position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2b6cff,#FFD84D 45%,#FFD84D 55%,#ff4d5e);background-size:220% 100%;animation:shimmer 6s linear infinite}' + '.lg-eyebrow{display:inline-block;font-family:"Bebas Neue",sans-serif;font-size:11.5px;letter-spacing:2.6px;color:var(--gld);background:rgba(255,216,77,.12);border:1px solid rgba(255,216,77,.42);padding:4px 14px 3px;transform:skewX(-10deg);border-radius:3px;position:relative;margin-bottom:16px}' + '.lg-t1{font-family:"Bebas Neue",sans-serif;font-size:31px;letter-spacing:5px;color:#fff;line-height:1;position:relative;text-shadow:0 2px 14px rgba(0,0,0,.4)}' + '.lg-t2{font-family:"Bebas Neue",sans-serif;font-size:52px;letter-spacing:2.5px;line-height:1;transform:skewX(-8deg);background:linear-gradient(180deg,#fff5c4,#FFD84D 58%,#cfa400);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 24px rgba(255,216,77,.4));position:relative;margin:5px 0 4px}' + '.lg-year{display:flex;align-items:center;justify-content:center;gap:13px;position:relative;margin-top:3px}' + '.lg-bar{height:3px;width:44px;border-radius:2px}' + '.lg-bar.b1{background:linear-gradient(90deg,transparent,#2b6cff)}' + '.lg-bar.b2{background:linear-gradient(90deg,#ff4d5e,transparent)}' + '.lg-t3{font-family:"Bebas Neue",sans-serif;font-size:36px;letter-spacing:8px;color:transparent;-webkit-text-stroke:1.5px rgba(255,216,77,.9);line-height:1;padding-left:8px}' + '.lg-sub{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:2.4px;text-transform:uppercase;font-weight:700;margin-top:16px;position:relative}' + '.lg-stats{display:flex;justify-content:center;gap:8px;margin-top:14px;position:relative;flex-wrap:wrap}' + '.lg-chip{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:1px;color:var(--gld);background:rgba(0,0,0,.32);border:1px solid rgba(255,216,77,.28);padding:5px 11px;border-radius:20px}' + '.evoname{min-width:84px;font-weight:600}' + '.evotrack{flex:1;height:9px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden}' + '.evofill{height:100%;background:linear-gradient(90deg,#2b6cff,#FFD84D);border-radius:5px;transition:width .7s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px rgba(255,216,77,.35)}';
@@ -404,11 +578,55 @@ function HeroNext({
     className: "hero-foot"
   }, /*#__PURE__*/React.createElement("span", {
     className: "hero-cd"
-  }, "⏱ ", cd), myPred ? /*#__PURE__*/React.createElement("span", {
+  }, "⏱ ", cd), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, myPred ? /*#__PURE__*/React.createElement("span", {
     className: "hero-pred"
   }, 'Tu pred: ' + myPred.h + '–' + myPred.a + ' ✓') : /*#__PURE__*/React.createElement("span", {
     className: "hero-cta"
-  }, "PREDECIR AHORA →")));
+  }, "PREDECIR AHORA →"), /*#__PURE__*/React.createElement("button", {
+    className: "thmbtn",
+    title: "Compartir imagen del partido",
+    style: {
+      fontSize: 15,
+      padding: '6px 10px'
+    },
+    onClick: e => {
+      e.stopPropagation();
+      const [cv, x] = cardCanvas(720);
+      x.textAlign = 'center';
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 34px Georgia,serif';
+      x.fillText('⚡ PRÓXIMO PARTIDO' + (fase ? ' · ' + fase : ''), 500, 95);
+      x.font = '130px Georgia,serif';
+      x.fillText(f(next.home), 270, 300);
+      x.fillText(f(next.away), 730, 300);
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 74px Georgia,serif';
+      x.fillText('VS', 500, 285);
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 38px Georgia,serif';
+      x.fillText(next.home.toUpperCase(), 270, 380);
+      x.fillText(next.away.toUpperCase(), 730, 380);
+      x.fillStyle = '#8fa3c8';
+      x.font = '30px Georgia,serif';
+      x.fillText(next.date + ' · ' + next.time + ' HORA COLOMBIA', 500, 460);
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 38px Georgia,serif';
+      x.fillText('⏱ FALTAN ' + cd, 500, 530);
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 36px Georgia,serif';
+      x.fillText('¡HAGAN SUS PREDICCIONES! 🎯', 500, 610);
+      x.fillStyle = '#637489';
+      x.font = '23px Georgia,serif';
+      x.fillText('Polla Familiar de la Alegría 2026 · Familia Toro 🇨🇴', 500, 668);
+      dlCanvas(cv, 'proximo-partido.png');
+    }
+  }, "📤"))));
 }
 function MatchCard({
   match,
@@ -584,6 +802,91 @@ function LoginView({
     onClick: () => onAdminLogin(pass)
   }, "Entrar como Albeiro 👑")));
 }
+function QuizCard({
+  user,
+  quiz,
+  onAnswer
+}) {
+  const {
+    idx,
+    key
+  } = quizOfDay();
+  const q = QUIZ[idx];
+  const myAnswers = quiz && quiz[user.id] || {};
+  const today = myAnswers[key];
+  const [picked, setPicked] = useState(null);
+  if (today !== undefined && today !== null) {
+    const wasCorrect = today.correct;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "card",
+      style: {
+        borderLeft: '4px solid ' + (wasCorrect ? 'var(--grn)' : 'var(--red)')
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        color: 'var(--gld)',
+        letterSpacing: '1.5px',
+        marginBottom: 6
+      }
+    }, "🧠 TRIVIA DEL DÍA"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        marginBottom: 6
+      }
+    }, q.q), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: wasCorrect ? 'var(--grn)' : 'var(--red)',
+        fontWeight: 700
+      }
+    }, wasCorrect ? '✅ ¡Correcto! +1 pt' : '❌ Era: ' + q.o[q.a]), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: 'var(--mut)',
+        marginTop: 4
+      }
+    }, "Mañana hay nueva pregunta 🔄"));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      borderLeft: '4px solid var(--gld)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: 'var(--gld)',
+      letterSpacing: '1.5px',
+      marginBottom: 6
+    }
+  }, '🧠 TRIVIA DEL DÍA (+1 pt)'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      marginBottom: 10,
+      fontWeight: 600
+    }
+  }, q.q), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 7
+    }
+  }, q.o.map((opt, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    className: 'advbtn' + (picked === i ? ' on' : ''),
+    style: {
+      fontSize: 11,
+      padding: '9px 6px'
+    },
+    onClick: () => {
+      setPicked(i);
+      onAnswer(key, i === q.a, i);
+    }
+  }, opt))));
+}
 function MatchesView({
   matches,
   preds,
@@ -591,7 +894,9 @@ function MatchesView({
   users,
   config,
   onSelect,
-  onSetChamp
+  onSetChamp,
+  quiz,
+  onQuiz
 }) {
   const [filter, setFilter] = useState('todos');
   const sur = [...matches].sort((a, b) => colDate(a) - colDate(b));
@@ -634,6 +939,10 @@ function MatchesView({
     preds: preds,
     user: user,
     onSelect: onSelect
+  }), user.id !== 'admin' && /*#__PURE__*/React.createElement(QuizCard, {
+    user: user,
+    quiz: quiz,
+    onAnswer: onQuiz
   }), user.id !== 'admin' && (() => {
     const me = users.find(u => u.id === user.id) || user;
     const f = t => FLAGS[t] || '🏳️';
@@ -897,7 +1206,43 @@ function PredictView({
         color: 'var(--mut)'
       }
     }, "Sin puntos en este partido.");
-  })(), ex.history && ex.history.length > 0 && /*#__PURE__*/React.createElement("div", {
+  })(), /*#__PURE__*/React.createElement("button", {
+    className: "btn bts btsm",
+    style: {
+      marginTop: 10,
+      width: '100%'
+    },
+    onClick: () => {
+      const [cv, x] = cardCanvas(660);
+      x.textAlign = 'center';
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 36px Georgia,serif';
+      x.fillText('🔮 MI PREDICCIÓN', 500, 95);
+      x.font = '110px Georgia,serif';
+      x.fillText(f(match.home), 250, 280);
+      x.fillText(f(match.away), 750, 280);
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 100px Georgia,serif';
+      x.fillText(ex.h + ' – ' + ex.a, 500, 300);
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 32px Georgia,serif';
+      x.fillText(match.home.toUpperCase(), 250, 355);
+      x.fillText(match.away.toUpperCase(), 750, 355);
+      {
+        ex.adv && (x.fillStyle = '#9fe8bb', x.font = '26px Georgia,serif', x.fillText('🥅 Por penales pasa: ' + ex.adv, 500, 420));
+      }
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 34px Georgia,serif';
+      x.fillText((user.avatar || '⚽') + ' ' + user.name, 500, ex.adv ? 490 : 460);
+      x.fillStyle = '#8fa3c8';
+      x.font = '26px Georgia,serif';
+      x.fillText(match.date + ' · ' + match.time + ' COL', 500, ex.adv ? 545 : 520);
+      x.fillStyle = '#637489';
+      x.font = '22px Georgia,serif';
+      x.fillText('Polla Familiar de la Alegría 2026 · Familia Toro 🇨🇴', 500, 610);
+      dlCanvas(cv, 'mi-prediccion.png');
+    }
+  }, "🖼️ Compartir mi predicción"), ex.history && ex.history.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10
     }
@@ -915,9 +1260,84 @@ function PredictView({
     style: {
       fontFamily: '"DM Mono",monospace'
     }
-  }, h.h + ' – ' + h.a), /*#__PURE__*/React.createElement("span", null, fmt(h.ts)))))), !revealed && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "secretbox"
-  }, "🤫 ", matchPreds.length + ' predicci' + (matchPreds.length === 1 ? 'ón' : 'ones') + ' en secreto.', /*#__PURE__*/React.createElement("br", null), "Se revelan cuando arranque el partido.")), revealed && !match.done && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, h.h + ' – ' + h.a), /*#__PURE__*/React.createElement("span", null, fmt(h.ts)))))), !revealed && matchPreds.length > 0 && (() => {
+    if (matchPreds.length >= 3) {
+      const hw = matchPreds.filter(p => p.h > p.a).length,
+        dr = matchPreds.filter(p => p.h === p.a).length,
+        aw = matchPreds.filter(p => p.h < p.a).length;
+      const tot = matchPreds.length;
+      const pct = v => Math.round(v / tot * 100);
+      const freq = {};
+      matchPreds.forEach(p => {
+        const k = p.h + '–' + p.a;
+        freq[k] = (freq[k] || 0) + 1;
+      });
+      const modeEntry = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+      return /*#__PURE__*/React.createElement("div", {
+        className: "secretbox",
+        style: {
+          textAlign: 'left'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          textAlign: 'center',
+          marginBottom: 8
+        }
+      }, "🤫 ", /*#__PURE__*/React.createElement("strong", {
+        style: {
+          color: 'var(--gld)'
+        }
+      }, tot), " predicciones en secreto · se revelan al arrancar"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          lineHeight: 2
+        }
+      }, /*#__PURE__*/React.createElement("div", null, "📊 La familia dice: ", /*#__PURE__*/React.createElement("strong", {
+        style: {
+          color: 'var(--txt)'
+        }
+      }, pct(hw) + '% ' + match.home), " · ", /*#__PURE__*/React.createElement("strong", {
+        style: {
+          color: 'var(--txt)'
+        }
+      }, pct(dr) + '% empate'), " · ", /*#__PURE__*/React.createElement("strong", {
+        style: {
+          color: 'var(--txt)'
+        }
+      }, pct(aw) + '% ' + match.away)), modeEntry && modeEntry[1] > 1 && /*#__PURE__*/React.createElement("div", null, "🎯 Marcador más elegido: ", /*#__PURE__*/React.createElement("strong", {
+        style: {
+          color: 'var(--gld)'
+        }
+      }, modeEntry[0]), " (", modeEntry[1], " personas)")));
+    }
+    return /*#__PURE__*/React.createElement("div", {
+      className: "secretbox"
+    }, "🤫 ", matchPreds.length + ' predicci' + (matchPreds.length === 1 ? 'ón' : 'ones') + ' en secreto.', /*#__PURE__*/React.createElement("br", null), "Se revelan cuando arranque el partido.");
+  })()), (() => {
+    const prev = PREVIAS[match.home + '|' + match.away] || PREVIAS[match.away + '|' + match.home];
+    if (!prev || match.done) return null;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "card",
+      style: {
+        borderLeft: '4px solid var(--gld)'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        color: 'var(--gld)',
+        letterSpacing: '1.5px',
+        marginBottom: 6
+      }
+    }, "📋 LA PREVIA"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--txt)',
+        lineHeight: 1.8,
+        fontStyle: 'italic'
+      }
+    }, prev));
+  })(), revealed && !match.done && matchPreds.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 4
     }
@@ -1016,6 +1436,155 @@ function PredictView({
         color: 'var(--mut)'
       }
     }, "0 pts"));
+  })));
+}
+function SimuladorBox({
+  matches,
+  inPlay,
+  users,
+  totals,
+  byMatch,
+  preds,
+  user
+}) {
+  const [simId, setSimId] = useState(inPlay[0].id);
+  const [sh, setSh] = useState(0);
+  const [sa, setSa] = useState(0);
+  const m = matches.find(x => x.id === simId) || inPlay[0];
+  const f = t => FLAGS[t] || '🏳️';
+  const simMatch = {
+    ...m,
+    gh: sh,
+    ga: sa,
+    done: true,
+    penales: false,
+    winner: ''
+  };
+  const mp = preds.filter(p => p.mid === m.id);
+  const totals2 = {
+    ...totals
+  };
+  const res2 = mp.map(p => {
+    const r = calcPts(p, simMatch);
+    totals2[p.uid] = (totals2[p.uid] || 0) + r.pts;
+    return {
+      uid: p.uid,
+      pts: r.pts,
+      cat: r.cat,
+      exact: r.cat === 'exacto'
+    };
+  });
+  const byMatch2 = {
+    ...byMatch,
+    ['sim_' + m.id]: res2
+  };
+  const curRanked = buildRanked(users, totals, byMatch);
+  const simRanked = buildRanked(users, totals2, byMatch2);
+  const curPos = {};
+  curRanked.forEach(u => {
+    curPos[u.id] = u.pos;
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stit"
+  }, "SIMULADOR 🧮"), /*#__PURE__*/React.createElement("div", {
+    className: "ssub"
+  }, "¿Cómo quedaría la tabla si el partido en juego termina así?"), /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, inPlay.length > 1 && /*#__PURE__*/React.createElement("select", {
+    className: "inp",
+    style: {
+      marginBottom: 10
+    },
+    value: simId,
+    onChange: e => setSimId(e.target.value)
+  }, inPlay.map(x => /*#__PURE__*/React.createElement("option", {
+    key: x.id,
+    value: x.id
+  }, x.home + ' vs ' + x.away))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 26
+    }
+  }, f(m.home)), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 0,
+    max: 20,
+    className: "sminp",
+    style: {
+      width: 46,
+      fontSize: 16
+    },
+    value: sh,
+    onChange: e => setSh(Math.max(0, parseInt(e.target.value) || 0))
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: '"Bebas Neue",sans-serif',
+      fontSize: 20,
+      color: 'var(--mut)'
+    }
+  }, "–"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 0,
+    max: 20,
+    className: "sminp",
+    style: {
+      width: 46,
+      fontSize: 16
+    },
+    value: sa,
+    onChange: e => setSa(Math.max(0, parseInt(e.target.value) || 0))
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 26
+    }
+  }, f(m.away))), simRanked.slice(0, 8).map(u => {
+    const delta = (curPos[u.id] || u.pos) - u.pos;
+    return /*#__PURE__*/React.createElement("div", {
+      key: u.id,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '5px 0',
+        borderBottom: '1px solid var(--brd)',
+        fontSize: 12,
+        fontWeight: u.id === user.id ? 700 : 400
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        minWidth: 22,
+        fontFamily: '"Bebas Neue",sans-serif',
+        fontSize: 15,
+        color: 'var(--gld)'
+      }
+    }, u.pos), /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }, (u.avatar || '⚽') + ' ' + u.name + (u.id === user.id ? ' ← tú' : '')), delta > 0 && /*#__PURE__*/React.createElement("span", {
+      className: "trend tup"
+    }, '▲' + delta), delta < 0 && /*#__PURE__*/React.createElement("span", {
+      className: "trend tdn"
+    }, '▼' + -delta), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: '"Bebas Neue",sans-serif',
+        fontSize: 16,
+        color: 'var(--gld)',
+        minWidth: 34,
+        textAlign: 'right'
+      }
+    }, u.pts));
   })));
 }
 function RankingView({
@@ -1147,7 +1716,30 @@ function RankingView({
     className: "statn"
   }, avgPts), /*#__PURE__*/React.createElement("div", {
     className: "statl"
-  }, "Pts promedio")))), (() => {
+  }, "Pts promedio"))), (() => {
+    const doneChrono = [...matches].filter(m => m.done).sort((a, b) => colDate(b) - colDate(a));
+    let streak = 0;
+    for (const m of doneChrono) {
+      const r = (byMatch[m.id] || []).find(x => x.uid === user.id);
+      if (!r) continue;
+      if (r.pts >= 3) streak++;else break;
+    }
+    if (streak >= 2) return /*#__PURE__*/React.createElement("div", {
+      className: "card",
+      style: {
+        borderColor: 'rgba(255,140,50,.45)',
+        background: 'linear-gradient(160deg,rgba(255,140,50,.1),var(--card))',
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: '#ffb066'
+      }
+    }, '🔥 ¡Racha activa! ' + streak + ' partidos seguidos sumando 3+ pts'));
+    return null;
+  })()), (() => {
     if (user.id === 'admin' || ranked.length < 2) return null;
     const leader = ranked[0];
     if (leader.id === user.id) return /*#__PURE__*/React.createElement("div", {
@@ -1387,7 +1979,19 @@ function RankingView({
       fontSize: 16,
       color: 'var(--gld)'
     }
-  }, u.pts))))), /*#__PURE__*/React.createElement("div", {
+  }, u.pts))))), (() => {
+    const inPlay = matches.filter(m => !m.done && (m.live || hasStarted(m)));
+    if (inPlay.length === 0 || user.id === 'admin') return null;
+    return /*#__PURE__*/React.createElement(SimuladorBox, {
+      matches: matches,
+      inPlay: inPlay,
+      users: users,
+      totals: totals,
+      byMatch: byMatch,
+      preds: preds,
+      user: user
+    });
+  })(), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 18
     }
@@ -1400,7 +2004,7 @@ function RankingView({
       color: 'var(--mut)',
       lineHeight: 2.2
     }
-  }, [['⭐ Marcador exacto', '10 pts'], ['🤝 Empate simple', '5 pts'], ['🎯 Ganador + diferencia', '5 pts'], ['✅ Ganador simple', '3 pts'], ['📋 Participación', '1 pt'], ['🥅 Bono clasificado (penales)', '+2 pts'], ['⚖️ Desempate', 'más ⭐, luego 🎯, luego ✅']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
+  }, [['⭐ Marcador exacto', '10 pts'], ['🤝 Empate simple', '5 pts'], ['🎯 Ganador + diferencia', '5 pts'], ['✅ Ganador simple', '3 pts'], ['📋 Participación', '1 pt'], ['🥅 Bono clasificado (penales)', '+2 pts'], ['🧠 Trivia diaria', '1 pt'], ['⚖️ Desempate', 'más ⭐, luego 🎯, luego ✅']].map(([l, p]) => /*#__PURE__*/React.createElement("div", {
     key: l
   }, l + ': ', /*#__PURE__*/React.createElement("strong", {
     style: {
@@ -1589,7 +2193,49 @@ function HistoriaView({
   });
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "stit"
-  }, "RÉCORDS DEL TORNEO 🏅"), /*#__PURE__*/React.createElement("div", {
+  }, "RÉCORDS DEL TORNEO 🏅"), /*#__PURE__*/React.createElement("button", {
+    className: "btn bts btsm",
+    style: {
+      marginBottom: 12,
+      width: '100%'
+    },
+    onClick: () => {
+      const [cv, x] = cardCanvas(640);
+      x.textAlign = 'center';
+      x.fillStyle = '#FFD84D';
+      x.font = 'bold 38px Georgia,serif';
+      x.fillText('🏅 RÉCORDS DEL TORNEO', 500, 95);
+      x.fillStyle = '#8fa3c8';
+      x.font = '24px Georgia,serif';
+      x.fillText(done.length + ' partidos jugados', 500, 140);
+      x.textAlign = 'left';
+      x.font = '30px Georgia,serif';
+      let y = 220;
+      if (topExact) {
+        x.fillStyle = '#ffffff';
+        x.fillText('⭐ Más exactos: ' + getU(topExact[0]).name + ' (' + exactCount[topExact[0]] + ')', 90, y);
+        y += 64;
+      }
+      if (bestSingle.uid) {
+        x.fillStyle = '#ffffff';
+        x.fillText('💥 Mejor jugada: ' + getU(bestSingle.uid).name + ' (+' + bestSingle.pts + ' pts)', 90, y);
+        y += 64;
+      }
+      x.fillStyle = '#ffffff';
+      x.fillText('👑 Cambios de líder: ' + leaderChanges, 90, y);
+      y += 64;
+      if (bestMatch) {
+        x.fillStyle = '#FFD84D';
+        x.font = '26px Georgia,serif';
+        x.fillText('En ' + bestMatch.home + ' ' + bestMatch.gh + '–' + bestMatch.ga + ' ' + bestMatch.away, 90, y);
+      }
+      x.textAlign = 'center';
+      x.fillStyle = '#637489';
+      x.font = '22px Georgia,serif';
+      x.fillText('Polla Familiar de la Alegría 2026 · Familia Toro 🇨🇴', 500, 590);
+      dlCanvas(cv, 'records-polla.png');
+    }
+  }, "🖼️ Compartir récords del torneo"), /*#__PURE__*/React.createElement("div", {
     className: "statgrid"
   }, /*#__PURE__*/React.createElement("div", {
     className: "statbox"
@@ -2262,7 +2908,8 @@ function App() {
     preds: [],
     config: {
       open: true
-    }
+    },
+    quiz: {}
   });
   const [champOpen, setChampOpen] = useState(false);
   const [tick, setTick] = useState(0);
@@ -2294,7 +2941,8 @@ function App() {
         users: v.users ? Object.values(v.users) : [],
         config: v.config || {
           open: true
-        }
+        },
+        quiz: v.quiz || {}
       });
       setLoading(false);
     };
@@ -2315,6 +2963,10 @@ function App() {
       }
     });
   }
+  Object.entries(data.quiz || {}).forEach(([uid, days]) => {
+    const qp = Object.values(days || {}).filter(d => d && d.correct).length;
+    if (qp > 0) totals[uid] = (totals[uid] || 0) + qp;
+  });
 
   // Notificación abrir/cerrar predicciones
   useEffect(() => {
@@ -2363,7 +3015,11 @@ function App() {
     savePred: p => fbSet('preds/' + p.id, p),
     clearPreds: () => fbRemove('preds'),
     saveConfig: c => fbSet('config', c),
-    setChamp: (uid, team) => fbSet('users/' + uid + '/champ', team)
+    setChamp: (uid, team) => fbSet('users/' + uid + '/champ', team),
+    saveQuiz: (uid, key, correct, pick) => fbSet('quiz/' + uid + '/' + key, {
+      correct: !!correct,
+      pick: pick
+    })
   };
   const navs = [{
     id: 'matches',
@@ -2503,6 +3159,11 @@ function App() {
     user: user,
     users: data.users,
     config: data.config,
+    quiz: data.quiz,
+    onQuiz: async (key, correct, pick) => {
+      await ops.saveQuiz(user.id, key, correct, pick);
+      showToast(correct ? '✅ ¡Correcto! +1 pt 🧠' : '❌ Casi... mañana hay otra');
+    },
     onSelect: m => {
       setSelMatch(m);
       setView('predict');
