@@ -17,6 +17,7 @@
 <body>
 <div id="root"></div>
 <script>
+
 const {
   useState,
   useEffect,
@@ -245,7 +246,9 @@ const PREVIAS = {
   'Noruega|Inglaterra': 'Haaland eliminó a Brasil y quiere más. Enfrente, los Tres Leones de Bellingham y Kane. El gigante nórdico contra la realeza inglesa.',
   'Argentina|Suiza': 'El campeón defensor va por las semis ante la Suiza que dejó a Colombia en el camino por penales. Messi busca cerrar su historia mundialista a lo grande.',
   'Francia|España': 'La gran semifinal europea. Los Bleus de Mbappé y Dembélé contra la Furia Roja del toque infinito. Reedición de la Nations League 2021. Fútbol de otro planeta.',
-  'Inglaterra|Argentina': 'El clásico con historia y cicatrices. Bellingham y Kane contra Messi y la Albiceleste campeona. Malvinas, la Mano de Dios, el 98... capítulo nuevo de una rivalidad eterna.'
+  'Inglaterra|Argentina': 'El clásico con historia y cicatrices. Bellingham y Kane contra Messi y la Albiceleste campeona. Malvinas, la Mano de Dios, el 98... capítulo nuevo de una rivalidad eterna.',
+  'España|Argentina': '🏆 LA GRAN FINAL. El toque español contra la garra argentina. La Furia Roja busca su segunda estrella; Argentina, el bicampeonato consecutivo con Messi despidiéndose por todo lo alto. Un país entero conteniendo el aliento. Que gane el mejor... ¡y que la familia Toro lo disfrute! 🇨🇴',
+  'Francia|Inglaterra': 'Duelo de gigantes caídos por el bronce. Francia (que perdió con España) contra Inglaterra (que cayó ante Argentina). Orgullo europeo en juego: nadie quiere irse con las manos vacías.'
 };
 
 // ─── Trivia mundialista (una por día) ───
@@ -631,7 +634,7 @@ function HeroNext({
   if (!next) return null;
   const f = t => FLAGS[t] || '🏳️';
   const myPred = preds.find(p => p.mid === next.id && p.uid === user.id);
-  const fase = next.group === 'R16' ? '16AVOS' : next.group === '8vos' ? 'OCTAVOS' : next.group === '4tos' ? 'CUARTOS' : next.group === 'semi' ? 'SEMIFINAL' : next.group === 'final' ? 'GRAN FINAL' : next.group && next.group.length <= 2 ? 'GRUPO ' + next.group : (next.group || '').toUpperCase();
+  const fase = next.group === 'R16' ? '16AVOS' : next.group === '8vos' ? 'OCTAVOS' : next.group === '4tos' ? 'CUARTOS' : next.group === 'semi' ? 'SEMIFINAL' : next.group === '3er' ? '3ER PUESTO' : next.group === 'final' ? 'GRAN FINAL' : next.group && next.group.length <= 2 ? 'GRUPO ' + next.group : (next.group || '').toUpperCase();
   return /*#__PURE__*/React.createElement("div", {
     className: "hero",
     onClick: () => onSelect(next)
@@ -752,7 +755,7 @@ function MatchCard({
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, match.group === 'R16' ? '16avos' : match.group === '8vos' ? 'Octavos' : match.group === '4tos' ? 'Cuartos' : match.group === 'semi' ? 'Semifinal' : match.group === 'final' ? 'FINAL' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group))), /*#__PURE__*/React.createElement("div", {
+  }, match.group === 'R16' ? '16avos' : match.group === '8vos' ? 'Octavos' : match.group === '4tos' ? 'Cuartos' : match.group === 'semi' ? 'Semifinal' : match.group === '3er' ? '3er puesto' : match.group === 'final' ? 'FINAL' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group))), /*#__PURE__*/React.createElement("div", {
     className: 'team' + (adv === match.away ? ' team-adv' : '')
   }, adv === match.away && /*#__PURE__*/React.createElement("span", {
     className: "adv-check"
@@ -1134,7 +1137,7 @@ function PredictView({
     }
   }, match.group ? /*#__PURE__*/React.createElement("span", {
     className: "gbadge"
-  }, match.group === 'R16' ? '16avos de final' : match.group === '8vos' ? 'Octavos de final' : match.group === '4tos' ? 'Cuartos de final' : match.group === 'semi' ? 'Semifinal' : match.group === 'final' ? 'GRAN FINAL' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+  }, match.group === 'R16' ? '16avos de final' : match.group === '8vos' ? 'Octavos de final' : match.group === '4tos' ? 'Cuartos de final' : match.group === 'semi' ? 'Semifinal' : match.group === '3er' ? 'Partido por el 3er puesto' : match.group === 'final' ? 'GRAN FINAL' : match.group.length <= 2 ? 'Grupo ' + match.group : match.group) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
       color: 'var(--mut)'
@@ -1222,7 +1225,7 @@ function PredictView({
     label: match.away,
     value: away,
     onChange: setAway
-  })), isDraw && (match.group === 'R16' || match.group === '8vos' || match.group === '4tos' || match.group === 'semi' || match.group === 'final') && /*#__PURE__*/React.createElement("div", {
+  })), isDraw && (match.group === 'R16' || match.group === '8vos' || match.group === '4tos' || match.group === 'semi' || match.group === '3er' || match.group === 'final') && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 14
     }
@@ -2278,7 +2281,7 @@ function BracketView({
   matches
 }) {
   const f = t => FLAGS[t] || '🏳️';
-  const phases = [['8vos', 'OCTAVOS DE FINAL'], ['4tos', 'CUARTOS DE FINAL'], ['semi', 'SEMIFINALES'], ['final', 'GRAN FINAL']];
+  const phases = [['8vos', 'OCTAVOS DE FINAL'], ['4tos', 'CUARTOS DE FINAL'], ['semi', 'SEMIFINALES'], ['3er', 'TERCER PUESTO'], ['final', 'GRAN FINAL']];
   const has = phases.some(([g]) => matches.some(m => m.group === g));
   if (!has) return /*#__PURE__*/React.createElement("div", {
     className: "empty"
@@ -2933,7 +2936,7 @@ function AdminView({
       if (r?.gh === '' || r?.ga === '' || r?.gh == null || r?.ga == null) return;
       const gh = parseInt(r.gh),
         ga = parseInt(r.ga);
-      if (gh === ga && (m.group === 'R16' || m.group === '8vos' || m.group === '4tos' || m.group === 'semi' || m.group === 'final')) {
+      if (gh === ga && (m.group === 'R16' || m.group === '8vos' || m.group === '4tos' || m.group === 'semi' || m.group === '3er' || m.group === 'final')) {
         setRes({
           ...res,
           [m.id]: {
@@ -3591,6 +3594,7 @@ function App() {
   }, toast)));
 }
 try{ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App,null));}catch(e){document.getElementById('root').innerHTML='<div style="color:#FFD84D;font-family:monospace;padding:20px"><h3>Error</h3><pre style="color:#ff6b6b;white-space:pre-wrap;font-size:11px">'+e.message+'\n'+e.stack+'</pre></div>';}
+
 </script>
 </body>
 </html>
